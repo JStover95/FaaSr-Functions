@@ -68,8 +68,6 @@ def create_job_script(faasr, actionname, environment_vars):
     if actionname in action_containers and action_containers[actionname]:
         container_image = action_containers[actionname]
 
-    entry_command = "python3 /action/faasr_start_invoke_github_actions.py"
-
     env_exports = ""
     docker_env_flags = ""
 
@@ -99,24 +97,13 @@ def create_job_script(faasr, actionname, environment_vars):
         'echo "Environment variables set:"',
         'echo "PAYLOAD_URL: $PAYLOAD_URL"',
         'echo "OVERWRITTEN length: ${#OVERWRITTEN}"',
-        "echo \"SECRET_PAYLOAD present: $([ -n \\\"$SECRET_PAYLOAD\\\" ] && echo 'yes' || echo 'no')\"",  # noqa: E501
+        "echo \"SECRET_PAYLOAD present: $([ -n \\\"$SECRET_PAYLOAD\\\" ] && echo 'yes' || echo 'no')\"",
         "",
-        "if command -v docker &> /dev/null; then",
-        '    CONTAINER_CMD="docker"',
-        "elif command -v podman &> /dev/null; then",
-        '    CONTAINER_CMD="podman"',
-        "else",
-        '    echo "Error: No container runtime found"',
-        "    exit 1",
-        "fi",
+        'echo "Using container runtime: docker"',
         "",
-        'echo "Using container runtime: $CONTAINER_CMD"',
-        "",
-        "$CONTAINER_CMD run --rm --network=host \\",
-        docker_env_flags.rstrip(" \\\n")
-        + " \\",  # Remove trailing backslash and newline
-        f"  {container_image} \\",
-        f"  /bin/bash -c 'cd /action && {entry_command}'",
+        "docker run --rm --network=host \\",
+        docker_env_flags.rstrip(" \\\n"),
+        f"  {container_image}",
         "",
         f'echo "FaaSr job completed: {actionname}"',
         'echo "End time: $(date)"',
