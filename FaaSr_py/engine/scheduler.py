@@ -25,7 +25,7 @@ class Scheduler:
             sys.exit(1)
         self.faasr = faasr
 
-    def trigger_all(self, return_val=None):
+    def trigger_all(self, workflow_name="", return_val=None):
         """
         Batch trigger for all the next actions in the DAG
 
@@ -56,14 +56,14 @@ class Scheduler:
             if isinstance(next_trigger, dict):
                 conditional_invoke_next = next_trigger.get(str(return_val))
                 if isinstance(conditional_invoke_next, str):
-                    self.trigger_func(conditional_invoke_next)
+                    self.trigger_func(workflow_name, conditional_invoke_next)
                 else:
                     for func in conditional_invoke_next:
-                        self.trigger_func(func)
+                        self.trigger_func(workflow_name, func)
             else:
-                self.trigger_func(next_trigger)
+                self.trigger_func(workflow_name, next_trigger)
 
-    def trigger_func(self, function):
+    def trigger_func(self, workflow_name, function):
         """
         Handles a single trigger
 
@@ -102,15 +102,23 @@ class Scheduler:
             if not global_config.SKIP_REAL_TRIGGERS:
                 match (next_server_type):
                     case "OpenWhisk":
-                        self.invoke_ow(next_compute_server, function)
+                        self.invoke_ow(next_compute_server, function, workflow_name)
                     case "Lambda":
-                        self.invoke_lambda(next_compute_server, function)
+                        self.invoke_lambda(
+                            next_compute_server, function, workflow_name
+                        )
                     case "GitHubActions":
-                        self.invoke_gh(next_compute_server, function)
+                        self.invoke_gh(
+                            next_compute_server, function, workflow_name
+                        )  # to-do add workflowname
                     case "SLURM":
-                        self.invoke_slurm(next_compute_server, function)
+                        self.invoke_slurm(
+                            next_compute_server, function, workflow_name
+                        )
                     case "GoogleCloud":
-                        self.invoke_googlecloud(next_compute_server, function)
+                        self.invoke_googlecloud(
+                            next_compute_server, function, workflow_name
+                        )
 
             else:
                 msg = f"SIMULATED TRIGGER: {function}"
@@ -118,7 +126,7 @@ class Scheduler:
                     msg += f".{rank}"
                 logger.info(msg)
 
-    def invoke_gh(self, next_compute_server, function):
+    def invoke_gh(self, next_compute_server, function, workflow_name=None):
         """
         Trigger GH function
 
@@ -126,6 +134,10 @@ class Scheduler:
             next_compute_server: dict -- next compute server configuration
             function: str -- name of the function to invoke
         """
+        if workflow_name:
+            function = f"{workflow_name}-{function}"
+            logger.debug(f"Prepending workflow name. Full function: {function}")
+
         # Get env values for GH actions
         pat = next_compute_server["Token"]
         username = next_compute_server["UserName"]
@@ -223,8 +235,7 @@ class Scheduler:
                 logger.error(err_msg)
                 sys.exit(1)
 
-    # to-do
-    def invoke_lambda(self, next_compute_server, function):
+    def invoke_lambda(self, next_compute_server, function, workflow_name=None):
         """
         Trigger AWS Lambda function
 
@@ -232,6 +243,10 @@ class Scheduler:
             next_compute_server: dict -- next compute server configuration
             function: str -- name of the function to invoke
         """
+        if workflow_name:
+            function = f"{workflow_name}-{function}"
+            logger.debug(f"Prepending workflow name. Full function: {function}")
+
         # Create client for invoking lambda function
         lambda_client = boto3.client(
             "lambda",
@@ -284,8 +299,7 @@ class Scheduler:
                 logger.exception(err_msg, stack_info=True)
             sys.exit(1)
 
-    # to-do
-    def invoke_ow(self, next_compute_server, function):
+    def invoke_ow(self, next_compute_server, function, workflow_name=None):
         """
         Trigger OpenWhisk function
 
@@ -293,19 +307,23 @@ class Scheduler:
             next_compute_server: dict -- next compute server configuration
             function: str -- name of the function to invoke
         """
+        if workflow_name:
+            function = f"{workflow_name}-{function}"
+            logger.debug(f"Prepending workflow name. Full function: {function}")
+
         # Get ow credentials
         endpoint = next_compute_server["Endpoint"]
         api_key = next_compute_server["API.key"]
         api_key = api_key.split(":")
 
         # Check if we should use ssl
-        if "SSL" not in next_compute_server or not next_compute_server["SSL"]:
+        if "AllowSelfSignedCertificate" not in next_compute_server:
             ssl = True
         else:
-            if next_compute_server["SSL"].lower() != "false":
-                ssl = True
-            else:
+            if next_compute_server["AllowSelfSignedCertificate"]:
                 ssl = False
+            else:
+                ssl = True
 
         # Get the namespace of the OW server
         namespace = next_compute_server["Namespace"]
@@ -366,7 +384,7 @@ class Scheduler:
             logger.error(err_msg)
             sys.exit(1)
 
-    def invoke_slurm(self, next_compute_server, function):
+    def invoke_slurm(self, next_compute_server, function, workflow_name=None):
         """
         Trigger SLURM job for next function
         Follows the same pattern as GitHub Actions with URL + overwritten fields + secrets
@@ -380,6 +398,10 @@ class Scheduler:
                                                    get_resource_requirements,
                                                    make_slurm_request,
                                                    validate_jwt_token)
+
+        if workflow_name:
+            function = f"{workflow_name}-{function}"
+            logger.debug(f"Prepending workflow name. Full function: {function}")
 
         # Get server configuration
         server_info = next_compute_server
@@ -546,12 +568,16 @@ class Scheduler:
             logger.exception(f"SLURM request failed: {e}")
             sys.exit(1)
 
-    def invoke_googlecloud(self, next_compute_server, function):
+    def invoke_googlecloud(self, next_compute_server, function, workflow_name=None):
         """
         Trigger Google Cloud Run job using GitHub Actions style with environment variables
         """
 
         from FaaSr_py.helpers.gcp_auth import refresh_gcp_access_token
+
+        if workflow_name:
+            function = f"{workflow_name}-{function}"
+            logger.debug(f"Prepending workflow name. Full function: {function}")
 
         # Get server configuration
         endpoint = next_compute_server.get(

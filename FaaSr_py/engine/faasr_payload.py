@@ -251,7 +251,10 @@ class FaaSrPayload:
         self._generate_invocation_timestamp()
 
         # Create invocation ID if one is not already present
-        if not self["InvocationID"] or self["InvocationID"].strip() == "":
+        if (
+            "InvocationID" not in self.base_workflow
+            and "InvocationID" not in self.overwritten
+        ) or ("InvocationID" not in self or not self["InvocationID"]):
             # ID = uuid.uuid4()
             # self["InvocationID"] = str(ID)
             self._generate_invocation_id()
@@ -290,8 +293,6 @@ class FaaSrPayload:
                 err_msg = f"InvocationID already exists: {self["InvocationID"]}"
                 logger.error(err_msg)
                 sys.exit(1)
-            else:
-                s3_client.put_object(Bucket=s3_log_info["Bucket"], Key=str(log_folder))
 
     def abort_on_multiple_invocations(self, pre: dict):
         """
