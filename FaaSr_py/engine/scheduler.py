@@ -470,26 +470,6 @@ class Scheduler:
         # Get resource requirements for the function
         resource_config = get_resource_requirements(self.faasr, function, server_info)
 
-        # Add secrets only if UseSecretStore is False for current server
-        current_func = self.faasr["FunctionInvoke"]
-        current_server = self.faasr["ActionList"][current_func]["FaaSServer"]
-        current_compute_server = self.faasr["ComputeServers"][current_server]
-
-        if not current_compute_server.get("UseSecretStore"):
-            # Include secrets for the next action (it doesn't have access to secret store)
-            secrets_payload = {
-                "ComputeServers": self.faasr["ComputeServers"],
-                "DataStores": self.faasr["DataStores"],
-            }
-            environment_vars["SECRET_PAYLOAD"] = json.dumps(
-                secrets_payload, separators=(",", ":")
-            )
-
-        else:
-            logger.info(
-                "Current server uses secret store - secrets will be fetched by SLURM job"
-            )
-
         # Prepare job payload with resource requirements
         job_payload = {
             "job": {
@@ -594,45 +574,25 @@ class Scheduler:
         job_url = f"{endpoint}{namespace}/locations/{region}/jobs/{function}:run"
 
         # Build overwritten fields - matching GitHub Actions pattern
-        overwritten = {}
+        overwritten = self.faasr.overwritten.copy()
         overwritten["FunctionInvoke"] = function
 
-        # Add InvocationID if present
-        if self.faasr.get("InvocationID"):
-            overwritten["InvocationID"] = self.faasr["InvocationID"]
-
-        # Add InvocationTimestamp if present
-        if self.faasr.get("InvocationTimestamp"):
-            overwritten["InvocationTimestamp"] = self.faasr["InvocationTimestamp"]
-
-        # Add FunctionResult if present
-        if self.faasr.get("FunctionResult"):
-            overwritten["FunctionResult"] = self.faasr["FunctionResult"]
-
-        # Handle FunctionRank if it exists (for ranked invocations)
-        if self.faasr.get("FunctionRank"):
-            overwritten["FunctionRank"] = self.faasr["FunctionRank"]
-
-        # Handle UseSecretStore=False case
-        use_secret_store = next_compute_server.get("UseSecretStore", True)
-        if not use_secret_store:
-            # Include credentials in overwritten
-            if "ComputeServers" not in overwritten:
-                overwritten["ComputeServers"] = {}
-
-            # Get the server name by finding which server matches this config
-            server_name = None
-            for name, config in self.faasr["ComputeServers"].items():
-                if config == next_compute_server:
-                    server_name = name
-                    break
-
-            if server_name:
-                overwritten["ComputeServers"][server_name] = {
-                    "ClientEmail": next_compute_server.get("ClientEmail"),
-                    "SecretKey": next_compute_server.get("SecretKey"),
-                    "TokenUri": next_compute_server.get("TokenUri"),
-                }
+        if next_compute_server.get("UseSecretStore"):
+            # Remove secrets from overwritten fields
+            if "ComputeServers" in overwritten:
+                del overwritten["ComputeServers"]
+            if "DataStores" in overwritten:
+                del overwritten["DataStores"]
+            logger.info(
+                "Next GCP action will use secret store. Secrets not included in payload"
+            )
+        else:
+            # Include all compute servers and datastores
+            overwritten["ComputeServers"] = self.faasr["ComputeServers"]
+            overwritten["DataStores"] = self.faasr["DataStores"]
+            logger.info(
+                "Next GCP action expects secrets in payload - including credentials"
+            )
 
         # Refresh access token
         try:
@@ -666,13 +626,8 @@ class Scheduler:
             env_vars.append({"name": "TOKEN", "value": os.environ["TOKEN"]})
 
         # Add secrets if available
-        if use_secret_store:
+        if next_compute_server.get("UseSecretStore"):
             env_vars.append({"name": "GCP_SECRET_NAME", "value": "faasr-secrets"})
-
-            if "SECRET_PAYLOAD" in os.environ:
-                env_vars.append(
-                    {"name": "SECRET_PAYLOAD", "value": os.environ["SECRET_PAYLOAD"]}
-                )
 
         # Build request body for Cloud Run
         body = {"overrides": {"containerOverrides": [{"env": env_vars}]}}
