@@ -328,8 +328,6 @@ class FaaSrPayload:
                 err_msg = f"InvocationID already exists: {self["InvocationID"]}"
                 logger.error(err_msg)
                 sys.exit(1)
-            else:
-                s3_client.put_object(Bucket=s3_log_info["Bucket"], Key=str(log_folder))
 
     def abort_on_multiple_invocations(self, pre: dict):
         """
