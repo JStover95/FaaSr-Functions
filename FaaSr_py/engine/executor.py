@@ -74,12 +74,9 @@ class Executor:
                     client_dir / "r_client_stubs.R",
                 ]
 
-                # Ensure /tmp exists
-                os.makedirs("/tmp", exist_ok=True)
-
-                # Copy each file
+                # Copy each file into the current working directory
                 for src in r_files:
-                    dst = Path("/tmp") / src.name
+                    dst = Path(src.name)
                     shutil.copy(src, dst)
 
                 logger.info(f"Starting function: {func_name} (R)")
@@ -89,12 +86,11 @@ class Executor:
                     r_func = subprocess.run(
                         [
                             "Rscript",
-                            "/tmp/r_user_func_entry.R",
+                            "r_user_func_entry.R",
                             func_name,
                             json.dumps(user_args),
                             self.faasr["InvocationID"],
-                        ],
-                        cwd="/tmp",
+                        ]
                     )
                 except Exception as e:
                     logger.error(f"Error running R function: {e}")

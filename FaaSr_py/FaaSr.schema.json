@@ -342,7 +342,6 @@
               "then": {
                 "required": [
                   "Namespace",
-                  "SecretKey",
                   "ClientEmail",
                   "TokenUri",
                   "Region"
@@ -381,9 +380,7 @@
               },
               "then": {
                 "required": [
-                  "Region",
-                  "AccessKey",
-                  "SecretKey"
+                  "Region"
                 ]
               }
             },
@@ -401,8 +398,7 @@
               "then": {
                 "required": [
                   "UserName",
-                  "ActionRepoName",
-                  "Token"
+                  "ActionRepoName"
                 ]
               }
             },
@@ -420,7 +416,6 @@
               "then": {
                 "required": [
                   "Endpoint",
-                  "Token",
                   "UserName",
                   "APIVersion",
                   "Partition"
@@ -470,8 +465,6 @@
             }
           },
           "required": [
-            "AccessKey",
-            "SecretKey",
             "Bucket"
           ],
           "additionalProperties": false

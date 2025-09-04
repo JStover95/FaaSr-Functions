@@ -104,7 +104,7 @@ def register_request_handler(faasr_payload):
                     error = True
                     sys.exit(1)
         except Exception as e:
-            err_msg = f"ERROR -- failed to invoke {request.ProcedureID} -- {e}"
+            err_msg = f"ERROR - failed to invoke {request.ProcedureID} - {e}"
             logger.error(err_msg)
             error = True
             sys.exit(1)
