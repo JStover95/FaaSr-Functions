@@ -13,9 +13,11 @@ from FaaSr_py.config.debug_config import global_config
 from FaaSr_py.helpers.faasr_lock import faasr_acquire, faasr_release
 from FaaSr_py.helpers.faasr_start_invoke_helper import faasr_get_github_raw
 from FaaSr_py.helpers.graph_functions import check_dag, validate_json
-from FaaSr_py.helpers.s3_helper_functions import (get_default_log_boto3_client,
-                                                  get_invocation_folder,
-                                                  get_logging_server)
+from FaaSr_py.helpers.s3_helper_functions import (
+    get_default_log_boto3_client,
+    get_invocation_folder,
+    get_logging_server,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -91,12 +93,6 @@ class FaaSrPayload:
     def __it__(self):
         return iter(self.get_complete_workflow().items())
 
-    def remove(self, key):
-        if key in self._base_workflow:
-            del self._base_workflow[key]
-        if key in self._overwritten:
-            del self._overwritten[key]
-
     def get(self, key, default=None):
         if key in self._overwritten:
             return self._overwritten[key]
@@ -118,37 +114,74 @@ class FaaSrPayload:
             temp_dict[key] = val
         return temp_dict
 
-    def faasr_replace_values(self, secrets):
+    def replace_secrets(self, secrets):
         """
-        Replaces filler secrets in a payload with real credentials
-        (writes result to overwritten data)
+        Fills credentials using secrets dict. Key names are derived from computeserver/datastore
+        names
 
-        Arguments:
-            secrets: dict -- dictionary of secrets to replace in the payload
+        Example keys:
+        OW
+            OW_API.key
+        AWS
+            AWS_AccessKey
+            AWS_SecretKey
+        GCP
+            GCP_SecretKey
+        SLURM
+            SLURM_Token
+        GH
+            GH_PAT
+        Minio
+            Minio_AccessKey
+            Minio_SecretKey
         """
 
-        def recursive_replace(payload):
-            for name in payload:
-                if name not in ignore_keys:
-                    # If the value is a list or dict, recurse
-                    if isinstance(payload[name], list) or isinstance(
-                        payload[name], dict
-                    ):
-                        recursive_replace(payload[name])
-                    # Replace value in overwritten
-                    elif payload[name] in secrets:
-                        payload[name] = secrets[payload[name]]
+        def _get(key: str):
+            val = secrets.get(key)
+            if val is None:
+                logger.warning(f"{key} is missing from provided secrets")
+            return val
 
-        ignore_keys = [
-            "FunctionGitRepo",
-            "ActionList",
-            "FunctionCRANPackage",
-            "FunctionGitHubPackage",
-            "PyPIPackageDownloads",
-            "PackageImports",
-        ]
+        for name, fields in self["ComputeServers"].items():
+            faas_type = fields["FaaSType"]
 
-        recursive_replace(self._base_workflow)
+            match faas_type:
+                case "GitHubActions":
+                    pat = _get(f"{name}_PAT")
+                    self._base_workflow["ComputeServers"][name]["Token"] = pat
+
+                case "Lambda":
+                    access_key = _get(f"{name}_AccessKey")
+                    secret_key = _get(f"{name}_SecretKey")
+                    self._base_workflow["ComputeServers"][name][
+                        "AccessKey"
+                    ] = access_key
+                    self._base_workflow["ComputeServers"][name][
+                        "SecretKey"
+                    ] = secret_key
+
+                case "GCP":
+                    secret_key = _get(f"{name}_SecretKey")
+                    self._base_workflow["ComputeServers"][name][
+                        "SecretKey"
+                    ] = secret_key
+
+                case "SLURM":
+                    token = _get(f"{name}_Token")
+                    self._base_workflow["ComputeServers"][name]["Token"] = token
+
+                case "OpenWhisk":
+                    api_key = _get(f"{name}_API.key")
+                    self._base_workflow["ComputeServers"][name]["API.key"] = api_key
+
+                case _:
+                    logger.warning(f"Unknown FaaSType for {name}: {faas_type}")
+
+        for name, fields in self["DataStores"].items():
+            access_key = _get(f"{name}_AccessKey")
+            secret_key = _get(f"{name}_SecretKey")
+            self._base_workflow["DataStores"][name]["AccessKey"] = access_key
+            self._base_workflow["DataStores"][name]["SecretKey"] = secret_key
 
     def s3_check(self):
         """
@@ -168,6 +201,10 @@ class FaaSrPayload:
             # If the region is empty, then use defualt 'us-east-1'
             if not server_region:
                 self["DataStores"][server]["Region"] = "us-east-1"
+
+            if self["DataStores"][server].get("Anonymous", False):
+                # Handle anonymous access (not yet implemented)
+                print("anonymous param not implemented")
 
             if server_endpoint:
                 s3_client = boto3.client(
@@ -251,10 +288,8 @@ class FaaSrPayload:
         self._generate_invocation_timestamp()
 
         # Create invocation ID if one is not already present
-        if (
-            "InvocationID" not in self.base_workflow
-            and "InvocationID" not in self.overwritten
-        ) or ("InvocationID" not in self or not self["InvocationID"]):
+        if not self["InvocationID"] or self["InvocationID"].strip() == "":
+            print("reached here")
             # ID = uuid.uuid4()
             # self["InvocationID"] = str(ID)
             self._generate_invocation_id()
@@ -293,6 +328,8 @@ class FaaSrPayload:
                 err_msg = f"InvocationID already exists: {self["InvocationID"]}"
                 logger.error(err_msg)
                 sys.exit(1)
+            else:
+                s3_client.put_object(Bucket=s3_log_info["Bucket"], Key=str(log_folder))
 
     def abort_on_multiple_invocations(self, pre: dict):
         """
@@ -305,7 +342,7 @@ class FaaSrPayload:
         if global_config.USE_LOCAL_FILE_SYSTEM:
             log_folder = Path(global_config.LOCAL_FILE_SYSTEM_DIR) / id_folder
             for func in pre:
-                done_file = log_folder / f"function_completions/{func}.done"
+                done_file = log_folder / f"{func}.done"
                 if not done_file.exists():
                     logger.error(
                         f"Missing .done file for predecessor: {func} — aborting."
@@ -337,14 +374,14 @@ class FaaSrPayload:
 
             for func in pre:
                 # check if all of the predecessor func.done objects exist
-                done_file = f"{id_folder}/function_completions/{func}.done"
+                done_file = f"{id_folder}/{func}.done"
 
                 # if .done does not exist for a function,
                 # then the current function is still waiting for
                 # a predecessor and must abort
                 if done_file not in s3_object_keys:
                     logger.error(
-                        f"Missing .done file for predecessor: {func} — aborting"
+                        f"Missing .done file for predecessor: {func} — aborting."
                     )
                     sys.exit(0)
 
@@ -369,7 +406,7 @@ class FaaSrPayload:
         faasr_acquire(self)
 
         random_number = random.randint(1, 2**31 - 1)
-        candidate_filename = f"function_completions/{self['FunctionInvoke']}.candidate"
+        candidate_filename = f"{self['FunctionInvoke']}.candidate"
         candidate_path = Path(id_folder) / candidate_filename
 
         if global_config.USE_LOCAL_FILE_SYSTEM:
