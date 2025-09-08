@@ -13,11 +13,9 @@ from FaaSr_py.config.debug_config import global_config
 from FaaSr_py.helpers.faasr_lock import faasr_acquire, faasr_release
 from FaaSr_py.helpers.faasr_start_invoke_helper import faasr_get_github_raw
 from FaaSr_py.helpers.graph_functions import check_dag, validate_json
-from FaaSr_py.helpers.s3_helper_functions import (
-    get_default_log_boto3_client,
-    get_invocation_folder,
-    get_logging_server,
-)
+from FaaSr_py.helpers.s3_helper_functions import (get_default_log_boto3_client,
+                                                  get_invocation_folder,
+                                                  get_logging_server)
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +23,11 @@ logger = logging.getLogger(__name__)
 class FaaSrPayload:
     """
     - Workflow is union of base workflow (from github) and overwritten fields
+
     - The URL points to a GitHub file containing the workflow JSON.
+
     - Methods to validate the workflow, replace secrets, check S3 data stores,
-    - init log, and self-abort if predecessors not done.
+    - init log, and self-abort.
 
     Top level changes (e.g. faasr_obj["FunctionInvoke"] = some_func)
     are tracked in self.overwritten and the scheduler will
@@ -329,7 +329,7 @@ class FaaSrPayload:
                 logger.error(err_msg)
                 sys.exit(1)
 
-    def abort_on_multiple_invocations(self, pre: dict):
+    def abort_on_multiple_invocations(self, pre):
         """
         Invoked when the current function has multiple predecessors
         and aborts if they have not finished or the current function instance was not
@@ -340,7 +340,7 @@ class FaaSrPayload:
         if global_config.USE_LOCAL_FILE_SYSTEM:
             log_folder = Path(global_config.LOCAL_FILE_SYSTEM_DIR) / id_folder
             for func in pre:
-                done_file = log_folder / f"{func}.done"
+                done_file = log_folder / f"function_completions/{func}.done"
                 if not done_file.exists():
                     logger.error(
                         f"Missing .done file for predecessor: {func} — aborting."
@@ -372,7 +372,7 @@ class FaaSrPayload:
 
             for func in pre:
                 # check if all of the predecessor func.done objects exist
-                done_file = f"{id_folder}/{func}.done"
+                done_file = f"{id_folder}/function_completions/{func}.done"
 
                 # if .done does not exist for a function,
                 # then the current function is still waiting for
