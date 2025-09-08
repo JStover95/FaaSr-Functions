@@ -123,7 +123,7 @@ class Executor:
 
         if "FunctionRank" in self.faasr:
             file_name = (
-                f"function_completions/{action_name}.{self.faasr["FunctionRank"]}.done"
+                f"function_completions/{action_name}.{self.faasr['FunctionRank']}.done"
             )
         else:
             file_name = f"function_completions/{action_name}.done"
@@ -230,7 +230,7 @@ class Executor:
 
         if return_val.get("Error"):
             if return_val.get("Message"):
-                err_msg = f"{return_val["Message"]}"
+                err_msg = f"{return_val['Message']}"
             else:
                 err_msg = "Unkown error while getting user function return"
             logger.error(err_msg, stack_info=True)
