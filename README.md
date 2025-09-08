@@ -39,14 +39,35 @@ Note: if you do not specify server_name, then your default data store will be us
 The GUI for creating a workflow can be found here: [FaaSr-JSON-Builder](https://owicky.github.io/faasr-workflow-builder/)
 
 # Basic structure of an action in the workflow:
-1. Workflow JSON is validated
-2. InvocationID is assigned and the log folder is created (if they aren't already)
+1. Workflow is validated
+2. InvocationID is assigned if one is not present
 3. User function is executed
 4. Subsequent actions are invoked
 
-# Useful containers
-For running functions on GitHub Action, you can use the following container: 
+# Prebuilt containers
+### GitHub Actions
 ```
-ghcr.io/nolcut/ga-rpc-python:dev (Python functions)
-ghcr.io/nolcut/ga-rpc-R:dev (R functions)
+ghcr.io/faasr/github-actions-python:dev (Python)
+ghcr.io/nolcut/github-actions-r:dev (R)
 ```
+### OpenWhisk
+```
+faasr/openwhisk-python:dev (Python)
+faasr/openwhisk-r:dev (R)
+```
+### Google Cloud
+```
+faasr/gcp-python:dev (Python)
+faasr/gcp-r:dev (R)
+```
+### Slurm
+```
+faasr/slurm-python:dev (Python)
+faasr/slurm-r:dev (R)
+```
+### AWS Lambda
+```
+Email cutlern [at] oregonstate.edu or build your own
+```
+
+See [FaaSr-Docker](https://github.com/FaaSr/FaaSr-Docker) for building your own containers
