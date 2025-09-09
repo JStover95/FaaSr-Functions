@@ -48,7 +48,7 @@ The GUI for creating a workflow can be found here: [FaaSr-JSON-Builder](https://
 ### GitHub Actions
 ```
 ghcr.io/faasr/github-actions-python:dev (Python)
-ghcr.io/nolcut/github-actions-r:dev (R)
+ghcr.io/faasr/github-actions-r:dev (R)
 ```
 ### OpenWhisk
 ```
