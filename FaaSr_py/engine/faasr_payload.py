@@ -289,7 +289,6 @@ class FaaSrPayload:
 
         # Create invocation ID if one is not already present
         if not self["InvocationID"] or self["InvocationID"].strip() == "":
-            print("reached here")
             # ID = uuid.uuid4()
             # self["InvocationID"] = str(ID)
             self._generate_invocation_id()
