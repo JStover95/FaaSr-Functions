@@ -78,5 +78,3 @@ def faasr_get_file(
             else:
                 logger.error(f"Error downloading file from S3: {e}")
             sys.exit(1)
-
-        logger.debug(f"File successfully downloaded to {get_file_local}")

@@ -7,8 +7,10 @@ from .config.s3_log_sender import S3LogSender
 from .engine.executor import Executor
 from .engine.faasr_payload import FaaSrPayload
 from .engine.scheduler import Scheduler
-from .helpers.faasr_start_invoke_helper import (faasr_func_dependancy_install,
-                                                faasr_get_github_raw)
+from .helpers.faasr_start_invoke_helper import (
+    faasr_func_dependancy_install,
+    faasr_get_github_raw,
+)
 from .s3_api import faasr_log
 
 logger = logging.getLogger()

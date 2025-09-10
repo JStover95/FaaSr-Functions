@@ -23,9 +23,11 @@ logger = logging.getLogger(__name__)
 class FaaSrPayload:
     """
     - Workflow is union of base workflow (from github) and overwritten fields
+
     - The URL points to a GitHub file containing the workflow JSON.
+
     - Methods to validate the workflow, replace secrets, check S3 data stores,
-    - init log, and self-abort if predecessors not done.
+    - init log, and self-abort.
 
     Top level changes (e.g. faasr_obj["FunctionInvoke"] = some_func)
     are tracked in self.overwritten and the scheduler will
@@ -59,9 +61,9 @@ class FaaSrPayload:
             raise ValueError("Payload validation error")
 
         if self.get("FunctionRank"):
-            self.log_file = f"{self["FunctionInvoke"]}({self["FunctionRank"]}).txt"
+            self.log_file = f"{self['FunctionInvoke']}({self['FunctionRank']}).txt"
         else:
-            self.log_file = f"{self["FunctionInvoke"]}.txt"
+            self.log_file = f"{self['FunctionInvoke']}.txt"
 
     def __getitem__(self, key):
         if key in self._overwritten:
@@ -91,12 +93,6 @@ class FaaSrPayload:
     def __it__(self):
         return iter(self.get_complete_workflow().items())
 
-    def remove(self, key):
-        if key in self._base_workflow:
-            del self._base_workflow[key]
-        if key in self._overwritten:
-            del self._overwritten[key]
-
     def get(self, key, default=None):
         if key in self._overwritten:
             return self._overwritten[key]
@@ -118,37 +114,74 @@ class FaaSrPayload:
             temp_dict[key] = val
         return temp_dict
 
-    def faasr_replace_values(self, secrets):
+    def replace_secrets(self, secrets):
         """
-        Replaces filler secrets in a payload with real credentials
-        (writes result to overwritten data)
+        Fills credentials using secrets dict. Key names are derived from computeserver/datastore
+        names
 
-        Arguments:
-            secrets: dict -- dictionary of secrets to replace in the payload
+        Example keys:
+        OW
+            OW_API.key
+        AWS
+            AWS_AccessKey
+            AWS_SecretKey
+        GCP
+            GCP_SecretKey
+        SLURM
+            SLURM_Token
+        GH
+            GH_PAT
+        Minio
+            Minio_AccessKey
+            Minio_SecretKey
         """
 
-        def recursive_replace(payload):
-            for name in payload:
-                if name not in ignore_keys:
-                    # If the value is a list or dict, recurse
-                    if isinstance(payload[name], list) or isinstance(
-                        payload[name], dict
-                    ):
-                        recursive_replace(payload[name])
-                    # Replace value in overwritten
-                    elif payload[name] in secrets:
-                        payload[name] = secrets[payload[name]]
+        def _get(key: str):
+            val = secrets.get(key)
+            if val is None:
+                logger.warning(f"{key} is missing from provided secrets")
+            return val
 
-        ignore_keys = [
-            "FunctionGitRepo",
-            "ActionList",
-            "FunctionCRANPackage",
-            "FunctionGitHubPackage",
-            "PyPIPackageDownloads",
-            "PackageImports",
-        ]
+        for name, fields in self["ComputeServers"].items():
+            faas_type = fields["FaaSType"]
 
-        recursive_replace(self._base_workflow)
+            match faas_type:
+                case "GitHubActions":
+                    pat = _get(f"{name}_PAT")
+                    self._base_workflow["ComputeServers"][name]["Token"] = pat
+
+                case "Lambda":
+                    access_key = _get(f"{name}_AccessKey")
+                    secret_key = _get(f"{name}_SecretKey")
+                    self._base_workflow["ComputeServers"][name][
+                        "AccessKey"
+                    ] = access_key
+                    self._base_workflow["ComputeServers"][name][
+                        "SecretKey"
+                    ] = secret_key
+
+                case "GCP":
+                    secret_key = _get(f"{name}_SecretKey")
+                    self._base_workflow["ComputeServers"][name][
+                        "SecretKey"
+                    ] = secret_key
+
+                case "SLURM":
+                    token = _get(f"{name}_Token")
+                    self._base_workflow["ComputeServers"][name]["Token"] = token
+
+                case "OpenWhisk":
+                    api_key = _get(f"{name}_API.key")
+                    self._base_workflow["ComputeServers"][name]["API.key"] = api_key
+
+                case _:
+                    logger.warning(f"Unknown FaaSType for {name}: {faas_type}")
+
+        for name, fields in self["DataStores"].items():
+            access_key = _get(f"{name}_AccessKey")
+            secret_key = _get(f"{name}_SecretKey")
+            self._base_workflow["DataStores"][name]["AccessKey"] = access_key
+            self._base_workflow["DataStores"][name]["SecretKey"] = secret_key
 
     def s3_check(self):
         """
@@ -168,6 +201,10 @@ class FaaSrPayload:
             # If the region is empty, then use defualt 'us-east-1'
             if not server_region:
                 self["DataStores"][server]["Region"] = "us-east-1"
+
+            if self["DataStores"][server].get("Anonymous", False):
+                # Handle anonymous access (not yet implemented)
+                print("anonymous param not implemented")
 
             if server_endpoint:
                 s3_client = boto3.client(
@@ -251,15 +288,12 @@ class FaaSrPayload:
         self._generate_invocation_timestamp()
 
         # Create invocation ID if one is not already present
-        if (
-            "InvocationID" not in self.base_workflow
-            and "InvocationID" not in self.overwritten
-        ) or ("InvocationID" not in self or not self["InvocationID"]):
+        if not self["InvocationID"] or self["InvocationID"].strip() == "":
             # ID = uuid.uuid4()
             # self["InvocationID"] = str(ID)
             self._generate_invocation_id()
 
-        faasr_msg = f"InvocationID for the workflow: {self["InvocationID"]}"
+        faasr_msg = f"InvocationID for the workflow: {self['InvocationID']}"
         logger.info(faasr_msg)
 
         if self["FaaSrLog"] is None or self["FaaSrLog"] == "":
@@ -272,7 +306,7 @@ class FaaSrPayload:
             log_folder.mkdir(parents=True, exist_ok=True)
             file_count = sum(1 for p in log_folder.iterdir() if p.is_file())
             if file_count != 0:
-                err_msg = f"InvocationID already exists: {self["InvocationID"]}"
+                err_msg = f"InvocationID already exists: {self['InvocationID']}"
                 logger.error(err_msg)
                 sys.exit(1)
         else:
@@ -290,11 +324,11 @@ class FaaSrPayload:
                 "Contents" in check_log_folder
                 and len(check_log_folder["Contents"]) != 0
             ):
-                err_msg = f"InvocationID already exists: {self["InvocationID"]}"
+                err_msg = f"InvocationID already exists: {self['InvocationID']}"
                 logger.error(err_msg)
                 sys.exit(1)
 
-    def abort_on_multiple_invocations(self, pre: dict):
+    def abort_on_multiple_invocations(self, pre):
         """
         Invoked when the current function has multiple predecessors
         and aborts if they have not finished or the current function instance was not
@@ -344,7 +378,7 @@ class FaaSrPayload:
                 # a predecessor and must abort
                 if done_file not in s3_object_keys:
                     logger.error(
-                        f"Missing .done file for predecessor: {func} — aborting"
+                        f"Missing .done file for predecessor: {func} — aborting."
                     )
                     sys.exit(0)
 
@@ -369,7 +403,7 @@ class FaaSrPayload:
         faasr_acquire(self)
 
         random_number = random.randint(1, 2**31 - 1)
-        candidate_filename = f"function_completions/{self['FunctionInvoke']}.candidate"
+        candidate_filename = f"{self['FunctionInvoke']}.candidate"
         candidate_path = Path(id_folder) / candidate_filename
 
         if global_config.USE_LOCAL_FILE_SYSTEM:

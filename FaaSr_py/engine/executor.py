@@ -11,10 +11,8 @@ import requests
 
 from FaaSr_py.config.debug_config import global_config
 from FaaSr_py.engine.faasr_payload import FaaSrPayload
-from FaaSr_py.helpers.faasr_start_invoke_helper import \
-    faasr_func_dependancy_install
-from FaaSr_py.helpers.s3_helper_functions import (flush_s3_log,
-                                                  get_invocation_folder)
+from FaaSr_py.helpers.faasr_start_invoke_helper import faasr_func_dependancy_install
+from FaaSr_py.helpers.s3_helper_functions import flush_s3_log, get_invocation_folder
 from FaaSr_py.s3_api import faasr_put_file
 from FaaSr_py.server.faasr_server import run_server, wait_for_server_start
 
@@ -76,12 +74,9 @@ class Executor:
                     client_dir / "r_client_stubs.R",
                 ]
 
-                # Ensure /tmp exists
-                os.makedirs("/tmp", exist_ok=True)
-
-                # Copy each file
+                # Copy each file into the current working directory
                 for src in r_files:
-                    dst = Path("/tmp") / src.name
+                    dst = Path(src.name)
                     shutil.copy(src, dst)
 
                 logger.info(f"Starting function: {func_name} (R)")
@@ -91,12 +86,11 @@ class Executor:
                     r_func = subprocess.run(
                         [
                             "Rscript",
-                            "/tmp/r_user_func_entry.R",
+                            "r_user_func_entry.R",
                             func_name,
                             json.dumps(user_args),
                             self.faasr["InvocationID"],
-                        ],
-                        cwd="/tmp",
+                        ]
                     )
                 except Exception as e:
                     logger.error(f"Error running R function: {e}")
@@ -129,7 +123,7 @@ class Executor:
 
         if "FunctionRank" in self.faasr:
             file_name = (
-                f"function_completions/{action_name}.{self.faasr["FunctionRank"]}.done"
+                f"function_completions/{action_name}.{self.faasr['FunctionRank']}.done"
             )
         else:
             file_name = f"function_completions/{action_name}.done"
@@ -236,7 +230,7 @@ class Executor:
 
         if return_val.get("Error"):
             if return_val.get("Message"):
-                err_msg = f"{return_val["Message"]}"
+                err_msg = f"{return_val['Message']}"
             else:
                 err_msg = "Unkown error while getting user function return"
             logger.error(err_msg, stack_info=True)

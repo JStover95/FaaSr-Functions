@@ -102,5 +102,3 @@ def faasr_put_file(
         except s3_client.exceptions.ClientError as e:
             logger.error(f"Error putting file in S3: {e}")
             sys.exit(1)
-
-        logger.debug(f"File {local_file} successfully uploaded to {remote_path}")

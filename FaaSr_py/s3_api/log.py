@@ -3,9 +3,11 @@ import sys
 from pathlib import Path
 
 from FaaSr_py.config.debug_config import global_config
-from FaaSr_py.helpers.s3_helper_functions import (get_default_log_boto3_client,
-                                                  get_invocation_folder,
-                                                  get_logging_server)
+from FaaSr_py.helpers.s3_helper_functions import (
+    get_default_log_boto3_client,
+    get_invocation_folder,
+    get_logging_server,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +48,7 @@ def faasr_log(faasr_payload, log_message):
 
         log_download_path = (
             Path("./")
-            / f"{faasr_payload.log_file}-{str(faasr_payload["InvocationID"])}"
+            / f"{faasr_payload.log_file}-{str(faasr_payload['InvocationID'])}"
         )
         Path(log_download_path).parent.mkdir(parents=True, exist_ok=True)
 

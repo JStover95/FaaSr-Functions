@@ -4,9 +4,11 @@ import sys
 import time
 from pathlib import Path
 
-from FaaSr_py.helpers.s3_helper_functions import (get_default_log_boto3_client,
-                                                  get_invocation_folder,
-                                                  get_logging_server)
+from FaaSr_py.helpers.s3_helper_functions import (
+    get_default_log_boto3_client,
+    get_invocation_folder,
+    get_logging_server,
+)
 
 logger = logging.getLogger(__name__)
 
