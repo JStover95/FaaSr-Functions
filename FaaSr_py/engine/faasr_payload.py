@@ -160,7 +160,7 @@ class FaaSrPayload:
                         "SecretKey"
                     ] = secret_key
 
-                case "GCP":
+                case "GoogleCloud":
                     secret_key = _get(f"{name}_SecretKey")
                     self._base_workflow["ComputeServers"][name][
                         "SecretKey"

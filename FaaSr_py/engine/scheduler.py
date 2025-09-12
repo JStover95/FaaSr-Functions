@@ -104,13 +104,17 @@ class Scheduler:
                     case "OpenWhisk":
                         self.invoke_ow(next_compute_server, function, workflow_name)
                     case "Lambda":
-                        self.invoke_lambda(next_compute_server, function, workflow_name)
+                        self.invoke_lambda(
+                            next_compute_server, function, workflow_name
+                        )
                     case "GitHubActions":
                         self.invoke_gh(
                             next_compute_server, function, workflow_name
-                        )
+                        )  # to-do add workflowname
                     case "SLURM":
-                        self.invoke_slurm(next_compute_server, function, workflow_name)
+                        self.invoke_slurm(
+                            next_compute_server, function, workflow_name
+                        )
                     case "GoogleCloud":
                         self.invoke_googlecloud(
                             next_compute_server, function, workflow_name
@@ -190,7 +194,7 @@ class Scheduler:
         # Log response
         if response.status_code == 204:
             succ_msg = (
-                f"GitHub Action: Successfully invoked: {function}"
+                f"GitHub Action: Successfully invoked: {self.faasr['FunctionInvoke']}"
             )
             logger.info(succ_msg)
         elif response.status_code == 401:
@@ -281,17 +285,17 @@ class Scheduler:
             sys.exit(1)
 
         if "StatusCode" in response and str(response["StatusCode"])[0] == "2":
-            succ_msg = f"Lambda: Successfully invoked: {function}"
+            succ_msg = f"Lambda: Successfully invoked: {self.faasr['FunctionInvoke']}"
             logger.info(succ_msg)
         else:
             try:
                 err_msg = (
-                    f"Error invoking function: {function} -- "
+                    f"Error invoking function: {self.faasr['FunctionInvoke']} -- "
                     f"{response['FunctionError']}"
                 )
                 logger.error(err_msg)
             except Exception:
-                err_msg = f"Error invoking function: {function}"
+                err_msg = f"Error invoking function: {self.faasr['FunctionInvoke']}"
                 logger.exception(err_msg, stack_info=True)
             sys.exit(1)
 
@@ -364,17 +368,17 @@ class Scheduler:
             logger.exception(err_msg, stack_info=True)
             sys.exit(1)
         except Exception:
-            err_msg = f"OpenWhisk: Error invoking {function}"
+            err_msg = f"OpenWhisk: Error invoking {self.faasr['FunctionInvoke']}"
             logger.exception(err_msg, stack_info=True)
             sys.exit(1)
 
         if response.status_code == 200 or response.status_code == 202:
-            succ_msg = f"OpenWhisk: Succesfully invoked {function}"
+            succ_msg = f"OpenWhisk: Succesfully invoked {self.faasr['FunctionInvoke']}"
             logger.info(succ_msg)
             sys.exit(1)
         else:
             err_msg = (
-                f"OpenWhisk: Error invoking {function}: "
+                f"OpenWhisk: Error invoking {self.faasr['FunctionInvoke']}: "
                 f"status code: {response.status_code}"
             )
             logger.error(err_msg)
@@ -390,12 +394,10 @@ class Scheduler:
             function: str -- name of the function to invoke
         """
 
-        from FaaSr_py.helpers.slurm_helper import (
-            create_job_script,
-            get_resource_requirements,
-            make_slurm_request,
-            validate_jwt_token,
-        )
+        from FaaSr_py.helpers.slurm_helper import (create_job_script,
+                                                   get_resource_requirements,
+                                                   make_slurm_request,
+                                                   validate_jwt_token)
 
         if workflow_name:
             function = f"{workflow_name}-{function}"
@@ -410,7 +412,6 @@ class Scheduler:
         if not endpoint.startswith("http"):
             endpoint = f"http://{endpoint}"
 
-        # Validate JWT token (same validation as R package)
         token = server_info.get("Token")
         if not token or token.strip() == "":
             err_msg = f"SLURM: No authentication token available for server {function}"
@@ -421,7 +422,7 @@ class Scheduler:
         token_validation = validate_jwt_token(server_info.get("Token"))
         if not token_validation["valid"]:
             err_msg = (
-                f"SLURM: Token validation failed for {function} - "
+                f"SLURM: Token validation failed for {self.faasr['FunctionInvoke']} - "
                 f"{token_validation['error']}"
             )
             logger.error(err_msg)
@@ -516,14 +517,14 @@ class Scheduler:
                 )
 
                 succ_msg = (
-                    f"SLURM: Successfully submitted job: {function} "
+                    f"SLURM: Successfully submitted job: {self.faasr['FunctionInvoke']} "
                     f"(Job ID: {job_id})"
                 )
                 logger.info(succ_msg)
             else:
                 error_content = response.text
                 err_msg = (
-                    f"SLURM: Error submitting job: {function} - "
+                    f"SLURM: Error submitting job: {self.faasr['FunctionInvoke']} - "
                     f"HTTP {response.status_code}: {error_content}"
                 )
                 logger.error(err_msg)
@@ -654,7 +655,7 @@ class Scheduler:
                 succ_msg = f"GoogleCloud: Successfully invoked {function}"
                 logger.info(succ_msg)
             else:
-                err_msg = f"GCP: Error invoking {function}:{response.status_code}, {response.text}"
+                err_msg = f"GoogleCloud: Error invoking {function}:{response.status_code}, {response.text}"
                 logger.error(err_msg)
                 sys.exit(1)
         except Exception as e:
