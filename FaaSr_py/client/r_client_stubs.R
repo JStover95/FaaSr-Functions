@@ -106,6 +106,73 @@ faasr_get_folder_list <- function(server_name="", prefix = "") {
 }
 
 
+faasr_get_s3_creds <- function(server_name = "") {
+    request_json <- list(
+        "ProcedureID" = "faasr_get_s3_creds",
+        "Arguments" = list("server_name" = server_name)
+    )
+    r <- POST("http://127.0.0.1:8000/faasr-action", body=request_json, encode="json")
+    response_content <- content(r)
+
+    if (!is.null(response_content$Success) && response_content$Success) {
+        return (response_content$Data$s3_creds)
+    } else {
+        err_msg <- "Failed to get S3 credentials"
+        faasr_exit(error=TRUE, message=err_msg)
+        quit(status = 1, save = "no")
+    }
+}
+
+
+faasr_invocation_id <- function() {
+    request_json <- list(
+        "ProcedureID" = "faasr_invocation_id",
+        "Arguments" = list()
+    )
+    r <- POST("http://127.0.0.1:8000/faasr-action", body = request_json, encode = "json")
+    response_content <- content(r)
+
+    if (!is.null(response_content$Success) && response_content$Success) {
+        return (response_content$Data$invocation_id)
+    } else {
+        err_msg <- "Failed to get invocation ID"
+        faasr_exit(error=TRUE, message=err_msg)
+        quit(status = 1, save = "no")
+    }
+}
+
+
+faasr_arrow_s3_bucket <- function(server_name = "", faasr_prefix = "") {
+    # get s3 creds
+    creds <- faasr_get_s3_creds(server_name = server_name)
+
+    if (faasr_prefix != "") {
+        bucket <- paste0(creds$bucket, "/", faasr_prefix)
+    } else {
+        bucket <- creds$bucket
+    }
+
+    if (creds$anonymous) {
+        s3 <- arrow::s3_bucket(
+            bucket = bucket,
+            endpoint_override = creds$endpoint,
+            region = creds$region,
+            anonymous = TRUE
+        )
+    } else {
+        s3 <- arrow::s3_bucket(
+            bucket = bucket,
+            endpoint_override = creds$endpoint,
+            access_key = creds$access_key,
+            secret_key = creds$secret_key,
+            region = creds$region
+        )
+    }
+
+    return(s3)
+}
+
+
 faasr_rank <- function(rank_value=NULL) {
     rank_json <- list(
         Rank = rank_value

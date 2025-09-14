@@ -273,7 +273,6 @@ class FaaSrPayload:
                 logger.error(error_msg)
                 raise ValueError(error_msg)
         else:
-
             ID = uuid.uuid4()
             self["InvocationID"] = str(ID)
             logger.info(f"Generated default UUID : {ID}")
