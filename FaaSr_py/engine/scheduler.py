@@ -554,6 +554,8 @@ class Scheduler:
 
         from FaaSr_py.helpers.gcp_auth import refresh_gcp_access_token
 
+        original_function = function
+
         if workflow_name:
             function = f"{workflow_name}-{function}"
             logger.debug(f"Prepending workflow name. Full function: {function}")
@@ -569,12 +571,18 @@ class Scheduler:
         if not endpoint.startswith("https://"):
             endpoint = f"https://{endpoint}"
 
-        # Build the full URL for Cloud Run job execution
+        
         job_url = f"{endpoint}{namespace}/locations/{region}/jobs/{function}:run"
 
-        # Build overwritten fields - matching GitHub Actions pattern
         overwritten = self.faasr.overwritten.copy()
         overwritten["FunctionInvoke"] = function
+
+        if workflow_name and original_function in self.faasr["ActionList"]:
+            if "ActionList" not in overwritten:
+                overwritten["ActionList"] = self.faasr["ActionList"].copy()
+  
+            overwritten["ActionList"][function] = overwritten["ActionList"][original_function]
+    
 
         if next_compute_server.get("UseSecretStore"):
             # Remove secrets from overwritten fields
