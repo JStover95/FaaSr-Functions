@@ -573,7 +573,7 @@ class Scheduler:
         job_url = f"{endpoint}{namespace}/locations/{region}/jobs/{function}:run"
 
         overwritten = self.faasr.overwritten.copy()
-        overwritten["FunctionInvoke"] = function
+        #overwritten["FunctionInvoke"] = function
 
         if next_compute_server.get("UseSecretStore"):
             # Remove secrets from overwritten fields
