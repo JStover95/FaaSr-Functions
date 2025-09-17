@@ -178,6 +178,26 @@ def faasr_get_s3_creds():
         sys.exit(1)
 
 
+def faasr_invocation_id():
+    """
+    Get the invocation ID of the current function
+
+    Returns:
+        str -- invocation ID
+    """
+    request_json = {"ProcedureID": "faasr_invocation_id", "Arguments": {}}
+    r = requests.post("http://127.0.0.1:8000/faasr-action", json=request_json)
+    try:
+        response = r.json()
+        return response["Data"]["invocation_id"]
+    except Exception as e:
+        err_msg = (
+            f"{{faasr_invocation_id: failed to get invocation ID from server -- {e}}}"
+        )
+        print(err_msg)
+        sys.exit(1)
+
+
 def faasr_return(return_value=None):
     """
     Returns the result of the user function to the FaaSr server

@@ -17,7 +17,7 @@ faasr_source_r_files <- function(directory = "."){
 faasr_run_user_function <- function(func_name, user_args){ 
   # Check that function is in namespace
   user_function = tryCatch(expr=get(func_name), error=function(e){
-    err_msg <- paste0('{\"faasr_user_function\":\"Cannot find Function ', func_name,', check the name and sources\"}', "\n")
+    err_msg <- paste0('{\"faasr_user_function\":\"Cannot find function ,', func_name,', check the name and sources\"}', "\n")
     message(err_msg)
     faasr_log(err_msg)
     faasr_exit()
@@ -28,8 +28,8 @@ faasr_run_user_function <- function(func_name, user_args){
   # Use do.call to use user_function with arguments
   # try do.call and if there's an error, return error message and stop the function
   faasr_result <- tryCatch(expr=do.call(user_function, user_args), error=function(e){
-    nat_err_msg <- paste0('\"faasr_user_function\":Errors in the user function ', as.character(e))
-    err_msg <- paste0('{\"faasr_user_function\":\"Errors in the user function: ', func_name, ', check the log for the detail \"}', "\n")
+    nat_err_msg <- paste0('\"faasr_user_function\":Errors in the user function - ', as.character(e))
+    err_msg <- paste0('{\"faasr_user_function\":\"Errors in the user function, ', func_name, ', check the log for the detail\"}', "\n")
     faasr_log(nat_err_msg)
     message(err_msg)
     faasr_exit()
