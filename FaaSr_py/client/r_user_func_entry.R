@@ -17,4 +17,8 @@ faasr_source_r_files(file.path("/tmp/functions", invocation_id))
 # Execute User function
 result <- faasr_run_user_function(func_name, user_args)
 
+if (!is.logical(result)) {
+    result <- NULL
+}
+
 faasr_return(result)

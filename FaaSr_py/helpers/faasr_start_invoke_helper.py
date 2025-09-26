@@ -317,6 +317,9 @@ def faasr_install_git_packages(gh_packages, type, lib_path=None):
 
 def copy_local_files(faasr_source, gits):
     """Copies local files to /tmp/functions/[InvocationID]"""
+    if not gits:
+        return
+
     if isinstance(gits, str):
         gits = [gits]
 

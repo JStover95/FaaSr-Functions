@@ -17,7 +17,7 @@ faasr_source_r_files <- function(directory = "."){
 faasr_run_user_function <- function(func_name, user_args){ 
   # Check that function is in namespace
   user_function = tryCatch(expr=get(func_name), error=function(e){
-    err_msg <- paste0('{\"faasr_user_function\":\"Cannot find function ,', func_name,', check the name and sources\"}', "\n")
+    err_msg <- paste0('{\"faasr_user_function\":\"Cannot find function, ', func_name,', check the name and sources\"}', "\n")
     message(err_msg)
     faasr_log(err_msg)
     faasr_exit()
@@ -35,6 +35,7 @@ faasr_run_user_function <- function(func_name, user_args){
     faasr_exit()
     }
   )
+
   return(faasr_result)
 }
 

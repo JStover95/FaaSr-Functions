@@ -104,17 +104,11 @@ class Scheduler:
                     case "OpenWhisk":
                         self.invoke_ow(next_compute_server, function, workflow_name)
                     case "Lambda":
-                        self.invoke_lambda(
-                            next_compute_server, function, workflow_name
-                        )
+                        self.invoke_lambda(next_compute_server, function, workflow_name)
                     case "GitHubActions":
-                        self.invoke_gh(
-                            next_compute_server, function, workflow_name
-                        )  # to-do add workflowname
+                        self.invoke_gh(next_compute_server, function, workflow_name)
                     case "SLURM":
-                        self.invoke_slurm(
-                            next_compute_server, function, workflow_name
-                        )
+                        self.invoke_slurm(next_compute_server, function, workflow_name)
                     case "GoogleCloud":
                         self.invoke_googlecloud(
                             next_compute_server, function, workflow_name
@@ -394,10 +388,12 @@ class Scheduler:
             function: str -- name of the function to invoke
         """
 
-        from FaaSr_py.helpers.slurm_helper import (create_job_script,
-                                                   get_resource_requirements,
-                                                   make_slurm_request,
-                                                   validate_jwt_token)
+        from FaaSr_py.helpers.slurm_helper import (
+            create_job_script,
+            get_resource_requirements,
+            make_slurm_request,
+            validate_jwt_token,
+        )
 
         if workflow_name:
             function = f"{workflow_name}-{function}"
@@ -569,11 +565,10 @@ class Scheduler:
         if not endpoint.startswith("https://"):
             endpoint = f"https://{endpoint}"
 
-        
         job_url = f"{endpoint}{namespace}/locations/{region}/jobs/{function}:run"
 
         overwritten = self.faasr.overwritten.copy()
-        #overwritten["FunctionInvoke"] = function
+        # overwritten["FunctionInvoke"] = function
 
         if next_compute_server.get("UseSecretStore"):
             # Remove secrets from overwritten fields

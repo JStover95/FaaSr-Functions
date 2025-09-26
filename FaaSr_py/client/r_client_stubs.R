@@ -111,7 +111,7 @@ faasr_get_s3_creds <- function(server_name = "") {
         "ProcedureID" = "faasr_get_s3_creds",
         "Arguments" = list("server_name" = server_name)
     )
-    r <- POST("http://127.0.0.1:8000/faasr-action", body=request_json, encode="json")
+    r <- POST("http://127.0.0.1:8000/faasr-action", body = request_json, encode = "json")
     response_content <- content(r)
 
     if (!is.null(response_content$Success) && response_content$Success) {
@@ -174,13 +174,14 @@ faasr_arrow_s3_bucket <- function(server_name = "", faasr_prefix = "") {
 
 
 faasr_rank <- function(rank_value=NULL) {
-    rank_json <- list(
-        Rank = rank_value
+    request_json <- list(
+        "ProcedureID" = "faasr_invocation_id",
+        "Arguments" = list()
     )
-    r <- POST("http://127.0.0.1:8000/faasr-return", body=rank_json, encode="json")
+    r <- POST("http://127.0.0.1:8000/faasr-action", body=request_json, encode="json")
     response_content <- content(r)
     if (!is.null(response_content$Success) && response_content$Success) {
-        return (response_content$Success)
+        return (response_content$Data)
     } else {
         err_msg <- "Request to FaaSr RPC failed"
         faasr_exit(error=TRUE, message=err_msg)
@@ -190,9 +191,14 @@ faasr_rank <- function(rank_value=NULL) {
 
 
 faasr_return <- function(return_value=NULL) {
-    return_json <- list(
-        FunctionResult = return_value
-    )
+    if (is.null(return_value)) {
+        quit(status = 0, save = "no")
+    } else {
+        return_json = list(
+            FunctionResult = return_value
+        )
+    }
+
     r <- POST("http://127.0.0.1:8000/faasr-return", body=return_json, encode="json")
     if (!is.null(r$status_code) && r$status_code == 200) {
         response_content <- content(r)
