@@ -148,28 +148,25 @@ def faasr_get_github_raw(token, path):
     reponame = parts[1]
     branch = parts[2]
     filepath = "/".join(parts[3:])
-    url = (
-        f"https://api.github.com/repos/"
-        f"{username}/{reponame}/contents/{filepath}?ref={branch}"
-    )
+    url = f"https://api.github.com/repos/" f"{username}/{reponame}/contents/{filepath}"
     headers = {
         "Accept": "application/vnd.github.v3+json",
         "X-GitHub-Api-Version": "2022-11-28",
         "Authorization": f"Bearer {token}" if token else None,
     }
 
-    response1 = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, params={"ref": branch})
 
-    if response1.status_code == 200:
+    if response.status_code == 200:
         logger.debug(f"Successfully fetched raw file from GitHub: {path}")
-        data = response1.json()
+        data = response.json()
         content = data.get("content", "")
         decoded_bytes = base64.b64decode(content)
         decoded_string = decoded_bytes.decode("utf-8")
         return decoded_string
     else:
         try:
-            err_response = response1.json()
+            err_response = response.json()
             message = err_response.get("message")
         except Exception:
             message = "invalid or no response from GH"

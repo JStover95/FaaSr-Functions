@@ -1,8 +1,8 @@
 import json
 import logging
-import os
 import random
 import sys
+import os
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -26,7 +26,8 @@ class FaaSrPayload:
     """
     - Workflow is union of base workflow (from github) and overwritten fields
 
-    - The URL points to a GitHub file containing the workflow JSON.
+    - The URL points to a GitHub file containing the workflow JSON
+    - and follows the form {username}/{repo}/{path}.
 
     - Methods to validate the workflow, replace secrets, check S3 data stores,
     - init log, and self-abort.
@@ -38,19 +39,19 @@ class FaaSrPayload:
 
     def __init__(self, url, overwritten=None, token=None):
         # without PAT, larger workflows run the risk
-        # of hitting rate limits hen fetching payload
+        # of hitting rate limits when fetching payload
         if token is None:
-            token = os.getenv("TOKEN")
+            token = os.getenv("GH_PAT")
 
         if overwritten is None:
-            self._overwritten = None
+            self._overwritten = {}
         else:
             self._overwritten = overwritten
 
         self.url = url
 
-        logger.debug("Fetching workflow from GitHub URL: {url}")
         # fetch payload from gh
+        logger.debug(f"Fetching workflow from GitHub URL: {url}")
         raw_payload = faasr_get_github_raw(token=token, path=url)
         self._base_workflow = json.loads(raw_payload)
 
@@ -62,7 +63,8 @@ class FaaSrPayload:
         else:
             raise ValueError("Payload validation error")
 
-        if self.get("FunctionRank"):
+        # add rank to log file if present
+        if self._overwritten.get("FunctionRank"):
             self.log_file = f"{self['FunctionInvoke']}({self['FunctionRank']}).txt"
         else:
             self.log_file = f"{self['FunctionInvoke']}.txt"

@@ -12,6 +12,7 @@ from .helpers.faasr_start_invoke_helper import (
     faasr_get_github_raw,
 )
 from .s3_api import faasr_log
+from .helpers import graph_functions
 
 logger = logging.getLogger()
 logger.setLevel(logging.NOTSET)
@@ -41,4 +42,5 @@ __all__ = [
     "faasr_func_dependancy_install",
     "faasr_get_github_raw",
     "S3LogSender",
+    "graph_functions",
 ]
