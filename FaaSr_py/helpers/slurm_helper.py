@@ -63,7 +63,6 @@ def create_job_script(faasr, actionname, environment_vars):
         str: job script content
     """
     # Get container image with fallback to default
-    container_image = "faasr/openwhisk-tidyverse:latest"
     action_containers = faasr.get("ActionContainers", {})
     if actionname in action_containers and action_containers[actionname]:
         container_image = action_containers[actionname]
