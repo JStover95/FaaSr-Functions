@@ -77,6 +77,11 @@
                 "R"
               ]
             },
+            "RequiresVM": {
+          "type": "boolean",
+          "description": "Whether this action requires VM resources",
+          "default": false
+        },
             "InvokeNext": {
               "type": "array",
               "items": {
@@ -472,6 +477,40 @@
         }
       }
     },
+    "VMConfig": {
+  "type": "object",
+  "description": "Configuration for VM orchestration",
+  "properties": {
+    "Provider": {
+      "type": "string",
+      "enum": ["AWS"],
+      "description": "Cloud provider for VM instances"
+    },
+    "Strategy": {
+      "type": "string",
+      "enum": ["simple_start_end", "per_function", "optimized"],
+      "description": "VM orchestration strategy",
+      "default": "simple_start_end"
+    },
+    "InstanceId": {
+      "type": "string",
+      "description": "Existing EC2 instance ID"
+    },
+    "Region": {
+      "type": "string",
+      "description": "AWS region for the VM"
+    },
+    "AccessKey": {
+      "type": "string",
+      "description": "AWS access key credential reference"
+    },
+    "SecretKey": {
+      "type": "string",
+      "description": "AWS secret key credential reference"
+    }
+  },
+  "required": ["Provider", "InstanceId", "Region", "AccessKey", "SecretKey"]
+},
     "ActionContainers": {
       "description": "A mapping of action names to containers(Docker Hub)",
       "type": "object",
