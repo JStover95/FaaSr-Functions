@@ -630,7 +630,7 @@ class Scheduler:
             "Authorization": f"Bearer {access_token}",
         }
 
-        # SSL verification (same as in the original code)
+        # SSL verification
         ssl_verify = True
         if "SSL" in next_compute_server:
             ssl_str = str(next_compute_server["SSL"]).lower()
