@@ -395,6 +395,8 @@ class Scheduler:
             validate_jwt_token,
         )
 
+        original_function = function
+
         if workflow_name:
             function = f"{workflow_name}-{function}"
             logger.debug(f"Prepending workflow name. Full function: {function}")
@@ -460,10 +462,10 @@ class Scheduler:
         }
 
         # Create job script
-        job_script = create_job_script(self.faasr, function, environment_vars)
+        job_script = create_job_script(self.faasr, original_function, environment_vars)
 
         # Get resource requirements for the function
-        resource_config = get_resource_requirements(self.faasr, function, server_info)
+        resource_config = get_resource_requirements(self.faasr, original_function, server_info)
 
         # Prepare job payload with resource requirements
         job_payload = {
