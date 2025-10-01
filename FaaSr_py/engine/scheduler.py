@@ -462,7 +462,7 @@ class Scheduler:
         }
 
         # Create job script
-        job_script = create_job_script(self.faasr, original_function, environment_vars)
+        job_script = create_job_script(self.faasr, original_function, function,environment_vars)
 
         # Get resource requirements for the function
         resource_config = get_resource_requirements(self.faasr, original_function, server_info)
@@ -470,7 +470,7 @@ class Scheduler:
         # Prepare job payload with resource requirements
         job_payload = {
             "job": {
-                "name": f"faasr-{function}",
+                "name": f"{function}",
                 "partition": resource_config["partition"],
                 "nodes": str(resource_config["nodes"]),
                 "tasks": str(resource_config["tasks"]),
