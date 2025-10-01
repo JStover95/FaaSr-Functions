@@ -481,6 +481,11 @@
   "type": "object",
   "description": "Configuration for VM orchestration",
   "properties": {
+    "Name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Name of VM configuration"
+    },
     "Provider": {
       "type": "string",
       "enum": ["AWS"],
@@ -509,7 +514,7 @@
       "description": "AWS secret key credential reference"
     }
   },
-  "required": ["Provider", "InstanceId", "Region", "AccessKey", "SecretKey"]
+  "required": ["Name","Provider", "InstanceId", "Region"]
 },
     "ActionContainers": {
       "description": "A mapping of action names to containers(Docker Hub)",

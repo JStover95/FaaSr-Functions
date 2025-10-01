@@ -187,6 +187,22 @@ class FaaSrPayload:
             self._base_workflow["DataStores"][name]["AccessKey"] = access_key
             self._base_workflow["DataStores"][name]["SecretKey"] = secret_key
 
+        if "VMConfig" in self._base_workflow:
+            vm_config = self._base_workflow["VMConfig"]
+            vm_name = vm_config.get("Name")
+            
+            if vm_name:
+                provider = vm_config.get("Provider", "AWS")
+                
+                if provider == "AWS":
+                    access_key = _get(f"{vm_name}_AccessKey")
+                    secret_key = _get(f"{vm_name}_SecretKey")
+                    
+                    if access_key:
+                        self._base_workflow["VMConfig"]["AccessKey"] = access_key
+                    if secret_key:
+                        self._base_workflow["VMConfig"]["SecretKey"] = secret_key
+
     def s3_check(self):
         """
         Ensures that all of the S3 data stores are valid and reachable
