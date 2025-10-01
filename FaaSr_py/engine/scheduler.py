@@ -431,7 +431,7 @@ class Scheduler:
             logger.error(err_msg)
             sys.exit(1)
 
-        # Create overwritten fields for the next action (following GitHub Actions pattern)
+        # Create overwritten fields for the next action
         overwritten_fields = self.faasr.overwritten.copy()
 
         if next_compute_server.get("UseSecretStore"):
@@ -605,7 +605,7 @@ class Scheduler:
             logger.error(f"Failed to refresh GCP access token: {e}")
             sys.exit(1)
 
-        # Create environment variables exactly like GitHub Actions
+        # Create environment variables
         json_overwritten = json.dumps(overwritten)
 
         # Define environment variables
@@ -617,10 +617,6 @@ class Scheduler:
         # Add TOKEN env var for GitHub authentication
         if "TOKEN" in os.environ:
             env_vars.append({"name": "TOKEN", "value": os.environ["TOKEN"]})
-
-        # Add secrets if available
-        if next_compute_server.get("UseSecretStore"):
-            env_vars.append({"name": "GCP_SECRET_NAME", "value": "faasr-secrets"})
 
         # Build request body for Cloud Run
         body = {"overrides": {"containerOverrides": [{"env": env_vars}]}}

@@ -62,10 +62,12 @@ def create_job_script(faasr, actionname, environment_vars):
     Returns:
         str: job script content
     """
-    # Get container image with fallback to default
+    
     action_containers = faasr.get("ActionContainers", {})
     if actionname in action_containers and action_containers[actionname]:
         container_image = action_containers[actionname]
+    else:
+        container_image = "faasr/slurm-r:latest"
 
     env_exports = ""
     docker_env_flags = ""
@@ -96,9 +98,6 @@ def create_job_script(faasr, actionname, environment_vars):
         'echo "Environment variables set:"',
         'echo "PAYLOAD_URL: $PAYLOAD_URL"',
         'echo "OVERWRITTEN length: ${#OVERWRITTEN}"',
-        'if [ -n "$SECRET_PAYLOAD" ]; then echo "SECRET_PAYLOAD present: yes"; else echo "SECRET_PAYLOAD present: no"; fi',
-        "",
-        'echo "Using container runtime: docker"',
         "",
         "docker run --rm --network=host \\",
         docker_env_flags.rstrip(" \\\n") + " \\",
