@@ -82,6 +82,10 @@
           "description": "Whether this action requires VM resources",
           "default": false
         },
+        "_faasr_builtin": {
+            "type": "boolean",
+            "description": "Internal flag: true if this is a framework built-in function"
+          },
             "InvokeNext": {
               "type": "array",
               "items": {
