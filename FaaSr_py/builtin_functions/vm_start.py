@@ -46,7 +46,7 @@ def vm_start(faasr_payload):
     try:
         from FaaSr_py.vm.detection import validate_vm_config
         from FaaSr_py.vm.providers import start_vm, wait_for_vm_ready
-        from FaaSr_py.vm.aws import check_vm_status
+        from FaaSr_py.vm.providers.aws import check_vm_status
         
         validate_vm_config(vm_config)
         

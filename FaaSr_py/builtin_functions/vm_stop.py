@@ -37,7 +37,7 @@ def vm_stop(faasr_payload):
     
     try:
         from FaaSr_py.vm.providers import stop_vm
-        from FaaSr_py.vm.aws import check_vm_status
+        from FaaSr_py.vm.providers.aws import check_vm_status
         
         # Check if VM is actually running before attempting stop
         try:
