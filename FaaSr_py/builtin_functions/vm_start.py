@@ -51,7 +51,11 @@ def vm_start(faasr_payload):
         from FaaSr_py.vm.github_runner import check_runner_online, extract_runner_name_from_vm_config
         
         validate_vm_config(vm_config)
-    
+        
+        # Check if we'll be polling GitHub
+        github_token = os.getenv("GH_PAT")
+        skip_fixed_wait = github_token is not None
+
         logger.info("Checking current VM status...")
         try:
             vm_status = check_vm_status(vm_config)
@@ -62,12 +66,13 @@ def vm_start(faasr_payload):
                 vm_details = start_vm(vm_config)
                 
                 logger.info("Waiting for VM to be ready...")
-                wait_for_vm_ready(vm_config, vm_details)
+                wait_for_vm_ready(vm_config, vm_details, skip_runner_wait=skip_fixed_wait)
         except Exception as e:
             logger.warning(f"Could not check VM status: {e}, will attempt start")
             vm_details = start_vm(vm_config)
-            wait_for_vm_ready(vm_config, vm_details)
-        
+            wait_for_vm_ready(vm_config, vm_details, skip_runner_wait=skip_fixed_wait)
+    
+    # Verify GitHub runner is online
         # Verify GitHub runner is online
         github_token = os.getenv("GH_PAT")
         if github_token:

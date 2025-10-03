@@ -170,7 +170,7 @@ def check_vm_status(vm_config):
         "instance_state": instance_state
     }
 
-def wait_for_vm_ready(vm_config, vm_details):
+def wait_for_vm_ready(vm_config, vm_details,skip_runner_wait=False):
     """
     Wait for VM to be ready with status verification.
     
@@ -179,7 +179,7 @@ def wait_for_vm_ready(vm_config, vm_details):
         vm_details: VM details from start operation
     """
     max_wait_time = 300  # 5 minutes total
-    check_interval = 20  # Check every 20 seconds
+    check_interval = 10  # Check every 20 seconds
     start_time = time.time()
     
     logger.info("Waiting for VM to be ready...")
@@ -197,16 +197,18 @@ def wait_for_vm_ready(vm_config, vm_details):
             vm_status = check_vm_status(vm_config)
             
             if vm_status["instance_running"] and vm_status["status_checks_passed"]:
-                # VM is running and healthy, wait a bit more for GitHub runner service
                 logger.info(f"VM is running and healthy after {int(elapsed_time)} seconds")
                 
-                # Additional wait for GitHub runner service to register
-                if elapsed_time < 90:
-                    additional_wait = 90 - elapsed_time
-                    logger.info(f"Waiting additional {int(additional_wait)} seconds for GitHub runner service...")
-                    time.sleep(additional_wait)
+                # Only do fixed wait if we won't be polling GitHub API
+                if not skip_runner_wait:
+                    if elapsed_time < 90:
+                        additional_wait = 90 - elapsed_time
+                        logger.info(f"Waiting additional {int(additional_wait)} seconds for GitHub runner service...")
+                        time.sleep(additional_wait)
+                    logger.info("VM and GitHub runner service should be ready")
+                else:
+                    logger.info("Skipping fixed wait - will verify runner via GitHub API")
                 
-                logger.info("VM and GitHub runner service should be ready")
                 break
             else:
                 # VM not ready yet
