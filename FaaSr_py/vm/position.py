@@ -6,6 +6,36 @@ import logging
 
 logger = logging.getLogger("FaaSr_py.vm")
 
+def does_next_action_require_vm(faasr_payload, current_action):
+    """
+    Check if any immediate next action requires VM.
+    
+    Args:
+        faasr_payload: The FaaSr workflow configuration
+        current_action: Name of current action
+        
+    Returns:
+        bool: True if any next action requires VM
+    """
+    action_list = faasr_payload.get("ActionList", {})
+    current_config = action_list.get(current_action, {})
+    next_actions = current_config.get("InvokeNext", [])
+    
+    # Handle single string or list
+    if isinstance(next_actions, str):
+        next_actions = [next_actions]
+    elif not isinstance(next_actions, list):
+        next_actions = []
+    
+    # Check each next action
+    for next_action in next_actions:
+        if action_list.get(next_action, {}).get("RequiresVM", False):
+            return True
+    
+    return False
+
+
+
 def get_action_position(faasr_payload, action_name):
     """
     Determine if an action is first, last, or middle in the workflow.
