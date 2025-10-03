@@ -516,6 +516,10 @@
     "SecretKey": {
       "type": "string",
       "description": "AWS secret key credential reference"
+    },
+    "RunnerName": {
+      "type": "string",
+      "description": "Expected GitHub Actions self-hosted runner name"
     }
   },
   "required": ["Name","Provider", "InstanceId", "Region"]

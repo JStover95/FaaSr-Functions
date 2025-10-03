@@ -5,6 +5,7 @@ from .orchestration import (
     get_vm_strategy
 )
 from .detection import workflow_needs_vm, action_requires_vm
+from .github_runner import check_runner_online
 
 __all__ = [
     'orchestrate_vm',
@@ -12,5 +13,6 @@ __all__ = [
     'orchestrate_vm_post_execution',
     'workflow_needs_vm',
     'action_requires_vm',
-    'get_vm_strategy'
+    'get_vm_strategy',
+    'check_runner_online'
 ]
