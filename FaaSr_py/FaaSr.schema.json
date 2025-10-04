@@ -77,6 +77,15 @@
                 "R"
               ]
             },
+            "RequiresVM": {
+          "type": "boolean",
+          "description": "Whether this action requires VM resources",
+          "default": false
+        },
+        "_faasr_builtin": {
+            "type": "boolean",
+            "description": "Internal flag: true if this is a framework built-in function"
+          },
             "InvokeNext": {
               "type": "array",
               "items": {
@@ -472,6 +481,49 @@
         }
       }
     },
+    "VMConfig": {
+  "type": "object",
+  "description": "Configuration for VM orchestration",
+  "properties": {
+    "Name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Name of VM configuration"
+    },
+    "Provider": {
+      "type": "string",
+      "enum": ["AWS"],
+      "description": "Cloud provider for VM instances"
+    },
+    "Strategy": {
+      "type": "string",
+      "enum": ["simple_start_end", "per_function", "optimized"],
+      "description": "VM orchestration strategy",
+      "default": "simple_start_end"
+    },
+    "InstanceId": {
+      "type": "string",
+      "description": "Existing EC2 instance ID"
+    },
+    "Region": {
+      "type": "string",
+      "description": "AWS region for the VM"
+    },
+    "AccessKey": {
+      "type": "string",
+      "description": "AWS access key credential reference"
+    },
+    "SecretKey": {
+      "type": "string",
+      "description": "AWS secret key credential reference"
+    },
+    "RunnerName": {
+      "type": "string",
+      "description": "Expected GitHub Actions self-hosted runner name"
+    }
+  },
+  "required": ["Name","Provider", "InstanceId", "Region"]
+},
     "ActionContainers": {
       "description": "A mapping of action names to containers(Docker Hub)",
       "type": "object",

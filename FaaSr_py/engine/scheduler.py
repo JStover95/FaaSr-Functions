@@ -395,6 +395,8 @@ class Scheduler:
             validate_jwt_token,
         )
 
+        original_function = function
+
         if workflow_name:
             function = f"{workflow_name}-{function}"
             logger.debug(f"Prepending workflow name. Full function: {function}")
@@ -431,7 +433,7 @@ class Scheduler:
             logger.error(err_msg)
             sys.exit(1)
 
-        # Create overwritten fields for the next action (following GitHub Actions pattern)
+        # Create overwritten fields for the next action
         overwritten_fields = self.faasr.overwritten.copy()
 
         if next_compute_server.get("UseSecretStore"):
@@ -460,15 +462,15 @@ class Scheduler:
         }
 
         # Create job script
-        job_script = create_job_script(self.faasr, function, environment_vars)
+        job_script = create_job_script(self.faasr, original_function, function,environment_vars)
 
         # Get resource requirements for the function
-        resource_config = get_resource_requirements(self.faasr, function, server_info)
+        resource_config = get_resource_requirements(self.faasr, original_function, server_info)
 
         # Prepare job payload with resource requirements
         job_payload = {
             "job": {
-                "name": f"faasr-{function}",
+                "name": f"{function}",
                 "partition": resource_config["partition"],
                 "nodes": str(resource_config["nodes"]),
                 "tasks": str(resource_config["tasks"]),
@@ -605,7 +607,7 @@ class Scheduler:
             logger.error(f"Failed to refresh GCP access token: {e}")
             sys.exit(1)
 
-        # Create environment variables exactly like GitHub Actions
+        # Create environment variables
         json_overwritten = json.dumps(overwritten)
 
         # Define environment variables
@@ -618,10 +620,6 @@ class Scheduler:
         if "TOKEN" in os.environ:
             env_vars.append({"name": "TOKEN", "value": os.environ["TOKEN"]})
 
-        # Add secrets if available
-        if next_compute_server.get("UseSecretStore"):
-            env_vars.append({"name": "GCP_SECRET_NAME", "value": "faasr-secrets"})
-
         # Build request body for Cloud Run
         body = {"overrides": {"containerOverrides": [{"env": env_vars}]}}
 
@@ -632,7 +630,7 @@ class Scheduler:
             "Authorization": f"Bearer {access_token}",
         }
 
-        # SSL verification (same as in the original code)
+        # SSL verification
         ssl_verify = True
         if "SSL" in next_compute_server:
             ssl_str = str(next_compute_server["SSL"]).lower()

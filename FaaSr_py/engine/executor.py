@@ -143,6 +143,50 @@ class Executor:
 
         logger.debug(f"Put {file_name} file in S3")
 
+    def _run_builtin_function(self, action_name, action_config):
+        """
+        Execute a FaaSr built-in function.
+        Built-ins don't need dependency installation, server, or subprocess execution.
+        
+        Args:
+            action_name: Name of the action
+            action_config: Action configuration
+            
+        Returns:
+            Function result
+        """
+        builtin_func_name = action_config.get("FunctionName")
+        
+        if not builtin_func_name:
+            raise ValueError(f"Built-in action {action_name} missing FunctionName")
+        
+        try:
+            # Import built-in functions
+            from FaaSr_py.builtin_functions import vm_start, vm_stop
+            
+            builtin_functions = {
+                "vm_start": vm_start,
+                "vm_stop": vm_stop
+            }
+            
+            if builtin_func_name not in builtin_functions:
+                raise ValueError(f"Unknown built-in function: {builtin_func_name}")
+            
+            func = builtin_functions[builtin_func_name]
+            
+            logger.info(f"Running built-in: {builtin_func_name}")
+            result = func(self.faasr)
+            
+            # Create .done file for synchronization (same as user functions)
+            self._make_done(action_name)
+            
+            logger.info(f"Built-in function {builtin_func_name} completed successfully")
+            return result
+            
+        except Exception as e:
+            logger.error(f"Built-in function {builtin_func_name} failed: {e}")
+            raise
+
     def run_func(self, action_name, start_time):
         """
         Fetch and run the users function
@@ -150,6 +194,16 @@ class Executor:
         Arguments:
             action_name: str -- name of the action to run
         """
+
+        action_config = self.faasr["ActionList"].get(action_name, {})
+        if action_config.get("_faasr_builtin", False):
+            logger.info(f"Executing built-in function: {action_name}")
+            return self._run_builtin_function(action_name, action_config)
+        
+        # For user functions, continue with existing logic
+        logger.debug("Starting dependency install")
+        action = self.faasr["ActionList"][action_name]
+        faasr_func_dependancy_install(self.faasr, action)
         # install dependencies for function
         logger.debug("Starting dependency install")
         action = self.faasr["ActionList"][action_name]

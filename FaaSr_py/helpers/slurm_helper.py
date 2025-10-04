@@ -23,7 +23,7 @@ def validate_jwt_token(token):
         return {"valid": False, "error": "Invalid token format"}
 
     try:
-        # Decode JWT payload (second part)
+        # Decode JWT payload
         parts = token.split(".")
         if len(parts) < 2:
             return {"valid": False, "error": "Malformed JWT token"}
@@ -52,7 +52,7 @@ def validate_jwt_token(token):
         return {"valid": False, "error": f"Token validation error: {str(e)}"}
 
 
-def create_job_script(faasr, actionname, environment_vars):
+def create_job_script(faasr, original_function,actionname, environment_vars):
     """
     Create SLURM job script for FaaSr execution
 
@@ -62,17 +62,18 @@ def create_job_script(faasr, actionname, environment_vars):
     Returns:
         str: job script content
     """
-    # Get container image with fallback to default
-    container_image = "faasr/openwhisk-tidyverse:latest"
+    
     action_containers = faasr.get("ActionContainers", {})
-    if actionname in action_containers and action_containers[actionname]:
-        container_image = action_containers[actionname]
+    if original_function in action_containers and action_containers[original_function]:
+        container_image = action_containers[original_function]
+    else:
+        container_image = "faasr/slurm-r:latest"
 
     env_exports = ""
     docker_env_flags = ""
 
     if environment_vars:
-        env_exports += "\n# Set environment variables (GitHub Actions pattern)\n"
+        env_exports += "\n# Set environment variables\n"
         for key, value in environment_vars.items():
 
             escaped_value = str(value).replace("'", "'\"'\"'").replace("$", "\\$")
@@ -83,9 +84,9 @@ def create_job_script(faasr, actionname, environment_vars):
 
     script_lines = [
         "#!/bin/bash",
-        f"#SBATCH --job-name=faasr-{actionname}",
-        f"#SBATCH --output=faasr-{actionname}-%j.out",
-        f"#SBATCH --error=faasr-{actionname}-%j.err",
+        f"#SBATCH --job-name={actionname}",
+        f"#SBATCH --output={actionname}-%j.out",
+        f"#SBATCH --error={actionname}-%j.err",
         "",
         f'echo "Starting FaaSr job: {actionname}"',
         'echo "Job ID: $SLURM_JOB_ID"',
@@ -97,9 +98,9 @@ def create_job_script(faasr, actionname, environment_vars):
         'echo "Environment variables set:"',
         'echo "PAYLOAD_URL: $PAYLOAD_URL"',
         'echo "OVERWRITTEN length: ${#OVERWRITTEN}"',
-        'if [ -n "$SECRET_PAYLOAD" ]; then echo "SECRET_PAYLOAD present: yes"; else echo "SECRET_PAYLOAD present: no"; fi',
+        'echo "FAASR_PLATFORM: $FAASR_PLATFORM"',
         "",
-        'echo "Using container runtime: docker"',
+        f'echo "Using container image: {container_image}"',
         "",
         "docker run --rm --network=host \\",
         docker_env_flags.rstrip(" \\\n") + " \\",
@@ -112,7 +113,7 @@ def create_job_script(faasr, actionname, environment_vars):
     return "\n".join(script_lines)
 
 
-def get_resource_requirements(faasr, actionname, server_info):
+def get_resource_requirements(faasr, original_function, server_info):
     """
     Extract resource requirements for a function with fallback hierarchy:
     Function-level → Server-level → Default values
@@ -125,7 +126,7 @@ def get_resource_requirements(faasr, actionname, server_info):
         dict: resource requirements
     """
     action_list = faasr.get("ActionList", {})
-    action_config = action_list.get(actionname, {})
+    action_config = action_list.get(original_function, {})
 
     # Function-level resources (highest priority)
     function_resources = action_config.get("Resources", {})
