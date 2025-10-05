@@ -346,7 +346,7 @@ def faasr_func_dependancy_install(faasr_source, action):
     func_type, func_name = action["Type"], action["FunctionName"]
 
     # get token if present
-    token = os.getenv("TOKEN")
+    token = os.getenv("GH_PAT")
 
     if not token:
         logger.warning(
