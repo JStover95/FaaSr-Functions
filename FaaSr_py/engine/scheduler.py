@@ -312,7 +312,7 @@ class Scheduler:
 
         # Check if we should use ssl
         if "AllowSelfSignedCertificate" not in next_compute_server:
-            ssl = True
+            ssl = False
         else:
             if next_compute_server["AllowSelfSignedCertificate"]:
                 ssl = False
@@ -369,7 +369,6 @@ class Scheduler:
         if response.status_code == 200 or response.status_code == 202:
             succ_msg = f"OpenWhisk: Succesfully invoked {self.faasr['FunctionInvoke']}"
             logger.info(succ_msg)
-            sys.exit(1)
         else:
             err_msg = (
                 f"OpenWhisk: Error invoking {self.faasr['FunctionInvoke']}: "
