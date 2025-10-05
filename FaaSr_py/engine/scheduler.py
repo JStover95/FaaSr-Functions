@@ -307,7 +307,7 @@ class Scheduler:
 
         # Get ow credentials
         endpoint = next_compute_server["Endpoint"]
-        api_key = next_compute_server["API.key"]
+        api_key = next_compute_server["APIkey"]
         api_key = api_key.split(":")
 
         # Check if we should use ssl
