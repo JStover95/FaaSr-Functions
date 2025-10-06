@@ -4,20 +4,19 @@ Starts VM before workflow execution begins.
 """
 import logging
 import os
-import time
 
 logger = logging.getLogger("FaaSr_py.builtin")
 
 def vm_start(faasr_payload):
     """
-    Start VM before workflow execution.
-    This is automatically injected for VM workflows.
+    Start VM instance (fire and forget).
+    Does NOT wait for readiness - that's handled by vm_poll.
     
     Args:
         faasr_payload: FaaSrPayload object
         
     Returns:
-        True on success
+        True on successful start command
     """
     logger.info("VM start action executing")
     
@@ -46,74 +45,27 @@ def vm_start(faasr_payload):
     
     try:
         from FaaSr_py.vm.detection import validate_vm_config
-        from FaaSr_py.vm.providers import start_vm, wait_for_vm_ready
+        from FaaSr_py.vm.providers import start_vm
         from FaaSr_py.vm.providers.aws import check_vm_status
-        from FaaSr_py.vm.github_runner import check_runner_online, extract_runner_name_from_vm_config
         
         validate_vm_config(vm_config)
-        
-        # Check if we'll be polling GitHub
-        github_token = os.getenv("GH_PAT")
-        skip_fixed_wait = github_token is not None
-
+    
         logger.info("Checking current VM status...")
         try:
             vm_status = check_vm_status(vm_config)
-            if vm_status["instance_running"] and vm_status["status_checks_passed"]:
-                logger.info(f"VM instance {vm_config['InstanceId']} is already running and healthy")
-            else:
-                logger.info(f"Starting VM instance {vm_config['InstanceId']} in region {vm_config['Region']}")
-                vm_details = start_vm(vm_config)
-                
-                logger.info("Waiting for VM to be ready...")
-                wait_for_vm_ready(vm_config, vm_details, skip_runner_wait=skip_fixed_wait)
+            if vm_status["instance_running"]:
+                logger.info(f"VM instance {vm_config['InstanceId']} is already running")
+                logger.info("VM start command completed (instance already running)")
+                return True
         except Exception as e:
-            logger.warning(f"Could not check VM status: {e}, will attempt start")
-            vm_details = start_vm(vm_config)
-            wait_for_vm_ready(vm_config, vm_details, skip_runner_wait=skip_fixed_wait)
-    
-    # Verify GitHub runner is online
-        # Verify GitHub runner is online
-        github_token = os.getenv("GH_PAT")
-        if github_token:
-            logger.info("GitHub PAT found - will verify runner status")
-            
-            # Get repo info from FaaSr payload
-            current_action = faasr_payload.get("FunctionInvoke")
-            if current_action:
-                action_config = faasr_payload["ActionList"][current_action]
-                server_name = action_config.get("FaaSServer")
-                
-                if server_name:
-                    server_config = faasr_payload["ComputeServers"][server_name]
-                    repo_owner = server_config.get("UserName")
-                    repo_name = server_config.get("ActionRepoName")
-                    
-                    # Get runner name
-                    runner_name = extract_runner_name_from_vm_config(vm_config)
-                    
-                    if repo_owner and repo_name and runner_name:
-                        logger.info(f"Verifying runner {runner_name} in {repo_owner}/{repo_name}")
-                        
-                        runner_online = check_runner_online(
-                            repo_owner=repo_owner,
-                            repo_name=repo_name,
-                            runner_name=runner_name,
-                            github_token=github_token,
-                            timeout=300  # 5 minutes max
-                        )
-                        
-                        if runner_online:
-                            logger.info("GitHub runner verified online - workflow can proceed")
-                        else:
-                            logger.warning("Runner verification timed out - proceeding anyway")
-                    else:
-                        logger.warning("Missing repo/runner info - skipping verification")
-        else:
-            logger.warning("GH_PAT not found - skipping runner verification, waiting 90 seconds")
-            time.sleep(90)
+            logger.debug(f"Could not check VM status: {e}, will attempt start")
         
-        logger.info("VM started and ready for workflow execution")
+        # Start VM without waiting
+        logger.info(f"Starting VM instance {vm_config['InstanceId']} in region {vm_config['Region']}")
+        vm_details = start_vm(vm_config)
+        logger.info(f"VM start command issued successfully. State: {vm_details.get('state', 'unknown')}")
+        logger.info("VM will continue starting in background")
+        
         return True
         
     except Exception as e:

@@ -170,16 +170,17 @@ def check_vm_status(vm_config):
         "instance_state": instance_state
     }
 
-def wait_for_vm_ready(vm_config, vm_details,skip_runner_wait=False):
+def wait_for_vm_ready(vm_config, vm_details=None, skip_runner_wait=False):
     """
-    Wait for VM to be ready with status verification.
+    Wait for VM to be ready.
     
     Args:
         vm_config: VM configuration
-        vm_details: VM details from start operation
+        vm_details: VM details from start operation (None if just polling)
+        skip_runner_wait: If True, skip the 90-second runner wait
     """
-    max_wait_time = 300  # 5 minutes total
-    check_interval = 10  # Check every 20 seconds
+    max_wait_time = 300
+    check_interval = 10
     start_time = time.time()
     
     logger.info("Waiting for VM to be ready...")
@@ -187,12 +188,10 @@ def wait_for_vm_ready(vm_config, vm_details,skip_runner_wait=False):
     while True:
         elapsed_time = time.time() - start_time
         
-        # Timeout check
         if elapsed_time > max_wait_time:
-            logger.warning("VM wait timeout reached - proceeding (runner may not be ready)")
-            break
+            logger.error("VM wait timeout reached")
+            raise TimeoutError("VM did not become ready within 5 minutes")
         
-        # Check VM status
         try:
             vm_status = check_vm_status(vm_config)
             
@@ -211,11 +210,9 @@ def wait_for_vm_ready(vm_config, vm_details,skip_runner_wait=False):
                 
                 break
             else:
-                # VM not ready yet
                 status_msg = f"VM Status - Running: {vm_status['instance_running']}, Status Checks: {vm_status['status_checks_passed']}"
                 logger.debug(status_msg)
         except Exception as e:
-            # If status check fails, continue waiting
             logger.debug(f"Status check failed: {str(e)}")
         
         time.sleep(check_interval)
