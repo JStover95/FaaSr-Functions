@@ -162,11 +162,12 @@ class Executor:
         
         try:
             # Import built-in functions
-            from FaaSr_py.builtin_functions import vm_start, vm_stop
+            from FaaSr_py.builtin_functions import vm_start, vm_stop , vm_poll
             
             builtin_functions = {
                 "vm_start": vm_start,
-                "vm_stop": vm_stop
+                "vm_stop": vm_stop,
+                "vm_poll":vm_poll
             }
             
             if builtin_func_name not in builtin_functions:
