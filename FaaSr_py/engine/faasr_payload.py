@@ -125,7 +125,7 @@ class FaaSrPayload:
 
         Example keys:
         OW
-            OW_API.key
+            OW_APIkey
         AWS
             AWS_AccessKey
             AWS_SecretKey
@@ -175,8 +175,8 @@ class FaaSrPayload:
                     self._base_workflow["ComputeServers"][name]["Token"] = token
 
                 case "OpenWhisk":
-                    api_key = _get(f"{name}_API.key")
-                    self._base_workflow["ComputeServers"][name]["API.key"] = api_key
+                    api_key = _get(f"{name}_APIkey")
+                    self._base_workflow["ComputeServers"][name]["APIkey"] = api_key
 
                 case _:
                     logger.warning(f"Unknown FaaSType for {name}: {faas_type}")
