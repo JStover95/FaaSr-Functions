@@ -92,7 +92,7 @@ def vm_poll(faasr_payload):
                             logger.error("Runner verification timed out")
                             raise RuntimeError("GitHub runner not available")
                     else:
-                        logger.warning("Missing repo/runner info - cannot verify")
+                        logger.warning("Missing repository/runner info - cannot verify")
         else:
             logger.warning("GH_PAT not found - cannot verify runner status")
         

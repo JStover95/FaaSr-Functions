@@ -1,6 +1,6 @@
 """
 Built-in FaaSr functions.
-These are framework-provided functions automatically available.
+These are FaaSr-provided built-in functions for vm orchestration.
 """
 
 from .vm_start import vm_start

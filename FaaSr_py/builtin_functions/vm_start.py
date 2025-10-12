@@ -9,8 +9,8 @@ logger = logging.getLogger("FaaSr_py.builtin")
 
 def vm_start(faasr_payload):
     """
-    Start VM instance (fire and forget).
-    Does NOT wait for readiness - that's handled by vm_poll.
+    Start VM instance.
+    Does NOT wait for vm readiness - that's handled by vm_poll.
     
     Args:
         faasr_payload: FaaSrPayload object
