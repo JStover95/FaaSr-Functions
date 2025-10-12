@@ -495,12 +495,6 @@
       "enum": ["AWS"],
       "description": "Cloud provider for VM instances"
     },
-    "Strategy": {
-      "type": "string",
-      "enum": ["simple_start_end", "per_function", "optimized"],
-      "description": "VM orchestration strategy",
-      "default": "simple_start_end"
-    },
     "InstanceId": {
       "type": "string",
       "description": "Existing EC2 instance ID"
