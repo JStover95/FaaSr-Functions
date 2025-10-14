@@ -16,7 +16,7 @@
       "sum": {
         "FunctionName": "compute_sum",
         "FaaSServer": "GH",
-        "Type": "R",
+        "Type": "Python",
         "Arguments": {
           "folder": "tutorial",
           "input2": "sample2.csv",
@@ -44,7 +44,7 @@
     },
     "ActionContainers": {
       "start": "ghcr.io/faasr/github-actions-r:latest",
-      "sum": "ghcr.io/faasr/github-actions-r:latest"
+      "sum": "ghcr.io/faasr/github-actions-python:latest"
     },
     "FunctionInvoke": "start",
     "DefaultDataStore": "S3",
