@@ -306,11 +306,10 @@ class FaaSrPayload:
 
         self._generate_invocation_timestamp()
 
-        # Create invocation ID if one is not already present
-        if not self["InvocationID"] or self["InvocationID"].strip() == "":
-            # ID = uuid.uuid4()
-            # self["InvocationID"] = str(ID)
+        invocation_id = self.get("InvocationID", "")
+        if not invocation_id or invocation_id.strip() == "":
             self._generate_invocation_id()
+
 
         faasr_msg = f"InvocationID for the workflow: {self['InvocationID']}"
         logger.info(faasr_msg)
