@@ -1,0 +1,374 @@
+# Testing Framework Implementation Plan
+
+This document outlines a possible implementation of the FaaSr Integration Testing Framework into the existing FaaSr-Backend package.
+
+## Implementation with Existing Package Code
+
+It may be ideal to use the `testing` directory for the testing utils and move actual tests out of the package directory.
+
+```plaintext
+FaaSr_py/
+└── testing/
+    ├── __init__.py
+    ├── utils/
+    │   ├── __init__.py
+    │   ├── exceptions.py
+    │   ├── enums.py
+    │   ├── utils.py
+    ├── faasr_function.py
+    ├── faasr_function_logger.py
+    ├── faasr_s3_client.py              # Currently `scripts/s3_client.py`
+    ├── faasr_workflow.py
+    └── faasr_workflow_tester.py        # Currently in `tests/conftest.py`
+```
+
+### Files and Interfaces
+
+#### `exceptions.py`
+
+Includes custom exceptions:
+
+- `S3ClientInitializationError`
+- `S3ClientError`
+- `InitializationError`
+- `StopMonitoring`
+
+#### `enums.py`
+
+Includes enums for the testing framework:
+
+- `FunctionStatus`
+- `InvocationStatus`
+- `LogEvent`
+
+#### `utils.py`
+
+Includes miscellaneous utility functions for the testing framework.
+
+- Status flags
+  - `pending(status: FunctionStatus) -> bool`
+  - `invoked(status: FunctionStatus) -> bool`
+  - `not_invoked(status: FunctionStatus) -> bool`
+  - `running(status: FunctionStatus) -> bool`
+  - `completed(status: FunctionStatus) -> bool`
+  - `failed(status: FunctionStatus) -> bool`
+  - `skipped(status: FunctionStatus) -> bool`
+  - `timed_out(status: FunctionStatus) -> bool`
+  - `has_run(status: FunctionStatus) -> bool`
+  - `has_completed(status: FunctionStatus) -> bool`
+  - `has_final_state(status: FunctionStatus) -> bool`
+- `extract_function_name(function_name: str) -> str`
+- `get_s3_path(key: str) -> str`
+
+#### `faasr_s3_client.py`
+
+Includes the `FaaSrS3Client` class. This abstracts operations for S3 workflow outputs.
+
+**Methods:**
+
+- `object_exists(self, key: str) -> bool:`
+- `get_object(self, key: str, encoding: str = "utf-8") -> str:`
+
+#### `faasr_function_logger.py`
+
+Includes the `FaaSrFunctionLogger` class. This handles pulling logs from S3.
+
+**Properties:**
+
+- `logs: list[str]`
+- `logs_content: str`
+- `logs_key: str`
+- `logs_started: bool`
+- `logs_complete: bool`
+- `stop_requested: bool`
+
+**Methods:**
+
+- `start() -> None`
+- `stop() -> None`
+- `register_callback(self, callback: Callable[[LogEvent], None]) -> None`
+
+#### `faasr_function.py`
+
+Includes the `FaaSrFunction` class. This manages the execution status and monitoring of a single FaaSr function.
+
+**Properties:**
+
+- `status: FunctionStatus`
+- `done_key: str`
+- `invocations: set[str] | None`
+
+**Methods:**
+
+- `set_status(self, status: FunctionStatus) -> None`
+- `start(self) -> None`
+
+#### `faasr_workflow.py`
+
+Includes the `FaaSrWorkflow` class. This orchestrates workflow execution and monitoring of workflows.
+
+**Properties:**
+
+- `monitoring_complete: bool`
+- `shutdown_requested: bool`
+
+**Methods:**
+
+- `get_function_statuses(self) -> dict[str, FunctionStatus]`
+- `trigger_workflow(self) -> None`
+- `shutdown(self, timeout: float = None) -> bool`
+- `force_shutdown(self) -> None`
+- `cleanup(self) -> None`
+
+#### `faasr_workflow_tester.py`
+
+Includes the `FaaSrWorkflowTester` class. This includes utilities for running tests against a workflow based only on S3 outputs.
+
+**Properties:**
+
+- `s3_client: S3Client`
+
+**Methods:**
+
+- `get_s3_key(file_name: str) -> str`
+- `wait_for(function_name) -> str`
+- `assert_object_exists(object_name: str) -> None`
+- `assert_object_does_not_exist(object_name: str) -> None`
+- `assert_content_equals(object_name: str, expected_content: str) -> None`
+- `assert_function_completed(function_name: str) -> None`
+- `assert_function_not_invoked(function_name: str) -> None`
+
+## Key Assumptions & Questions
+
+The workflow runner makes a few key assumptions:
+
+### Workflow Isolation
+
+A workflow invocation is isolated from other workflow runs on S3 using its `InvocationID`. For example:
+
+```plaintext
+s3-bucket/
+└── folder-name/
+    ├── 4f290d29-7826-412c-a148-2d8f66c81b2f/
+    │   ├── function1_output.txt
+    │   └── function2_output.txt
+    └── ba7e2b99-ebe2-41b2-8c0d-56cbaea34993/
+        ├── function1_output.txt
+        └── function2_output.txt
+```
+
+Currently this is achieved by:
+
+- Explicitly setting the `InvocationID` and `InvocationTimestamp` in the workflow runner before triggering the workflow.
+- Using the invocation ID from within the function to isolate each run:
+
+```python
+import json
+import os
+
+
+def get_invocation_id() -> str:
+    try:
+        overwritten = json.loads(os.environ["OVERWRITTEN"])
+        if (
+            not isinstance(overwritten, dict)
+            or "InvocationID" not in overwritten
+            or not isinstance(overwritten["InvocationID"], str)
+            or overwritten["InvocationID"].strip() == ""
+        ):
+            raise EnvironmentError("InvocationID is not set")
+        return overwritten["InvocationID"]
+    except KeyError as e:
+        raise EnvironmentError("OVERWRITTEN is not set") from e
+    except json.JSONDecodeError as e:
+        raise EnvironmentError("OVERWRITTEN is not valid JSON") from e
+    except EnvironmentError:
+        raise
+
+
+def create_input(folder: str, input1: str) -> None:
+    invocation_id = get_invocation_id()
+
+    # Create input1 (input to be deleted using test_py_api)
+    with open(input1, "w") as f:
+        ...
+
+    faasr_put_file(
+        local_file=input1,
+        remote_file=f"{invocation_id}/{input1}",
+        remote_folder=folder,
+    )
+```
+
+This is not a good design for external end users because requiring them to get an invocation ID for each function adds unnecessary complexity. Instead we could:
+
+1. Simple solution: remove workflow isolation from `FaaSrWorkflow` entirely, or make it optional
+2. Complicated solution: Add workflow isolation directly to FaaSr-Backend
+   - If the user wants an event-driven workflow that triggers when an object is uploaded to a certain bucket, then they would need to include a function in their workflow to pull the object and save it in the isolated workflow folder.
+
+### Access to Workflow Data and `FaaSrPayload` Instance
+
+`FaaSrWorkflow` currently uses the `workflow_data` and `faasr_payload` attributes of the deprecated `WorkflowMigrationAdapter` for the following:
+
+- Getting the invocation folder with `get_invocation_folder`
+- Setting `InvocationID` and `InvocationTimestamp`
+- Building adjacency graphs
+- Getting the workflow name, invocation, action list, and default data store config
+
+To maintain this behavior, the invoker called by the FAASR-INVOKE action could do one of the following:
+
+1. Separate workflow data and invocation into different functions outside of `main`, allowing `FaaSrWorkflow` to use its own invocation logic.
+2. Write the invoker as a class (like `WorkflowMigrationAdapter`) that the `FaaSrWorkflow` could then override or use.
+
+## Example Usage
+
+### Pytest Integration
+
+The simplest use case will be for end users to run integration tests against their workflows. A user may have a repository with their workflow, functions, and tests:
+
+```plaintext
+user-repo/
+├── functions/                  # User-defined functions
+│   ├── __init__.py
+│   ├── initialize.py
+│   ├── process.py
+│   └── validate.py
+├── workflow.json               # User-defined workflow
+├── tests/                      # User-defined test suite with pytest
+│   ├── __init__.py
+│   └── test_integration.py
+└── run_workflow.py             # Script for triggering the workflow locally
+```
+
+The user will then import `FaaSrWorkflowTester` to run tests against their workflow:
+
+```python
+# test_integration.py
+
+import pytest
+
+from FaaSr_py.testing import WorkflowTester
+
+
+@pytest.fixture(scope="module", autouse=True)
+def tester():
+    with WorkflowTester(workflow_file_path="workflow.json") as tester:
+        yield tester
+
+
+def test_initialize(tester: WorkflowTester):
+    tester.wait_for("initialize")
+    ...
+
+
+def test_process(tester: WorkflowTester):
+    tester.wait_for("process")
+    ...
+
+
+def test_validate(tester: WorkflowTester):
+    tester.wait_for("validate")
+    ...
+```
+
+### Using `FaaSrWorkflow` Directly
+
+A user may want to use the `FaaSrWorkflow` directly for use cases outside of pytest. For example:
+
+```python
+# run_workflow.py
+
+from FaaSr_py.testing import FaaSrWorkflow
+
+
+runner = FaaSrWorkflow(
+    workflow_file_path="workflow.json",
+    timeout=120,
+    check_interval=1,
+    stream_logs=True,
+)
+
+# Start the workflow
+runner.trigger_workflow()
+
+# Monitor status changes
+previous_statuses = {}
+while not runner.monitoring_complete:
+    current_statuses = runner.get_function_statuses()
+    for function_name, status in current_statuses.items():
+        if (
+            function_name not in previous_statuses
+            or previous_statuses[function_name] != status
+        ):
+            match status:
+                case FunctionStatus.PENDING:
+                    ...
+                case FunctionStatus.INVOKED:
+                    ...
+                case FunctionStatus.NOT_INVOKED:
+                    ...
+                case FunctionStatus.RUNNING:
+                    ...
+                case FunctionStatus.COMPLETED:
+                    ...
+                case FunctionStatus.FAILED:
+                    ...
+                case FunctionStatus.SKIPPED:
+                    ...
+                case FunctionStatus.TIMEOUT:
+                    ...
+
+    previous_statuses = current_statuses.copy()
+```
+
+## Features to Add
+
+### Performance Monitoring
+
+It would be helpful to allow end users to monitor the performance of their workflows. A separate `FaaSrPerformanceMonitor` could take advantage of the logs collected by `FaaSrFunctionLogger` to capture performance metrics.
+
+### Sync/Async Invocation
+
+Currently `FaaSrWorkflow` runs in a separate thread to allow for parallel monitoring of function statuses. However, it may be advantageous to make `trigger_workflow` synchronous and instead have a separate `trigger_workflow_async` function. This would be suitable for use cases where the end user just wants to run their workflow and stream logs from a local machine and doesn't need additional monitoring logic.
+
+## Pip Optional Dependencies
+
+> **Note**: installing optional dependencies with pip does not change what source code is installed, only which *dependencies* are installed. Currently, this means there will be no difference between running `pip install faasr-backend` and `pip install faasr-backend[testing]`; however, it will be important to have for future additions like performance monitoring where we may use libraries like `pandas` or `numpy`.
+
+The testing framework can come bundled with [optional dependencies](https://pydevtools.com/handbook/explanation/what-are-optional-dependencies-and-dependency-groups/) for testing. These optional dependencies could then be installed with `pip install faasr-backend[testing]`.
+
+Optional dependencies can be defined with `setup.py` or `pyproject.toml` (recommended).
+
+### 1. Defining Optional Dependencies with `setup.py`
+
+```python
+from setuptools import find_packages, setup
+
+with open("requirements.txt") as f:
+    requirements = f.read().splitlines()
+
+setup(
+    name="FaaSr_py",
+    version="0.1.13",
+    packages=find_packages(),
+    include_package_data=True,
+    install_requires=requirements,
+    extras_require={
+        "testing": [
+            "pytest>=7.4.0",
+        ]
+    }
+)
+```
+
+### 2. Defining Optional Dependencies with `pyproject.toml`
+
+```toml
+[project]
+name = "FaaSr_py"
+version = "1.0.0"
+dependencies = ["..."]
+
+[project.optional-dependencies]
+testing = ["pytest>=7.4.0"]
+```
