@@ -119,6 +119,11 @@ def build_adjacency_graph(payload):
         if func not in ranks:
             ranks[func] = 0
 
+    # Ensure all actions from ActionList are in ranks
+    for func in payload["ActionList"].keys():
+        if func not in ranks:
+            ranks[func] = 0
+
     return (adj_graph, ranks)
 
 
