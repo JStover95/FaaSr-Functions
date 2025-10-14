@@ -22,7 +22,8 @@
     "WorkflowName": {
       "description": "A string that names the workflow for logging purposes - mandatory",
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "pattern": "^[a-zA-Z][a-zA-Z0-9-]*$"
     },
     "InvocationIDFromDate": {
       "description": "An optional strftime format string to derive a unique InvocationID from the InvocationTimestamp (e.g., '%Y%m%d' for daily, '%Y%m%d%H' for hourly)",
