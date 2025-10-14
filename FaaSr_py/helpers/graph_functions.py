@@ -93,7 +93,7 @@ def build_adjacency_graph(payload):
 
     # Build adjacency list from ActionList
     for func in payload["ActionList"].keys():
-        invoke_next = payload["ActionList"][func]["InvokeNext"]
+        invoke_next = payload["ActionList"][func].get("InvokeNext", [])
         if isinstance(invoke_next, str):
             invoke_next = [invoke_next]
         for child in invoke_next:
