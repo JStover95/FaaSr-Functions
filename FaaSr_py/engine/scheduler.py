@@ -34,7 +34,7 @@ class Scheduler:
         """
         # Get a list of the next functions to invoke
         curr_func = self.faasr["FunctionInvoke"]
-        invoke_next = self.faasr["ActionList"][curr_func]["InvokeNext"]
+        invoke_next = self.faasr["ActionList"][curr_func].get("InvokeNext", [])
         if not isinstance(invoke_next, list):
             invoke_next = [invoke_next]
 
