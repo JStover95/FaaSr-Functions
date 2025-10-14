@@ -31,7 +31,7 @@
         "FaaSType": "GitHubActions",
         "UserName": "YOUR_USERNAME",
         "UseSecretStore": true,
-        "ActionRepoName": "FaaSr-workflow-nolan",
+        "ActionRepoName": "FaaSr-workflow",
         "Branch": "main"
       }
     },
