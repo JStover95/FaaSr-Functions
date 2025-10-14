@@ -8,10 +8,17 @@
         "city": "Corvallis",
         "country_code": "US"
       },
-      "InvokeNext": [],
+      "InvokeNext": ["process-data"],
       "FaaSServer": "My_GitHub_Account",
       "Type": "Python",
       "FunctionName": "query_data"
+    },
+    "process-data": {
+      "Arguments": {},
+      "InvokeNext": [],
+      "FaaSServer": "My_GitHub_Account",
+      "Type": "Python",
+      "FunctionName": "process_data"
     }
   },
   "ComputeServers": {
@@ -31,12 +38,14 @@
     }
   },
   "ActionContainers": {
-    "query-data": "ghcr.io/faasr/github-actions-python:dev"
+    "query-data": "ghcr.io/faasr/github-actions-python:dev",
+    "process-data": "ghcr.io/faasr/github-actions-python:dev"
   },
   "FunctionInvoke": "query-data",
   "DefaultDataStore": "My_S3_Bucket",
   "FunctionGitRepo": {
-    "query-data": "JStover95/FaaSr-Functions/linear_workflow/python"
+    "query-data": "JStover95/FaaSr-Functions/linear_workflow/python",
+    "process-data": "JStover95/FaaSr-Functions/linear_workflow/python"
   },
   "LoggingDataStore": "My_S3_Bucket",
   "FaaSrLog": "FaaSrLog",
