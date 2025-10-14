@@ -22,7 +22,8 @@
     "WorkflowName": {
       "description": "A string that names the workflow for logging purposes - mandatory",
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "pattern": "^[a-zA-Z][a-zA-Z0-9-]*$"
     },
     "InvocationIDFromDate": {
       "description": "An optional strftime format string to derive a unique InvocationID from the InvocationTimestamp (e.g., '%Y%m%d' for daily, '%Y%m%d%H' for hourly)",
@@ -494,12 +495,6 @@
       "type": "string",
       "enum": ["AWS"],
       "description": "Cloud provider for VM instances"
-    },
-    "Strategy": {
-      "type": "string",
-      "enum": ["simple_start_end", "per_function", "optimized"],
-      "description": "VM orchestration strategy",
-      "default": "simple_start_end"
     },
     "InstanceId": {
       "type": "string",
