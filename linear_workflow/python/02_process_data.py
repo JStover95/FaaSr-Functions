@@ -78,6 +78,10 @@ def compare_to_yearly_average(
     current_year_df.to_csv(f"current_year_{output_name}", index=False)
     avg_prev_data.to_csv(f"avg_prev_data_{output_name}", index=False)
 
+    # Drop leap day
+    current_year_df = current_year_df[current_year_df["DAY"] != "02-29"]
+    avg_prev_data = avg_prev_data[avg_prev_data["DAY"] != "02-29"]
+
     # Upload the output files
     faasr_put_file(
         local_file=f"current_year_{output_name}",
