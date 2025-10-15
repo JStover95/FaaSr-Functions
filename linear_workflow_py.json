@@ -89,5 +89,10 @@
   "LoggingDataStore": "My_S3_Bucket",
   "FaaSrLog": "FaaSrLog",
   "InvocationID": "",
-  "WorkflowName": "LinearWorkflowPy"
+  "WorkflowName": "LinearWorkflowPy",
+  "PyPIPackageDownloads": {
+    "process-precipitation": ["pandas"],
+    "process-temperature-min": ["pandas"],
+    "process-temperature-max": ["pandas"]
+  }
 }
