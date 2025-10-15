@@ -1,1 +1,2 @@
 git+https://github.com/dekkov/FaaSr-Backend.git
+pandas==2.3.3
