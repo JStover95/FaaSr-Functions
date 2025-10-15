@@ -1,17 +1,15 @@
 {
   "ActionList": {
-    "query-data": {
+    "get-ghcnd-data": {
       "Arguments": {
-        "api_key_name": "openweather-api-key",
         "folder_name": "linear-workflow",
         "output_name": "weather-data.json",
-        "city": "Corvallis",
-        "country_code": "US"
+        "station_id": "USC00351857"
       },
       "InvokeNext": ["process-data"],
       "FaaSServer": "My_GitHub_Account",
       "Type": "Python",
-      "FunctionName": "query_data"
+      "FunctionName": "get_ghcnd_data"
     },
     "process-data": {
       "Arguments": {},
@@ -38,13 +36,13 @@
     }
   },
   "ActionContainers": {
-    "query-data": "ghcr.io/faasr/github-actions-python:dev",
+    "get-ghcnd-data": "ghcr.io/faasr/github-actions-python:dev",
     "process-data": "ghcr.io/faasr/github-actions-python:dev"
   },
-  "FunctionInvoke": "query-data",
+  "FunctionInvoke": "get-ghcnd-data",
   "DefaultDataStore": "My_S3_Bucket",
   "FunctionGitRepo": {
-    "query-data": "JStover95/FaaSr-Functions/linear_workflow/python",
+    "get-ghcnd-data": "JStover95/FaaSr-Functions/linear_workflow/python",
     "process-data": "JStover95/FaaSr-Functions/linear_workflow/python"
   },
   "LoggingDataStore": "My_S3_Bucket",
