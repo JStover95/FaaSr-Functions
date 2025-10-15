@@ -42,8 +42,8 @@
   "FunctionInvoke": "get-ghcnd-data",
   "DefaultDataStore": "My_S3_Bucket",
   "FunctionGitRepo": {
-    "get-ghcnd-data": "JStover95/FaaSr-Functions/linear_workflow/python",
-    "process-data": "JStover95/FaaSr-Functions/linear_workflow/python"
+    "get_ghcnd_data": "JStover95/FaaSr-Functions/linear_workflow/python",
+    "process_data": "JStover95/FaaSr-Functions/linear_workflow/python"
   },
   "LoggingDataStore": "My_S3_Bucket",
   "FaaSrLog": "FaaSrLog",
