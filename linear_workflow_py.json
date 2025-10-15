@@ -3,20 +3,59 @@
     "get-ghcnd-data": {
       "Arguments": {
         "folder_name": "linear-workflow",
-        "output_name": "weather-data.json",
-        "station_id": "USC00351857"
+        "output_name": "weather-data.csv",
+        "station_id": "USC00351862"
       },
-      "InvokeNext": ["process-data"],
+      "InvokeNext": [
+        "process-precipitation",
+        "process-temperature-min",
+        "process-temperature-max"
+      ],
       "FaaSServer": "My_GitHub_Account",
       "Type": "Python",
       "FunctionName": "get_ghcnd_data"
     },
-    "process-data": {
-      "Arguments": {},
+    "process-precipitation": {
+      "Arguments": {
+        "folder_name": "linear-workflow",
+        "input_name": "weather-data.csv",
+        "output_name": "precipitation-data.csv",
+        "column_name": "PRCP",
+        "start": "2025-01-01",
+        "end": "2025-03-01"
+      },
       "InvokeNext": [],
       "FaaSServer": "My_GitHub_Account",
       "Type": "Python",
-      "FunctionName": "process_data"
+      "FunctionName": "compare_to_yearly_average"
+    },
+    "process-temperature-min": {
+      "Arguments": {
+        "folder_name": "linear-workflow",
+        "input_name": "weather-data.csv",
+        "output_name": "temperature-min-data.csv",
+        "column_name": "TMIN",
+        "start": "2025-01-01",
+        "end": "2025-03-01"
+      },
+      "InvokeNext": [],
+      "FaaSServer": "My_GitHub_Account",
+      "Type": "Python",
+      "FunctionName": "compare_to_yearly_average"
+    },
+    "process-temperature-max": {
+      "Arguments": {
+        "folder_name": "linear-workflow",
+        "input_name": "weather-data.csv",
+        "output_name": "temperature-max-data.csv",
+        "column_name": "TMAX",
+        "start": "2025-01-01",
+        "end": "2025-03-01"
+      },
+      "InvokeNext": [],
+      "FaaSServer": "My_GitHub_Account",
+      "Type": "Python",
+      "FunctionName": "compare_to_yearly_average"
     }
   },
   "ComputeServers": {
@@ -37,13 +76,15 @@
   },
   "ActionContainers": {
     "get-ghcnd-data": "ghcr.io/faasr/github-actions-python:dev",
-    "process-data": "ghcr.io/faasr/github-actions-python:dev"
+    "process-precipitation": "ghcr.io/faasr/github-actions-python:dev",
+    "process-temperature-min": "ghcr.io/faasr/github-actions-python:dev",
+    "process-temperature-max": "ghcr.io/faasr/github-actions-python:dev"
   },
   "FunctionInvoke": "get-ghcnd-data",
   "DefaultDataStore": "My_S3_Bucket",
   "FunctionGitRepo": {
     "get_ghcnd_data": "JStover95/FaaSr-Functions/linear_workflow/python",
-    "process_data": "JStover95/FaaSr-Functions/linear_workflow/python"
+    "compare_to_yearly_average": "JStover95/FaaSr-Functions/linear_workflow/python"
   },
   "LoggingDataStore": "My_S3_Bucket",
   "FaaSrLog": "FaaSrLog",
