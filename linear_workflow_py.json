@@ -91,8 +91,8 @@
   "InvocationID": "",
   "WorkflowName": "LinearWorkflowPy",
   "PyPIPackageDownloads": {
-    "process-precipitation": ["pandas"],
-    "process-temperature-min": ["pandas"],
-    "process-temperature-max": ["pandas"]
+    "process_precipitation": ["pandas"],
+    "process_temperature_min": ["pandas"],
+    "process_temperature_max": ["pandas"]
   }
 }
