@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-from FaaSr_py.client.py_client_stubs import faasr_get_file, faasr_put_file
+from FaaSr_py.client.py_client_stubs import faasr_get_file, faasr_log, faasr_put_file
 from matplotlib.axes import Axes
 
 
@@ -152,13 +152,25 @@ def plot_weather_comparison(
         folder_name,
         input_precip_name,
     )
+
+    faasr_log(f"Loaded precipitation data from {folder_name}/{input_precip_name}")
+
     current_year_min_temp, prev_years_min_temp = get_input_data(
         folder_name,
         input_min_temp_name,
     )
+
+    faasr_log(
+        f"Loaded minimum temperature data from {folder_name}/{input_min_temp_name}"
+    )
+
     current_year_max_temp, prev_years_max_temp = get_input_data(
         folder_name,
         input_max_temp_name,
+    )
+
+    faasr_log(
+        f"Loaded maximum temperature data from {folder_name}/{input_max_temp_name}"
     )
 
     # 2. Prepare the data for plotting
@@ -170,6 +182,8 @@ def plot_weather_comparison(
         prev_years_min_temp,
         prev_years_max_temp,
     )
+
+    faasr_log("Prepared data for plotting")
 
     # 3. Create the figure with 3 subplots
     _, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 10))
@@ -186,6 +200,8 @@ def plot_weather_comparison(
         ylabel="Precipitation (mm)",
     )
 
+    faasr_log("Plotted precipitation subplot")
+
     # Maximum temperature subplot
     plot_subplot(
         ax=ax2,
@@ -196,6 +212,8 @@ def plot_weather_comparison(
         title="Maximum Temperature",
         ylabel="Temperature (°C)",
     )
+
+    faasr_log("Plotted maximum temperature subplot")
 
     # Minimum temperature subplot
     plot_subplot(
@@ -208,6 +226,8 @@ def plot_weather_comparison(
         ylabel="Temperature (°C)",
     )
 
+    faasr_log("Plotted minimum temperature subplot")
+
     # 4. Save the plot to a file and upload it to the S3 bucket
     plt.tight_layout()
     plt.savefig(output_name)
@@ -218,3 +238,5 @@ def plot_weather_comparison(
         remote_folder=folder_name,
         remote_file=output_name,
     )
+
+    faasr_log(f"Uploaded plot to {folder_name}/{output_name}")
