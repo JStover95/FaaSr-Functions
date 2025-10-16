@@ -1,6 +1,6 @@
 {
   "ActionList": {
-    "get-ghcnd-data": {
+    "get-data": {
       "Arguments": {
         "folder_name": "linear-workflow",
         "output_name": "weather-data.csv",
@@ -89,13 +89,13 @@
     }
   },
   "ActionContainers": {
-    "get-ghcnd-data": "ghcr.io/faasr/github-actions-python:dev",
+    "get-data": "ghcr.io/faasr/github-actions-python:dev",
     "process-precipitation": "ghcr.io/faasr/github-actions-python:dev",
     "process-temperature-min": "ghcr.io/faasr/github-actions-python:dev",
     "process-temperature-max": "ghcr.io/faasr/github-actions-python:dev",
     "plot-data": "ghcr.io/faasr/github-actions-python:dev"
   },
-  "FunctionInvoke": "get-ghcnd-data",
+  "FunctionInvoke": "get-data",
   "DefaultDataStore": "My_S3_Bucket",
   "FunctionGitRepo": {
     "get_ghcnd_data": "JStover95/FaaSr-Functions/linear_workflow/python",
