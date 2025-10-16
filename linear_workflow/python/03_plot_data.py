@@ -19,12 +19,12 @@ def plot_weather_comparison(
     faasr_get_file(
         local_file="current_year_precipitation-data.csv",
         remote_folder=folder_name,
-        remote_file=input_precip_name,
+        remote_file=f"current_year_{input_precip_name}",
     )
     faasr_get_file(
         local_file="avg_prev_data_precipitation-data.csv",
         remote_folder=folder_name,
-        remote_file=input_precip_name,
+        remote_file=f"avg_prev_data_{input_precip_name}",
     )
 
     current_year_precip = pd.read_csv("current_year_precipitation-data.csv")
@@ -34,12 +34,12 @@ def plot_weather_comparison(
     faasr_get_file(
         local_file="current_year_temperature-min-data.csv",
         remote_folder=folder_name,
-        remote_file=input_min_temp_name,
+        remote_file=f"current_year_{input_min_temp_name}",
     )
     faasr_get_file(
         local_file="avg_prev_data_temperature-min-data.csv",
         remote_folder=folder_name,
-        remote_file=input_min_temp_name,
+        remote_file=f"avg_prev_data_{input_min_temp_name}",
     )
 
     current_year_min_temp = pd.read_csv("current_year_temperature-min-data.csv")
@@ -49,12 +49,12 @@ def plot_weather_comparison(
     faasr_get_file(
         local_file="current_year_temperature-max-data.csv",
         remote_folder=folder_name,
-        remote_file=input_max_temp_name,
+        remote_file=f"current_year_{input_max_temp_name}",
     )
     faasr_get_file(
         local_file="avg_prev_data_temperature-max-data.csv",
         remote_folder=folder_name,
-        remote_file=input_max_temp_name,
+        remote_file=f"avg_prev_data_{input_max_temp_name}",
     )
 
     current_year_max_temp = pd.read_csv("current_year_temperature-max-data.csv")
