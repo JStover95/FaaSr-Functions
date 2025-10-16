@@ -116,9 +116,7 @@ def process_previous_years(
 
     # Calculate the mean value for each day across previous years
     previous_years = pd.concat(previous_years_data, ignore_index=True)
-    print(previous_years.head())
     df = previous_years.groupby("DAY")[column_name].mean().reset_index()
-    print(df.head())
     return df
 
 

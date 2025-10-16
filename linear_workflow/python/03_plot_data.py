@@ -100,6 +100,9 @@ def plot_subplot(
         title: The title of the subplot.
         ylabel: The label for the y-axis.
     """
+    print(title)
+    print(prev_years_x_data.head())
+    print(prev_years_y_data.head())
     ax.plot(
         x_data,
         y_data,
