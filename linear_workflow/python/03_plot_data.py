@@ -25,15 +25,15 @@ def get_input_data(
     )
 
     faasr_get_file(
-        local_file=f"avg_prev_data_{input_name}",
+        local_file=f"previous_years_{input_name}",
         remote_folder=folder_name,
-        remote_file=f"avg_prev_data_{input_name}",
+        remote_file=f"previous_years_{input_name}",
     )
 
     current_year_data = pd.read_csv(f"current_year_{input_name}")
-    avg_prev_data_data = pd.read_csv(f"avg_prev_data_{input_name}")
+    previous_years_data = pd.read_csv(f"previous_years_{input_name}")
 
-    return current_year_data, avg_prev_data_data
+    return current_year_data, previous_years_data
 
 
 def prepare_data(
@@ -100,9 +100,6 @@ def plot_subplot(
         title: The title of the subplot.
         ylabel: The label for the y-axis.
     """
-    print(title)
-    print(prev_years_x_data.head())
-    print(prev_years_y_data.head())
     ax.plot(
         x_data,
         y_data,
