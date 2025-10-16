@@ -76,10 +76,10 @@ def prepare_data(
 
 def plot_subplot(
     ax: Axes,
-    x_data: pd.Series[str],
-    y_data: pd.Series[float],
-    prev_years_x_data: pd.Series[str],
-    prev_years_y_data: pd.Series[float],
+    x_data: pd.Series,
+    y_data: pd.Series,
+    prev_years_x_data: pd.Series,
+    prev_years_y_data: pd.Series,
     title: str,
     ylabel: str,
 ) -> None:
