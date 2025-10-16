@@ -46,7 +46,7 @@ def process_current_year(
 ) -> pd.DataFrame:
     """
     Process the current year data and return a DataFrame with the day of the year and
-    the column value, dropping leap days.
+    the column value.
 
     Args:
         df: A pandas DataFrame containing the data to process.
@@ -61,10 +61,7 @@ def process_current_year(
 
     # Get only the day of the year and the column value
     current_year["DAY"] = current_year["DATE"].apply(lambda x: x[5:])
-    current_year = current_year[["DAY", column_name]]
-
-    # Drop leap days
-    return current_year[current_year["DAY"] != "02-29"]
+    return current_year[["DAY", column_name]]
 
 
 def process_previous_years(
@@ -75,7 +72,7 @@ def process_previous_years(
 ) -> pd.DataFrame:
     """
     Process the previous years data and return a DataFrame with the day of the year and
-    the column value, dropping leap days.
+    the column value.
 
     Args:
         df: A pandas DataFrame containing the data to process.
@@ -119,10 +116,7 @@ def process_previous_years(
 
     # Calculate the mean value for each day across previous years
     previous_years = pd.concat(previous_years_data, ignore_index=True)
-    previous_years_avg = previous_years.groupby("DAY")[column_name].mean().reset_index()
-
-    # Drop leap days
-    return previous_years_avg[previous_years_avg["DAY"] != "02-29"]
+    return previous_years.groupby("DAY")[column_name].mean().reset_index()
 
 
 def upload_current_year_data(

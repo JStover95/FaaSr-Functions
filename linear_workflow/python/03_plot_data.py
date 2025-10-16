@@ -71,6 +71,10 @@ def prepare_data(
     prev_years["TMAX"] = prev_years["TMAX"] / 10
     prev_years["TMIN"] = prev_years["TMIN"] / 10
 
+    # Drop leap days
+    current_year = current_year[current_year["DAY"] != "02-29"]
+    prev_years = prev_years[prev_years["DAY"] != "02-29"]
+
     return current_year, prev_years
 
 
