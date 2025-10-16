@@ -170,7 +170,6 @@ def plot_weather_comparison(
     # 3. Create the figure with 3 subplots
     _, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 10))
     plt.suptitle(f"Current Year Weather Data with 10 Year Average for {location}")
-    plt.tight_layout()
 
     # Precipitation subplot
     plot_subplot(
@@ -206,6 +205,7 @@ def plot_weather_comparison(
     )
 
     # 4. Save the plot to a file and upload it to the S3 bucket
+    plt.tight_layout()
     plt.savefig(output_name)
     plt.close()
 
