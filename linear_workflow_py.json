@@ -91,6 +91,7 @@
   "InvocationID": "",
   "WorkflowName": "LinearWorkflowPy",
   "PyPIPackageDownloads": {
-    "compare_to_yearly_average": ["pandas"]
+    "compare_to_yearly_average": ["pandas"],
+    "plot_weather_comparison": ["pandas", "matplotlib"]
   }
 }
