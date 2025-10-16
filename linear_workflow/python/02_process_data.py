@@ -115,6 +115,8 @@ def process_previous_years(
             prev_end_date.strftime("%Y-%m-%d"),
         )
 
+        print(year_data.head())
+
         # Convert date to MM-DD format for comparison
         year_data["DAY"] = year_data["DATE"].apply(lambda x: x[5:])
         previous_years_data.append(year_data[["DAY", column_name]])
