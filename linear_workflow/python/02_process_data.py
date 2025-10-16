@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 import pandas as pd
 from FaaSr_py.client.py_client_stubs import faasr_get_file, faasr_log, faasr_put_file
@@ -36,21 +36,6 @@ def slice_data_by_date(df: pd.DataFrame, start: str, end: str) -> pd.DataFrame:
         A pandas DataFrame containing the sliced data.
     """
     return df[(df["DATE"] >= start) & (df["DATE"] <= end)].copy()
-
-
-def modify_string_date(date_string: str, days: int) -> str:
-    """
-    Modify a date string by adding or subtracting days.
-
-    Args:
-        date_string: The date string to modify.
-        days: The number of days to add or subtract.
-
-    Returns:
-        A string containing the modified date.
-    """
-    new_date = datetime.strptime(date_string, "%Y-%m-%d") + timedelta(days=days)
-    return new_date.strftime("%Y-%m-%d")
 
 
 def process_current_year(
@@ -105,11 +90,28 @@ def process_previous_years(
     # Get data for the same period + 30 days from the previous 10 years
     previous_years_data = []
 
+    start_date = datetime.strptime(start, "%Y-%m-%d")
+    end_date = datetime.strptime(end, "%Y-%m-%d")
+
     for year_offset in range(1, 11):
         # Get data for this year
-        start_date_prev = modify_string_date(start, -365 * year_offset)
-        end_date_prev = modify_string_date(end, -365 * year_offset - 30)
-        year_data = slice_data_by_date(df, start_date_prev, end_date_prev)
+        prev_start_date = date(
+            year=start_date.year - year_offset,
+            month=start_date.month,
+            day=start_date.day,
+        )
+
+        prev_end_date = date(
+            year=end_date.year - year_offset,
+            month=end_date.month,
+            day=end_date.day,
+        ) + timedelta(days=30)  # Add 30 days to the end date
+
+        year_data = slice_data_by_date(
+            df,
+            prev_start_date.strftime("%Y-%m-%d"),
+            prev_end_date.strftime("%Y-%m-%d"),
+        )
 
         # Convert date to MM-DD format for comparison
         year_data["DAY"] = year_data["DATE"].apply(lambda x: x[5:])
