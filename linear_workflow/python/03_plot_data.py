@@ -8,6 +8,7 @@ def plot_weather_comparison(
     input_precip_name: str,
     input_min_temp_name: str,
     input_max_temp_name: str,
+    location: str,
     output_name: str,
 ):
     """
@@ -68,6 +69,7 @@ def plot_weather_comparison(
 
     # Create figure with 3 subplots
     _, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 10))
+    plt.title(f"Current Year Weather Data with 10 Year Average for {location}")
 
     current_year["TMAX"] = current_year["TMAX"] / 10
     current_year["TMIN"] = current_year["TMIN"] / 10
@@ -155,7 +157,6 @@ def plot_weather_comparison(
             ax.tick_params(axis="x", rotation=45)
 
     # Adjust layout to prevent overlap
-    plt.title("Current Year Weather Data with 10 Year Average")
     plt.tight_layout()
 
     # Save the plot to a file

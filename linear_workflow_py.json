@@ -63,6 +63,7 @@
         "input_precip_name": "precipitation-data.csv",
         "input_min_temp_name": "temperature-min-data.csv",
         "input_max_temp_name": "temperature-max-data.csv",
+        "location": "Corvallis, OR",
         "output_name": "weather-comparison.png"
       },
       "InvokeNext": [],
