@@ -89,8 +89,6 @@ def process_previous_years(
 
     start_date = datetime.strptime(start, "%Y-%m-%d")
     end_date = datetime.strptime(end, "%Y-%m-%d")
-    print(f"Start date: {start_date}")
-    print(f"End date: {end_date}")
 
     for year_offset in range(1, 11):
         # Get data for this year
@@ -106,16 +104,11 @@ def process_previous_years(
             day=end_date.day,
         ) + timedelta(days=30)  # Add 30 days to the end date
 
-        print(f"Previous start date: {prev_start_date}")
-        print(f"Previous end date: {prev_end_date}")
-
         year_data = slice_data_by_date(
             df,
             prev_start_date.strftime("%Y-%m-%d"),
             prev_end_date.strftime("%Y-%m-%d"),
         )
-
-        print(year_data.head())
 
         # Convert date to MM-DD format for comparison
         year_data["DAY"] = year_data["DATE"].apply(lambda x: x[5:])
@@ -123,7 +116,10 @@ def process_previous_years(
 
     # Calculate the mean value for each day across previous years
     previous_years = pd.concat(previous_years_data, ignore_index=True)
-    return previous_years.groupby("DAY")[column_name].mean().reset_index()
+    print(previous_years.head())
+    df = previous_years.groupby("DAY")[column_name].mean().reset_index()
+    print(df.head())
+    return df
 
 
 def upload_current_year_data(
