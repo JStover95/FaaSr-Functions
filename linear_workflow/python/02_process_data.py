@@ -11,7 +11,7 @@ def compare_to_yearly_average(
     column_name: str,
     start: str,
     end: str,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+):
     """
     Compare the values for this year to the average of the same 30 day period from the previous 10 years.
 
