@@ -91,7 +91,8 @@
     "get-ghcnd-data": "ghcr.io/faasr/github-actions-python:dev",
     "process-precipitation": "ghcr.io/faasr/github-actions-python:dev",
     "process-temperature-min": "ghcr.io/faasr/github-actions-python:dev",
-    "process-temperature-max": "ghcr.io/faasr/github-actions-python:dev"
+    "process-temperature-max": "ghcr.io/faasr/github-actions-python:dev",
+    "plot-data": "ghcr.io/faasr/github-actions-python:dev"
   },
   "FunctionInvoke": "get-ghcnd-data",
   "DefaultDataStore": "My_S3_Bucket",
