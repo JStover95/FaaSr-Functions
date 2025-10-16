@@ -24,7 +24,7 @@
         "start": "2025-01-01",
         "end": "2025-03-01"
       },
-      "InvokeNext": [],
+      "InvokeNext": ["plot-data"],
       "FaaSServer": "My_GitHub_Account",
       "Type": "Python",
       "FunctionName": "compare_to_yearly_average"
@@ -38,7 +38,7 @@
         "start": "2025-01-01",
         "end": "2025-03-01"
       },
-      "InvokeNext": [],
+      "InvokeNext": ["plot-data"],
       "FaaSServer": "My_GitHub_Account",
       "Type": "Python",
       "FunctionName": "compare_to_yearly_average"
@@ -52,10 +52,23 @@
         "start": "2025-01-01",
         "end": "2025-03-01"
       },
-      "InvokeNext": [],
+      "InvokeNext": ["plot-data"],
       "FaaSServer": "My_GitHub_Account",
       "Type": "Python",
       "FunctionName": "compare_to_yearly_average"
+    },
+    "plot-data": {
+      "Arguments": {
+        "folder_name": "linear-workflow",
+        "input_precip_name": "precipitation-data.csv",
+        "input_min_temp_name": "temperature-min-data.csv",
+        "input_max_temp_name": "temperature-max-data.csv",
+        "output_name": "weather-comparison.png"
+      },
+      "InvokeNext": [],
+      "FaaSServer": "My_GitHub_Account",
+      "Type": "Python",
+      "FunctionName": "plot_weather_comparison"
     }
   },
   "ComputeServers": {
