@@ -69,7 +69,7 @@ def plot_weather_comparison(
 
     # Create figure with 3 subplots
     _, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 10))
-    plt.title(f"Current Year Weather Data with 10 Year Average for {location}")
+    plt.suptitle(f"Current Year Weather Data with 10 Year Average for {location}")
 
     current_year["TMAX"] = current_year["TMAX"] / 10
     current_year["TMIN"] = current_year["TMIN"] / 10
