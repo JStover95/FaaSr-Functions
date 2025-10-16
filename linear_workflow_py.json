@@ -98,7 +98,8 @@
   "DefaultDataStore": "My_S3_Bucket",
   "FunctionGitRepo": {
     "get_ghcnd_data": "JStover95/FaaSr-Functions/linear_workflow/python",
-    "compare_to_yearly_average": "JStover95/FaaSr-Functions/linear_workflow/python"
+    "compare_to_yearly_average": "JStover95/FaaSr-Functions/linear_workflow/python",
+    "plot_weather_comparison": "JStover95/FaaSr-Functions/linear_workflow/python"
   },
   "LoggingDataStore": "My_S3_Bucket",
   "FaaSrLog": "FaaSrLog",
