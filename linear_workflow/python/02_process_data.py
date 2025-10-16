@@ -89,6 +89,8 @@ def process_previous_years(
 
     start_date = datetime.strptime(start, "%Y-%m-%d")
     end_date = datetime.strptime(end, "%Y-%m-%d")
+    print(f"Start date: {start_date}")
+    print(f"End date: {end_date}")
 
     for year_offset in range(1, 11):
         # Get data for this year
@@ -103,6 +105,9 @@ def process_previous_years(
             month=end_date.month,
             day=end_date.day,
         ) + timedelta(days=30)  # Add 30 days to the end date
+
+        print(f"Previous start date: {prev_start_date}")
+        print(f"Previous end date: {prev_end_date}")
 
         year_data = slice_data_by_date(
             df,
