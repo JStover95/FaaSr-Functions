@@ -21,12 +21,12 @@
       "Type": "R",
       "Arguments": {
         "folder": "tutorialLarger",
-        "input2": "sample2.csv",
-        "input1": "sample1.csv",
+        "input2": "sample1.csv",
+        "input1": "sample2.csv",
         "output": "sum.csv"
       },
       "InvokeNext": [
-        "sum_python"
+        "sumFinal"
       ]
     },
     "mult": {
@@ -39,7 +39,7 @@
         "output": "mult.csv"
       },
       "InvokeNext": [
-        "sum-with-arrow"
+        "sumArrow"
       ],
       "Type": "R"
     },
@@ -53,11 +53,11 @@
         "output": "div.csv"
       },
       "InvokeNext": [
-        "sum-with-arrow"
+        "sumArrow"
       ],
       "Type": "R"
     },
-    "sum-with-arrow": {
+    "sumArrow": {
       "FunctionName": "compute_sum_arrow",
       "FaaSServer": "GH",
       "Arguments": {
@@ -67,21 +67,21 @@
         "output": "sum2.csv"
       },
       "InvokeNext": [
-        "sum-python"
+        "sumFinal"
       ],
       "Type": "R"
     },
-    "sum-python": {
+    "sumFinal": {
       "FunctionName": "compute_sum",
       "FaaSServer": "GH",
       "Arguments": {
         "folder": "tutorialLarger",
-        "input2": "sum.csv",
-        "input1": "sum2.csv",
+        "input2": "sum2.csv",
+        "input1": "sum.csv",
         "output": "finalsum.csv"
       },
       "InvokeNext": [],
-      "Type": "Python"
+      "Type": "R"
     }
   },
   "ComputeServers": {
@@ -105,20 +105,21 @@
     "sum": "ghcr.io/faasr/github-actions-r:latest",
     "mult": "ghcr.io/faasr/github-actions-r:latest",
     "div": "ghcr.io/faasr/github-actions-r:latest",
-    "sum-with-arrow": "ghcr.io/faasr/github-actions-r:latest",
-    "sum-python": "ghcr.io/faasr/github-actions-python:latest"
+    "sumArrow": "ghcr.io/faasr/github-actions-r:latest",
+    "sumPy": "ghcr.io/faasr/github-actions-python:latest",
+    "sumFinal": "ghcr.io/faasr/github-actions-r:latest"
   },
   "FunctionInvoke": "start",
   "DefaultDataStore": "S3",
   "FunctionGitRepo": {
     "create_sample_data": "FaaSr/FaaSr-Functions",
     "compute_sum": "FaaSr/FaaSr-Functions",
-    "compute_sum_arrow": "FaaSr/FaaSr-Functions",
     "compute_mult": "FaaSr/FaaSr-Functions",
-    "compute_div": "FaaSr/FaaSr-Functions"
+    "compute_div": "FaaSr/FaaSr-Functions",
+    "compute_sum_arrow": "FaaSr/FaaSr-Functions"
   },
   "LoggingDataStore": "S3",
   "FaaSrLog": "FaaSrLog",
-  "InvocationID": "tutorialLarger",
+  "InvocationID": "tutorial",
   "WorkflowName": "tutorialLarger"
 }
