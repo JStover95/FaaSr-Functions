@@ -53,7 +53,7 @@
         "output": "div.csv"
       },
       "InvokeNext": [
-        "sum_with_arrow"
+        "sum-with-arrow"
       ],
       "Type": "R"
     },
