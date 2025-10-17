@@ -2,7 +2,7 @@
   "ActionList": {
     "start": {
       "Arguments": {
-        "folder": "tutorial_larger",
+        "folder": "tutorialLarger",
         "output1": "sample1.csv",
         "output2": "sample2.csv"
       },
@@ -20,7 +20,7 @@
       "FaaSServer": "GH",
       "Type": "R",
       "Arguments": {
-        "folder": "tutorial_larger",
+        "folder": "tutorialLarger",
         "input2": "sample2.csv",
         "input1": "sample1.csv",
         "output": "sum.csv"
@@ -33,13 +33,13 @@
       "FunctionName": "compute_mult",
       "FaaSServer": "GH",
       "Arguments": {
-        "folder": "tutorial_larger",
+        "folder": "tutorialLarger",
         "input2": "sample2.csv",
         "input1": "sample1.csv",
         "output": "mult.csv"
       },
       "InvokeNext": [
-        "sum_with_arrow"
+        "sum-with-arrow"
       ],
       "Type": "R"
     },
@@ -47,7 +47,7 @@
       "FunctionName": "compute_div",
       "FaaSServer": "GH",
       "Arguments": {
-        "folder": "tutorial_larger",
+        "folder": "tutorialLarger",
         "input2": "sample2.csv",
         "input1": "sample1.csv",
         "output": "div.csv"
@@ -57,25 +57,25 @@
       ],
       "Type": "R"
     },
-    "sum_with_arrow": {
+    "sum-with-arrow": {
       "FunctionName": "compute_sum_arrow",
       "FaaSServer": "GH",
       "Arguments": {
-        "folder": "tutorial_larger",
+        "folder": "tutorialLarger",
         "input2": "mult.csv",
         "input1": "div.csv",
         "output": "sum2.csv"
       },
       "InvokeNext": [
-        "sum_python"
+        "sum-python"
       ],
       "Type": "R"
     },
-    "sum_python": {
+    "sum-python": {
       "FunctionName": "compute_sum",
       "FaaSServer": "GH",
       "Arguments": {
-        "folder": "tutorial_larger",
+        "folder": "tutorialLarger",
         "input2": "sum.csv",
         "input1": "sum2.csv",
         "output": "finalsum.csv"
@@ -105,8 +105,8 @@
     "sum": "ghcr.io/faasr/github-actions-r:latest",
     "mult": "ghcr.io/faasr/github-actions-r:latest",
     "div": "ghcr.io/faasr/github-actions-r:latest",
-    "sum_with_arrow": "ghcr.io/faasr/github-actions-r:latest",
-    "sum_python": "ghcr.io/faasr/github-actions-python:latest"
+    "sum-with-arrow": "ghcr.io/faasr/github-actions-r:latest",
+    "sum-python": "ghcr.io/faasr/github-actions-python:latest"
   },
   "FunctionInvoke": "start",
   "DefaultDataStore": "S3",
@@ -119,6 +119,6 @@
   },
   "LoggingDataStore": "S3",
   "FaaSrLog": "FaaSrLog",
-  "InvocationID": "tutorial",
-  "WorkflowName": "tutorial_larger"
+  "InvocationID": "tutorialLarger",
+  "WorkflowName": "tutorialLarger"
 }
