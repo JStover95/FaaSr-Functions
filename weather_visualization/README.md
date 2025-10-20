@@ -218,6 +218,8 @@ def slice_data_by_date(df: pd.DataFrame, start: str, end: str) -> pd.DataFrame:
 
 Now we can start writing our logic for processing observation data. We will start with a function to process the current year's data. This will receive as arguments the DataFrame, name of the column we want to extract, and start and end dates. Since we are interested in the date only for comparison to previous years, we will create a `DAY` column that includes only the month and day of the `DATE` column.
 
+> ℹ️ This function uses `apply` for efficient operations on DataFrames. For more information refer to the [pandas documentation](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.apply.html).
+
 ```python
 def process_current_year(
     df: pd.DataFrame,
@@ -307,6 +309,8 @@ def process_previous_years(
 ```
 
 As a final step, we will need to upload our processed data to S3. These two functions upload the current and previous years' averages, taking advantage of `to_csv` to save our DataFrames as CSV files before uploading.
+
+> ℹ️ `to_csv` handles much of the complexity of converting our data to a CSV file. For more information refer to the [pandas documentation](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html)
 
 ```python
 def upload_current_year_data(
@@ -450,6 +454,8 @@ def get_input_data(
 ```
 
 Before plotting our data, we need to perform a few operations to prepare it for visualization. First, we will use `merge` to combine our current and previous years' data. The dataset we are using in this example reports temperature in tenths of a degree Celsius, so we will transform our temperature observation columns to whole degrees Celsius. Finally, we also drop leap days.
+
+> ℹ️ For more information on merging and joining DataFrames, see [Merge, join, concatenate, and compare](https://pandas.pydata.org/docs/user_guide/merging.html).
 
 ```python
 def prepare_data(
