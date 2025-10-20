@@ -100,6 +100,7 @@ def plot_subplot(
         title: The title of the subplot.
         ylabel: The label for the y-axis.
     """
+    # Create the plot for the current year
     ax.plot(
         x_data,
         y_data,
@@ -108,6 +109,7 @@ def plot_subplot(
         linewidth=2,
     )
 
+    # Create the plot for the previous years
     ax.plot(
         prev_years_x_data,
         prev_years_y_data,
@@ -117,11 +119,13 @@ def plot_subplot(
         linestyle="--",
     )
 
+    # Set the title and y-axis label
     ax.set_title(title)
     ax.set_ylabel(ylabel)
     ax.legend()
     ax.grid(True, alpha=0.3)
 
+    # Set the x-axis ticks to every 7th day
     tick_positions = prev_years_x_data[::7]
     ax.set_xticks(tick_positions)
     ax.tick_params(axis="x", rotation=45)
