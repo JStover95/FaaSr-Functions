@@ -47,9 +47,9 @@ Inspecting a CSV file, we see columns with:
 2. Daily weather observations like `PRCP` (precipitation), `TMIN` (minimum temperature), and `TMAX` (maximum temperature)
 3. Metadata (measurement, quality, and source flags) about the daily observations, labeled as `..._ATTRIBUTES`
 
-For this tutorial, we will be focusing on daily observations of precipitation and temperature to build our data visualization.
-
 > ℹ️ A more sophisticated data analysis would consider the additional observation metadata, however this is out of scope for this tutorial.
+
+For this tutorial, we will be focusing on daily observations of precipitation and temperature to build our data visualization.
 
 For this tutorial we will be using the Corvallis, OR (Oregon State University) station data (`USC00351862`). A complete list of weather stations and their IDs in this dataset can be found here: [https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt](https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt)
 
@@ -90,6 +90,8 @@ def build_url(station_id: str) -> str:
 
 We will write a single function for handling the CSV download using the `requests` library. This will receive the URL to download from and the name of the file to save the CSV data to. This will return an integer with the number of rows in the CSV.
 
+> ℹ️ Note that we wrapped the download in a `try`/`except` block. This allows us to use `faasr_log` to record an error, simplifying troubleshooting if the download fails.
+
 ```python
 def download_data(url: str, output_name: str) -> str:
     """
@@ -116,8 +118,6 @@ def download_data(url: str, output_name: str) -> str:
         faasr_log(f"Error downloading data from {url}: {e}")
         raise e
 ```
-
-> ℹ️ Note that we wrapped the download in a `try`/`except` block. This allows us to use `faasr_log` to record an error, simplifying troubleshooting if the download fails.
 
 Finally, we can put everything together in a single function that:
 
@@ -198,6 +198,8 @@ def get_input_data(folder_name: str, input_name: str) -> pd.DataFrame:
 
 We will be consistently working with date ranges while processing data, so we need a function that handles slicing a DataFrame by dates. This function will receive a DataFrame and start and end dates that we will use to return rows from the start date to the end data (inclusive).
 
+> ℹ️ This function uses boolean indexing to locate all rows within a certain date range. For more details see [Indexing and selecting data](https://pandas.pydata.org/docs/user_guide/indexing.html).
+
 ```python
 def slice_data_by_date(df: pd.DataFrame, start: str, end: str) -> pd.DataFrame:
     """
@@ -213,8 +215,6 @@ def slice_data_by_date(df: pd.DataFrame, start: str, end: str) -> pd.DataFrame:
     """
     return df[(df["DATE"] >= start) & (df["DATE"] <= end)].copy()
 ```
-
-> ℹ️ This function uses boolean indexing to locate all rows within a certain date range. For more details see [Indexing and selecting data](https://pandas.pydata.org/docs/user_guide/indexing.html).
 
 Now we can start writing our logic for processing observation data. We will start with a function to process the current year's data. This will receive as arguments the DataFrame, name of the column we want to extract, and start and end dates. Since we are interested in the date only for comparison to previous years, we will create a `DAY` column that includes only the month and day of the `DATE` column.
 
@@ -246,6 +246,8 @@ def process_current_year(
 ```
 
 The next function requires some added complexity to calculate the average observation values from the previous 10 years. To manage this, we take advantage of the datetime library to move our start and end dates to previous years and use `timedelta` to add 30 days to the tail of the previous years' averages. The `concat` and `groupby` functions in the pandas library allow us to concatenate all data from each year then calculate the mean for each day, which we then return as the final result.
+
+> ℹ️ For more information on the `groupby` function, see [Group by: split-apply-combine](https://pandas.pydata.org/docs/user_guide/groupby.html).
 
 ```python
 def process_previous_years(
@@ -303,8 +305,6 @@ def process_previous_years(
     df = previous_years.groupby("DAY")[column_name].mean().reset_index()
     return df
 ```
-
-> ℹ️ For more information on the `groupby` function, see [Group by: split-apply-combine](https://pandas.pydata.org/docs/user_guide/groupby.html).
 
 As a final step, we will need to upload our processed data to S3. These two functions upload the current and previous years' averages, taking advantage of `to_csv` to save our DataFrames as CSV files before uploading.
 
@@ -498,6 +498,8 @@ Since our visualization includes a unique subplot for each visualization, we wil
 
 To distinguish current and previous years' data, we modify the `alpha` and `linestyle` properties of the previous years' data. As a final step we also modify the x-axis ticks to display every 7th day only.
 
+> ℹ️ To see a robust catalog of operations you can perform on a subplot in matplotlib, see [Subplots, axes and figures](https://matplotlib.org/stable/gallery/subplots_axes_and_figures/index.html).
+
 ```python
 def plot_subplot(
     ax: Axes,
@@ -552,8 +554,6 @@ def plot_subplot(
     ax.tick_params(axis="x", rotation=45)
 ```
 
-> ℹ️ To see a robust catalog of operations you can perform on a subplot in matplotlib, see [Subplots, axes and figures](https://matplotlib.org/stable/gallery/subplots_axes_and_figures/index.html).
-
 Finally, we will write our FaaSr function that:
 
 1. Gets the input data.
@@ -562,6 +562,8 @@ Finally, we will write our FaaSr function that:
 4. Saves the plot to a file and uploads it to S3.
 
 Here, we use `plt.subplots` to create a figure with three subplots. The axes of these subplots (`ax1`, `ax2`, and `ax3`) are what we pass to the previous function we wrote.
+
+> ℹ️ For more information on working with subplots in matplotlib, see [Create multiple subplots using `plt.subplots`](https://matplotlib.org/stable/gallery/subplots_axes_and_figures/subplots_demo.html)
 
 ```python
 def plot_weather_comparison(
@@ -678,5 +680,3 @@ def plot_weather_comparison(
 
     faasr_log(f"Uploaded plot to {folder_name}/{output_name}")
 ```
-
-> ℹ️ For more information on working with subplots in matplotlib, see [Create multiple subplots using `plt.subplots`](https://matplotlib.org/stable/gallery/subplots_axes_and_figures/subplots_demo.html)
