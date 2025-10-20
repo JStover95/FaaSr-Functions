@@ -17,7 +17,7 @@ def build_url(station_id: str) -> str:
     return f"{base_url}/{station_id}.csv"
 
 
-def download_data(url: str, output_name: str) -> str:
+def download_data(url: str, output_name: str) -> int:
     """
     Download data from the NOAA Global Historical Climatology Network Daily (GHCND)
     dataset for a specific station and save it to a local file.
