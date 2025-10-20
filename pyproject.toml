@@ -1,0 +1,14 @@
+[project]
+name = "faasr-functions"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "faasr-py",
+    "matplotlib>=3.10.7",
+    "pandas>=2.3.3",
+]
+
+[tool.uv.sources]
+faasr-py = { git = "https://github.com/dekkov/FaaSr-Backend.git" }
