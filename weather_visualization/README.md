@@ -43,21 +43,21 @@ USC00351897.csv 2025-10-19 13:01  7349609
 
 Inspecting a CSV file, we see columns with:
 
-1. Metadata such as the station ID and station name
-2. Daily weather observations like `PRCP` (precipitation), `TMIN` (minimum temperature), and `TMAX` (maximum temperature)
-3. Metadata (measurement, quality, and source flags) about the daily observations, labeled as `..._ATTRIBUTES`
+1. Metadata such as the station ID and station name.
+2. Daily weather observations like `PRCP` (precipitation), `TMIN` (minimum temperature), and `TMAX` (maximum temperature).
+3. Metadata (measurement, quality, and source flags) about the daily observations, labeled as `..._ATTRIBUTES`.
 
 > ℹ️ A more sophisticated data analysis would consider the additional observation metadata, however this is out of scope for this tutorial.
 
 For this tutorial, we will be focusing on daily observations of precipitation and temperature to build our data visualization.
 
-For this tutorial we will be using the Corvallis, OR (Oregon State University) station data (`USC00351862`). A complete list of weather stations and their IDs in this dataset can be found here: [https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt](https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt)
+For this tutorial we will be using the Corvallis, OR (Oregon State University) station data (`USC00351862`). A complete list of weather stations and their IDs in this dataset can be found here: [https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt](https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt).
 
 ## Writing our Functions
 
 ### 1. Get our Data
 
-The first function in our workflow is tasked with getting our GHCND data. The complete function can be found in [01_get_data.py](./python/01_get_data.py)
+The first function in our workflow is tasked with getting our GHCND data. The complete function can be found in [01_get_data.py](./python/01_get_data.py).
 
 First, we will write our imports:
 
@@ -121,9 +121,9 @@ def download_data(url: str, output_name: str) -> str:
 
 Finally, we can put everything together in a single function that:
 
-1. Builds the URL
-2. Downloads the CSV file to a local file
-3. Uploads the file to the S3 bucket using `faasr_put_file`
+1. Builds the URL.
+2. Downloads the CSV file to a local file.
+3. Uploads the file to the S3 bucket using `faasr_put_file`.
 
 This function will be called by FaaSr, so we will configure the `folder_name`, `output_name`, and `station_id` arguments when building our workflow.
 
@@ -310,7 +310,7 @@ def process_previous_years(
 
 As a final step, we will need to upload our processed data to S3. These two functions upload the current and previous years' averages, taking advantage of `to_csv` to save our DataFrames as CSV files before uploading.
 
-> ℹ️ `to_csv` handles much of the complexity of converting our data to a CSV file. For more information refer to the [pandas documentation](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html)
+> ℹ️ `to_csv` handles much of the complexity of converting our data to a CSV file. For more information refer to the [pandas documentation](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_csv.html).
 
 ```python
 def upload_current_year_data(
@@ -569,7 +569,7 @@ Finally, we will write our FaaSr function that:
 
 Here, we use `plt.subplots` to create a figure with three subplots. The axes of these subplots (`ax1`, `ax2`, and `ax3`) are what we pass to the previous function we wrote.
 
-> ℹ️ For more information on working with subplots in matplotlib, see [Create multiple subplots using `plt.subplots`](https://matplotlib.org/stable/gallery/subplots_axes_and_figures/subplots_demo.html)
+> ℹ️ For more information on working with subplots in matplotlib, see [Create multiple subplots using `plt.subplots`](https://matplotlib.org/stable/gallery/subplots_axes_and_figures/subplots_demo.html).
 
 ```python
 def plot_weather_comparison(
