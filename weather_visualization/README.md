@@ -51,6 +51,8 @@ For this tutorial, we will be focusing on daily observations of precipitation an
 
 > ℹ️ A more sophisticated data analysis would consider the additional observation metadata, however this is out of scope for this tutorial.
 
+For this tutorial we will be using the Corvallis, OR (Oregon State University) station data (`USC00351862`). A complete list of weather stations and their IDs in this dataset can be found here: [https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt](https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt)
+
 ## Writing our Functions
 
 ### 1. Get our Data
