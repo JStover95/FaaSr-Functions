@@ -1,5 +1,17 @@
 # Weather Visualization Workflow
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
+- [Understanding our Data](#understanding-our-data)
+- [Writing our Functions](#writing-our-functions)
+  - [1. Get our Data](#1-get-our-data)
+  - [2. Process our Data](#2-process-our-data)
+  - [3. Plot our Data](#3-plot-our-data)
+
+## Introduction
+
 The Weather Visualization Workflow is an example of a common FaaSr use case. It pulls data from the NOAA Global Historical Climatology Network Daily (GHCND) dataset, processes the data, and creates a visualization that is uploaded to S3.
 
 ```mermaid
