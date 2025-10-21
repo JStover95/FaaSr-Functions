@@ -4,6 +4,13 @@ from .get_folder_list import faasr_get_folder_list
 from .get_s3_creds import faasr_get_s3_creds
 from .log import faasr_log
 from .put_file import faasr_put_file
+import os
+
+# Set environment variables for compatibility with OSN and other S3-compatible services
+# These disable the new checksum behaviors introduced in boto3 1.36.0+ that cause 
+# problems with some S3-compatible storage providers
+os.environ["AWS_REQUEST_CHECKSUM_CALCULATION"] = "when_required"
+os.environ["AWS_RESPONSE_CHECKSUM_VALIDATION"] = "when_required"
 
 __all__ = [
     "faasr_log",
