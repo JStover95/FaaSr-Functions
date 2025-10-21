@@ -82,7 +82,7 @@ def faasr_log(faasr_payload, log_message):
         except s3_client.exceptions.ClientError as e:
             logger.error(f"Error reuploading log file: {e}")
             sys.exit(1)
-
+        
         log_download_path.unlink()
 
         logger.debug("Log succesfully uploaded")

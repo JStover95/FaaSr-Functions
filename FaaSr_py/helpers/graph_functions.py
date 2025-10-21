@@ -132,6 +132,99 @@ def get_ranks(payload):
     _, rank = build_adjacency_graph(payload)
     return rank
 
+def classify_predecessor_types(payload):
+    """
+    Classifies each action's predecessors as unconditional or conditional.
+    
+    Arguments:
+        payload: FaaSr payload dict
+    Returns:
+        dict: {action_name: {
+            'unconditional': [list of unconditional predecessors],
+            'conditional': {source_action: {'True': [...], 'False': [...]}}
+        }}
+    """
+    from collections import defaultdict
+    
+    predecessor_types = defaultdict(lambda: {
+        'unconditional': [],
+        'conditional': defaultdict(lambda: {'True': [], 'False': []})
+    })
+    
+    # Iterate through all actions and their edges
+    for action_name, action_config in payload["ActionList"].items():
+        invoke_next = action_config.get("InvokeNext", [])
+        
+        # Ensure it's a list
+        if isinstance(invoke_next, str):
+            invoke_next = [invoke_next]
+        
+        for edge in invoke_next:
+            if isinstance(edge, dict):
+                # Conditional edge
+                for branch in ['True', 'False']:
+                    if branch in edge:
+                        targets = edge[branch]
+                        if isinstance(targets, str):
+                            targets = [targets]
+                        
+                        for target in targets:
+                            # Extract action name (remove rank if present)
+                            target_name, _ = extract_rank(target)
+                            predecessor_types[target_name]['conditional'][action_name][branch].append(action_name)
+            else:
+                # Unconditional edge
+                target_name, _ = extract_rank(edge)
+                predecessor_types[target_name]['unconditional'].append(action_name)
+    
+    return predecessor_types
+
+def check_mixed_predecessor_types(payload):
+    """
+    Validates that no action has mixed predecessor types (conditional + unconditional).
+    This prevents deadlock scenarios where an action waits for .done files from 
+    predecessors that may not execute due to conditional branching.
+    
+    Arguments:
+        payload: FaaSr payload dict
+    Raises:
+        SystemExit if mixed predecessors detected
+    """
+    predecessor_types = classify_predecessor_types(payload)
+    
+    for action_name, pred_info in predecessor_types.items():
+        has_unconditional = len(pred_info['unconditional']) > 0
+        has_conditional = len(pred_info['conditional']) > 0
+        
+        # Check for mixed types
+        if has_unconditional and has_conditional:
+            unconditional_list = ', '.join(pred_info['unconditional'])
+            conditional_sources = list(pred_info['conditional'].keys())
+            conditional_list = ', '.join(conditional_sources)
+            
+            err_msg = (
+                f"Mixed predecessor types detected for action '{action_name}':\n"
+                f"  - Unconditional predecessors: {unconditional_list}\n"
+                f"  - Conditional predecessors: {conditional_list}\n"
+                f"This can cause deadlock. Conditional branches must not merge with unconditional paths.\n"
+                f"Solution: Ensure all predecessors of '{action_name}' are either all unconditional or all conditional."
+            )
+            logger.error(err_msg)
+            sys.exit(1)
+        
+        # Check for multiple conditional sources
+        if has_conditional:
+            conditional_sources = list(pred_info['conditional'].keys())
+            if len(conditional_sources) > 1:
+                err_msg = (
+                    f"Multiple conditional sources detected for action '{action_name}':\n"
+                    f"  - Sources: {', '.join(conditional_sources)}\n"
+                    f"This can cause deadlock. An action can only be targeted by conditional branches from a single source.\n"
+                    f"Solution: Restructure workflow so '{action_name}' has conditional predecessors from only one source."
+                )
+                logger.error(err_msg)
+                sys.exit(1)
+
 
 def check_dag(faasr_payload):
     """
@@ -195,6 +288,8 @@ def check_dag(faasr_payload):
                         f" - offending functions: {func}({ranks[func]}) and {pre_f}({ranks[pre_f]})"
                     )
                     sys.exit(1)
+
+    check_mixed_predecessor_types(faasr_payload)
 
     curr_pre = pre[faasr_payload["FunctionInvoke"]]
     real_pre = []

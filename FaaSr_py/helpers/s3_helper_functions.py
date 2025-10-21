@@ -2,6 +2,7 @@ import logging
 import sys
 import uuid
 from pathlib import Path
+import botocore
 
 import boto3
 
@@ -55,21 +56,40 @@ def get_default_log_boto3_client(faasr_payload):
         logger.error(err_msg)
         sys.exit(1)
 
-    if s3_log_info.get("Endpoint"):
-        return boto3.client(
-            "s3",
-            aws_access_key_id=s3_log_info["AccessKey"],
-            aws_secret_access_key=s3_log_info["SecretKey"],
-            region_name=s3_log_info["Region"],
-            endpoint_url=s3_log_info["Endpoint"],
-        )
+    # Check for anonymous access
+    if s3_log_info.get("Anonymous", False):
+        # Handle anonymous access
+        logger.info(f"Using anonymous access for S3 server: {target_s3}")
+        if s3_log_info.get("Endpoint"):
+            return boto3.client(
+                "s3",
+                region_name=s3_log_info["Region"],
+                endpoint_url=s3_log_info["Endpoint"],
+                config=botocore.config.Config(signature_version=botocore.UNSIGNED)
+            )
+        else:
+            return boto3.client(
+                "s3",
+                region_name=s3_log_info["Region"],
+                config=botocore.config.Config(signature_version=botocore.UNSIGNED)
+            )
     else:
-        return boto3.client(
-            "s3",
-            aws_access_key_id=s3_log_info["AccessKey"],
-            aws_secret_access_key=s3_log_info["SecretKey"],
-            region_name=s3_log_info["Region"],
-        )
+        # Authenticated access
+        if s3_log_info.get("Endpoint"):
+            return boto3.client(
+                "s3",
+                aws_access_key_id=s3_log_info["AccessKey"],
+                aws_secret_access_key=s3_log_info["SecretKey"],
+                region_name=s3_log_info["Region"],
+                endpoint_url=s3_log_info["Endpoint"],
+            )
+        else:
+            return boto3.client(
+                "s3",
+                aws_access_key_id=s3_log_info["AccessKey"],
+                aws_secret_access_key=s3_log_info["SecretKey"],
+                region_name=s3_log_info["Region"],
+            )
 
 
 def flush_s3_log():

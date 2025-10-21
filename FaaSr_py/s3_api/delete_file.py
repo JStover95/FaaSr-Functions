@@ -2,6 +2,7 @@ import logging
 import re
 import sys
 from pathlib import Path
+import botocore
 
 import boto3
 
@@ -56,21 +57,39 @@ def faasr_delete_file(faasr_payload, remote_file, server_name="", remote_folder=
         # Get the S3 data store to delete file from
         target_s3 = faasr_payload["DataStores"][server_name]
 
-        if target_s3.get("Endpoint"):
-            s3_client = boto3.client(
-                "s3",
-                aws_access_key_id=target_s3["AccessKey"],
-                aws_secret_access_key=target_s3["SecretKey"],
-                region_name=target_s3["Region"],
-                endpoint_url=target_s3["Endpoint"],
-            )
+        if target_s3.get("Anonymous", False):
+            # Handle anonymous access
+            logger.info(f"Using anonymous access for S3 server: {server_name}")
+            if target_s3.get("Endpoint"):
+                s3_client = boto3.client(
+                    "s3",
+                    region_name=target_s3["Region"],
+                    endpoint_url=target_s3["Endpoint"],
+                    config=botocore.config.Config(signature_version=botocore.UNSIGNED)
+                )
+            else:
+                s3_client = boto3.client(
+                    "s3",
+                    region_name=target_s3["Region"],
+                    config=botocore.config.Config(signature_version=botocore.UNSIGNED)
+                )
         else:
-            s3_client = boto3.client(
-                "s3",
-                aws_access_key_id=target_s3["AccessKey"],
-                aws_secret_access_key=target_s3["SecretKey"],
-                region_name=target_s3["Region"],
-            )
+            # Authenticated access
+            if target_s3.get("Endpoint"):
+                s3_client = boto3.client(
+                    "s3",
+                    aws_access_key_id=target_s3["AccessKey"],
+                    aws_secret_access_key=target_s3["SecretKey"],
+                    region_name=target_s3["Region"],
+                    endpoint_url=target_s3["Endpoint"],
+                )
+            else:
+                s3_client = boto3.client(
+                    "s3",
+                    aws_access_key_id=target_s3["AccessKey"],
+                    aws_secret_access_key=target_s3["SecretKey"],
+                    region_name=target_s3["Region"],
+                )
 
         # Delete file from S3
         try:
