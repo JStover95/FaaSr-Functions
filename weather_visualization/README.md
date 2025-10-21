@@ -16,11 +16,11 @@ The Weather Visualization Workflow is an example of a common FaaSr use case. It 
 
 ```mermaid
 flowchart LR
-  01["get-data"]
-  02a["process-precipitation"]
-  02b["process-temperature-min"]
-  02c["process-temperature-max"]
-  03["plot-data"]
+  01["Get Data"]
+  02a["Process Precipitation"]
+  02b["Process Temperature Min"]
+  02c["Process Temperature Max"]
+  03["Plot Data"]
 
   01 --> 02a
   01 --> 02b
@@ -32,7 +32,7 @@ flowchart LR
 
 Below is an example of the visualization we will be creating:
 
-![Example Weather Data Visualization](../assets/weather-visualization-workflow-example.png)
+![Example weather data visualization](../assets/weather-visualization-workflow-example.png)
 
 ## Prerequisites
 
@@ -698,3 +698,152 @@ def plot_weather_comparison(
 
     faasr_log(f"Uploaded plot to {folder_name}/{output_name}")
 ```
+
+## Building our Workflow
+
+Now that we wrote our three functions, we are ready to start building our workflow using the FaaSr Workflow Builder: [https://faasr.io/FaaSr-workflow-builder/](https://faasr.io/FaaSr-workflow-builder/).
+
+The final workflow file that we will create can be found in [weather_visualization_py.json](../weather_visualization_py.json). Before getting started, you can visualize this workflow by clicking **Upload** from the Workflow Builder and either uploading the file or importing from its GitHub URL: [https://github.com/JStover95/FaaSr-Functions/blob/main/weather_visualization_py.json](https://github.com/JStover95/FaaSr-Functions/blob/main/weather_visualization_py.json).
+
+> ℹ️ As you make changes to your workflow, you can click the **vertical layout** or **horizontal layout** controls at the top of the right-hand layout view to re-arrange the layout with your changes.
+
+### 1. Set Up our Compute Server
+
+After opening the Workflow Builder, we will first add a compute server. This can be one of GitHub Actions, AWS Lambda, or more (see the documentation for more details ...). For this tutorial, we will use GitHub Actions.
+
+Click **Edit Compute Servers** and enter the information for the GitHub repository that you want to run the actions on. For example:
+
+![Compute server screenshot](../assets/weather-visualization-workflow-compute-server.png)
+
+### 2. Set Up our Data Store
+
+Click **Edit Data Stores**. Then , enter the endpoint, bucket, and region for your data store. This can be the same as what you used when following the tutorial.
+
+The workflow is set up to use an AWS S3 bucket in the region `us-east-1` by default:
+
+![Data store screenshot](../assets/weather-visualization-workflow-data-store.png)
+
+### 3. Add our Functions
+
+#### Get Data Function
+
+Navigate back to **Edit Actions/Functions** and find the field labeled **Start typing to create a new action...**, then enter `GetData` and press Enter.
+
+![Create a new action screenshot](../assets/weather-visualization-workflow-add-function.png)
+
+With the function created, we can begin configuring it. For **Function Name**, enter the name of the function we created in [1. Get our Data](#1-get-our-data): `get_ghcnd_data`. For **Language**, select **Python**, and for **Compute Server**, ensure it is set to the default **GH** that we created in [1. Set Up our Computer Server](#1-set-up-our-compute-server).
+
+> ⚠️ Notice here that `get_ghcnd_data` is the _Function Name_ (the name of the actual Python function that FaaSr will run), while `GetData` is the _Action ID_ (the unique identifier that FaaSr will use for orchestrating the workflow).
+
+Your configuration should appear as below:
+
+![Function configuration screenshot](../assets/weather-visualization-workflow-configure-function.png)
+
+To add arguments to the function, click **Add New Arguments** under the **Arguments** header. In the popup window enter the following argument names and values:
+
+- `folder_name`: weather-visualization
+- `output_name`: weather-data.csv
+- `station_id`: USC00351862
+
+> ℹ️ `USC00351862` is the ID of the Oregon State University station in Corvallis, OR. For information on finding a different Station ID, see [Understanding our Data](#understanding-our-data)
+
+You should see the arguments entered as below:
+
+![Function arguments](../assets/weather-visualization-workflow-function-arguments.png)
+
+Next, for **Function's Git Repo/Path**, enter the Git repository name and folder that contains the Python files we created in [Writing our Functions](#writing-our-functions). For example: `JStover95/FaaSr-Functions/weather_visualization/python`. Leave **Function's Action Container** blank to use the default container.
+
+> ℹ️ This is the Docker container that will run the FaaSr framework and invoke our functions. It is possible to use your own container here, but is only recommended for very advanced use cases and an in-depth knowledge of Docker.
+
+#### Data Processing Functions
+
+Next we will create three functions for processing our data, one for each variable that we are interested in (precipitation, minimum temperature, and maximum temperature).
+
+Create a new function called `ProcessPrecipitation`. For **Function Name** enter the name of the function we created in [2. Process our Data](#2-process-our-data): `compare_to_yearly_average`. Set **Language** and **Compute Server** to **Python** and **GH**.
+
+Next, add our arguments:
+
+- `folder_name`: weather-visualization
+- `input_name`: weather-data.csv
+- `output_name`: precipitation-data.csv
+- `column_name`: PRCP
+- `start`: 2025-01-01
+- `end`: 2025-03-01
+
+Now, set **Function's Git Repo/Path** to `JStover95/FaaSr-Functions/weather_visualization/python` and leave **Function's Action Container** blank.
+
+Because our function uses the pandas library, we must add it to the function. Under **Python Packages for the Function**, enter `pandas` in the **NewPackageName** field and click **Add Package**.
+
+> ℹ️ FaaSr will always install the latest version of Python packages. It recommended to write your code with the latest available versions to avoid any conflicts with old package versions.
+
+Your Python packages should appear as below:
+
+![Python packages screenshot](../assets/weather-visualization-workflow-add-python-package.png)
+
+With our Process Precipitation function created, we can simplify the creation of the same function for minimum and maximum temperature using the Workflow Builder's duplicate action feature. Scroll to the top of the left-hand menu to find the **Duplicate Action** field, enter `ProcessTemperatureMin`, and click **Duplicate Action**:
+
+![Duplicate action screenshot](../assets/weather-visualization-workflow-duplicate-action.png)
+
+For the duplicated action, the only configuration we must change are the `output_name` and `column_name` arguments. Everything else can remain exactly the same, since FaaSr will run the exact same function:
+
+- `output_name`: temperature-min-data.csv
+- `column_name`: TMIN
+
+Finally, duplicate the action once more, naming the next function `ProcessTemperatureMax` and change the arguments accordingly:
+
+- `output_name`: temperature-max-data.csv
+- `column_name`: TMAX
+
+#### Plot Data Function
+
+Finally we will create the function for plotting our data. Create a new function called `PlotData`. Use the same configuration as our previous functions with the following differences:
+
+For **Function Name** enter the name of the function we created in [3. Plot our Data](#3-plot-our-data): `plot_weather_comparison`.
+
+Enter the following arguments:
+
+- `folder_name`: weather-visualization
+- `input_precip_name`: precipitation-data.csv
+- `input_min_temp_name`: temperature-min-data.csv
+- `input_max_temp_name`: temperature-max-data.csv
+- `location`: Corvallis, OR
+  - You may change this location depending on which Station ID you decided to use in the Get Data function.
+- `output_name`: weather-comparison.png
+
+For Python packages, enter both `pandas` and `matplotlib`.
+
+### 4. Connect our Functions
+
+Our workflow's functions are configured, so our next step is to define its invocation paths. Navigate to our Get Data function, either by clicking it in the right-hand layout view or selecting it from the dropdown at the top of the left-hand menu.
+
+Scroll to **Next Actions to Invoke**, click **Add New InvokeNext**, and use the popup menu to connect the Get Data function with our Data Processing functions. With the leftmost dropdown menu, select `ProcessPrecipitation`, leave the remaining options unchanged, and click **Add New InvokeNext**.
+
+> ℹ️ This popup menu also allows us to define rank (parallel execution) and conditional invocation (depending on whether a function returns `true` or `false`). These are not in this tutorial, but refer to the documentation for more information ...
+
+Repeat this for our other Data Processing functions `ProcessTemperatureMin` and `ProcessTemperatureMax`. Our next invocations should now appear as below:
+
+![Next actions to invoke screenshot](../assets/weather-visualization-workflow-invoke-next.png)
+
+Now, repeat this process to connect each of our Data Processing functions to our Plot Data function. From each, click **Add New InvokeNext**, and from the dropdown menu select `PlotData`.
+
+### 5. Finalize our Workflow Configuration
+
+Our final step is to finalize our workflow configuration. Click **Workflow Settings**, then for **Workflow Name** enter `WeatherVisualizationWorkflow` and for **Entry Point** select `GetData`. Leave the remaining configuration as default.
+
+> ℹ️ **Entry Point** is the first function we want to invoke in or workflow.
+
+> ℹ️ Refer to the documentation (...) for more details on the other configuration options in this menu.
+
+Your workflow settings should appear as below:
+
+![Workflow settings](../assets/weather-visualization-workflow-settings.png)
+
+## Download and Invoke our Workflow
+
+With our workflow complete, click the **vertical layout** control at the top of the right-hand layout view to see our changes. The complete workflow should appear as below:
+
+![Workflow layout screenshot](../assets/weather-visualization-workflow-layout.png)
+
+Click on **Download** and click the **Download WeatherVisualizationWorkflow.json** button in the popup menu.
+
+> ℹ️ It is possible to also download a particular Workflow Builder layout, in case it is necessary to share the particular layout with others on your team.

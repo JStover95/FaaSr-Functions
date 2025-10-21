@@ -1,21 +1,21 @@
 {
   "ActionList": {
-    "get-data": {
+    "GetData": {
       "Arguments": {
         "folder_name": "weather-visualization",
         "output_name": "weather-data.csv",
         "station_id": "USC00351862"
       },
       "InvokeNext": [
-        "process-precipitation",
-        "process-temperature-min",
-        "process-temperature-max"
+        "ProcessPrecipitation",
+        "ProcessTemperatureMin",
+        "ProcessTemperatureMax"
       ],
       "FaaSServer": "My_GitHub_Account",
       "Type": "Python",
       "FunctionName": "get_ghcnd_data"
     },
-    "process-precipitation": {
+    "ProcessPrecipitation": {
       "Arguments": {
         "folder_name": "weather-visualization",
         "input_name": "weather-data.csv",
@@ -24,12 +24,12 @@
         "start": "2025-01-01",
         "end": "2025-03-01"
       },
-      "InvokeNext": ["plot-data"],
+      "InvokeNext": ["PlotData"],
       "FaaSServer": "My_GitHub_Account",
       "Type": "Python",
       "FunctionName": "compare_to_yearly_average"
     },
-    "process-temperature-min": {
+    "ProcessTemperatureMin": {
       "Arguments": {
         "folder_name": "weather-visualization",
         "input_name": "weather-data.csv",
@@ -38,12 +38,12 @@
         "start": "2025-01-01",
         "end": "2025-03-01"
       },
-      "InvokeNext": ["plot-data"],
+      "InvokeNext": ["PlotData"],
       "FaaSServer": "My_GitHub_Account",
       "Type": "Python",
       "FunctionName": "compare_to_yearly_average"
     },
-    "process-temperature-max": {
+    "ProcessTemperatureMax": {
       "Arguments": {
         "folder_name": "weather-visualization",
         "input_name": "weather-data.csv",
@@ -52,12 +52,12 @@
         "start": "2025-01-01",
         "end": "2025-03-01"
       },
-      "InvokeNext": ["plot-data"],
+      "InvokeNext": ["PlotData"],
       "FaaSServer": "My_GitHub_Account",
       "Type": "Python",
       "FunctionName": "compare_to_yearly_average"
     },
-    "plot-data": {
+    "PlotData": {
       "Arguments": {
         "folder_name": "weather-visualization",
         "input_precip_name": "precipitation-data.csv",
@@ -89,13 +89,13 @@
     }
   },
   "ActionContainers": {
-    "get-data": "ghcr.io/faasr/github-actions-python:dev",
-    "process-precipitation": "ghcr.io/faasr/github-actions-python:dev",
-    "process-temperature-min": "ghcr.io/faasr/github-actions-python:dev",
-    "process-temperature-max": "ghcr.io/faasr/github-actions-python:dev",
-    "plot-data": "ghcr.io/faasr/github-actions-python:dev"
+    "GetData": "ghcr.io/faasr/github-actions-python:dev",
+    "ProcessPrecipitation": "ghcr.io/faasr/github-actions-python:dev",
+    "ProcessTemperatureMin": "ghcr.io/faasr/github-actions-python:dev",
+    "ProcessTemperatureMax": "ghcr.io/faasr/github-actions-python:dev",
+    "PlotData": "ghcr.io/faasr/github-actions-python:dev"
   },
-  "FunctionInvoke": "get-data",
+  "FunctionInvoke": "GetData",
   "DefaultDataStore": "My_S3_Bucket",
   "FunctionGitRepo": {
     "get_ghcnd_data": "JStover95/FaaSr-Functions/weather_visualization/python",
