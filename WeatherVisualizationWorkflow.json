@@ -24,9 +24,7 @@
         "start": "2025-01-01",
         "end": "2025-03-01"
       },
-      "InvokeNext": [
-        "PlotData"
-      ],
+      "InvokeNext": ["PlotData"],
       "FaaSServer": "GH",
       "Type": "Python",
       "FunctionName": "compare_to_yearly_average"
@@ -42,9 +40,7 @@
         "start": "2025-01-01",
         "end": "2025-03-01"
       },
-      "InvokeNext": [
-        "PlotData"
-      ],
+      "InvokeNext": ["PlotData"],
       "Type": "Python"
     },
     "ProcessTemperatureMax": {
@@ -58,9 +54,7 @@
         "start": "2025-01-01",
         "end": "2025-03-01"
       },
-      "InvokeNext": [
-        "PlotData"
-      ],
+      "InvokeNext": ["PlotData"],
       "Type": "Python"
     },
     "PlotData": {
@@ -88,7 +82,7 @@
     }
   },
   "DataStores": {
-    "S3": {
+    "My_S3_Bucket": {
       "Writable": "TRUE",
       "Endpoint": "https://s3.us-east-1.amazonaws.com",
       "Bucket": "faasr-sample-functions",
@@ -103,22 +97,17 @@
     "ProcessTemperatureMax": "ghcr.io/faasr/github-actions-python:dev"
   },
   "FunctionInvoke": "GetData",
-  "DefaultDataStore": "S3",
+  "DefaultDataStore": "My_S3_Bucket",
   "FunctionGitRepo": {
     "get_ghcnd_data": "JStover95/FaaSr-Functions/weather_visualization/python",
     "compare_to_yearly_average": "JStover95/FaaSr-Functions/weather_visualization/python",
     "plot_weather_comparison": "JStover95/FaaSr-Functions/weather_visualization/python"
   },
   "PyPIPackageDownloads": {
-    "compare_to_yearly_average": [
-      "pandas"
-    ],
-    "plot_weather_comparison": [
-      "pandas",
-      "matplotlib"
-    ]
+    "compare_to_yearly_average": ["pandas"],
+    "plot_weather_comparison": ["pandas", "matplotlib"]
   },
   "FaaSrLog": "FaaSrLog",
-  "LoggingDataStore": "S3",
+  "LoggingDataStore": "My_S3_Bucket",
   "WorkflowName": "WeatherVisualizationWorkflow"
 }
