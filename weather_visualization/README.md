@@ -32,7 +32,7 @@ flowchart LR
 
 Below is an example of the visualization we will be creating:
 
-![Example weather data visualization](../assets/weather-visualization-workflow-example.png)
+![Example weather data visualization](../assets/weather-visualization-workflow-example-600px.png)
 
 ## Prerequisites
 
@@ -713,7 +713,7 @@ After opening the Workflow Builder, we will first add a compute server. This can
 
 Click **Edit Compute Servers** and enter the information for the GitHub repository that you want to run the actions on. For example:
 
-![Compute server screenshot](../assets/weather-visualization-workflow-compute-server.png)
+![Compute server screenshot](../assets/weather-visualization-workflow-compute-server-600px.png)
 
 ### 2. Set Up our Data Store
 
@@ -721,7 +721,7 @@ Click **Edit Data Stores**. Then , enter the endpoint, bucket, and region for yo
 
 The workflow is set up to use an AWS S3 bucket in the region `us-east-1` by default:
 
-![Data store screenshot](../assets/weather-visualization-workflow-data-store.png)
+![Data store screenshot](../assets/weather-visualization-workflow-data-store-600px.png)
 
 ### 3. Add our Functions
 
@@ -729,7 +729,7 @@ The workflow is set up to use an AWS S3 bucket in the region `us-east-1` by defa
 
 Navigate back to **Edit Actions/Functions** and find the field labeled **Start typing to create a new action...**, then enter `GetData` and press Enter.
 
-![Create a new action screenshot](../assets/weather-visualization-workflow-add-function.png)
+![Create a new action screenshot](../assets/weather-visualization-workflow-add-function-600px.png)
 
 With the function created, we can begin configuring it. For **Function Name**, enter the name of the function we created in [1. Get our Data](#1-get-our-data): `get_ghcnd_data`. For **Language**, select **Python**, and for **Compute Server**, ensure it is set to the default **GH** that we created in [1. Set Up our Computer Server](#1-set-up-our-compute-server).
 
@@ -737,7 +737,7 @@ With the function created, we can begin configuring it. For **Function Name**, e
 
 Your configuration should appear as below:
 
-![Function configuration screenshot](../assets/weather-visualization-workflow-configure-function.png)
+![Function configuration screenshot](../assets/weather-visualization-workflow-configure-function-600px.png)
 
 To add arguments to the function, click **Add New Arguments** under the **Arguments** header. In the popup window enter the following argument names and values:
 
@@ -749,7 +749,7 @@ To add arguments to the function, click **Add New Arguments** under the **Argume
 
 You should see the arguments entered as below:
 
-![Function arguments](../assets/weather-visualization-workflow-function-arguments.png)
+![Function arguments](../assets/weather-visualization-workflow-function-arguments-600px.png)
 
 Next, for **Function's Git Repo/Path**, enter the Git repository name and folder that contains the Python files we created in [Writing our Functions](#writing-our-functions). For example: `JStover95/FaaSr-Functions/weather_visualization/python`. Leave **Function's Action Container** blank to use the default container.
 
@@ -778,11 +778,11 @@ Because our function uses the pandas library, we must add it to the function. Un
 
 Your Python packages should appear as below:
 
-![Python packages screenshot](../assets/weather-visualization-workflow-add-python-package.png)
+![Python packages screenshot](../assets/weather-visualization-workflow-add-python-package-600px.png)
 
 With our Process Precipitation function created, we can simplify the creation of the same function for minimum and maximum temperature using the Workflow Builder's duplicate action feature. Scroll to the top of the left-hand menu to find the **Duplicate Action** field, enter `ProcessTemperatureMin`, and click **Duplicate Action**:
 
-![Duplicate action screenshot](../assets/weather-visualization-workflow-duplicate-action.png)
+![Duplicate action screenshot](../assets/weather-visualization-workflow-duplicate-action-600px.png)
 
 For the duplicated action, the only configuration we must change are the `output_name` and `column_name` arguments. Everything else can remain exactly the same, since FaaSr will run the exact same function:
 
@@ -822,7 +822,7 @@ Scroll to **Next Actions to Invoke**, click **Add New InvokeNext**, and use the 
 
 Repeat this for our other Data Processing functions `ProcessTemperatureMin` and `ProcessTemperatureMax`. Our next invocations should now appear as below:
 
-![Next actions to invoke screenshot](../assets/weather-visualization-workflow-invoke-next.png)
+![Next actions to invoke screenshot](../assets/weather-visualization-workflow-invoke-next-600px.png)
 
 Now, repeat this process to connect each of our Data Processing functions to our Plot Data function. From each, click **Add New InvokeNext**, and from the dropdown menu select `PlotData`.
 
@@ -831,18 +831,17 @@ Now, repeat this process to connect each of our Data Processing functions to our
 Our final step is to finalize our workflow configuration. Click **Workflow Settings**, then for **Workflow Name** enter `WeatherVisualizationWorkflow` and for **Entry Point** select `GetData`. Leave the remaining configuration as default.
 
 > ℹ️ **Entry Point** is the first function we want to invoke in or workflow.
-
 > ℹ️ Refer to the documentation (...) for more details on the other configuration options in this menu.
 
 Your workflow settings should appear as below:
 
-![Workflow settings](../assets/weather-visualization-workflow-settings.png)
+![Workflow settings](../assets/weather-visualization-workflow-settings-600px.png)
 
 ## Download and Invoke our Workflow
 
 With our workflow complete, click the **vertical layout** control at the top of the right-hand layout view to see our changes. The complete workflow should appear as below:
 
-![Workflow layout screenshot](../assets/weather-visualization-workflow-layout.png)
+![Workflow layout screenshot](../assets/weather-visualization-workflow-layout-600px.png)
 
 Click on **Download** and click the **Download WeatherVisualizationWorkflow.json** button in the popup menu.
 
