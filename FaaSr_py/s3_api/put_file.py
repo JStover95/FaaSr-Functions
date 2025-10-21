@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import boto3
+import botocore
 
 from FaaSr_py.config.debug_config import global_config
 
@@ -78,22 +79,43 @@ def faasr_put_file(
         # Get the S3 server to put the file in
         target_s3 = faasr_payload["DataStores"][server_name]
 
-        if target_s3.get("Endpoint"):
-            s3_client = boto3.client(
-                "s3",
-                aws_access_key_id=target_s3["AccessKey"],
-                aws_secret_access_key=target_s3["SecretKey"],
-                region_name=target_s3["Region"],
-                endpoint_url=target_s3["Endpoint"],
+        # Check for anonymous access
+        if target_s3.get("Anonymous", False):
+            # Handle anonymous access with a warning since put operations likely won't work
+            logger.warning(
+                f"Attempting to put file to S3 server {server_name} using anonymous access. "
+                f"This will likely fail as public buckets typically don't allow writes."
             )
+            if target_s3.get("Endpoint"):
+                s3_client = boto3.client(
+                    "s3",
+                    region_name=target_s3["Region"],
+                    endpoint_url=target_s3["Endpoint"],
+                    config=botocore.config.Config(signature_version=botocore.UNSIGNED)
+                )
+            else:
+                s3_client = boto3.client(
+                    "s3",
+                    region_name=target_s3["Region"],
+                    config=botocore.config.Config(signature_version=botocore.UNSIGNED)
+                )
         else:
-            s3_client = boto3.client(
-                "s3",
-                aws_access_key_id=target_s3["AccessKey"],
-                aws_secret_access_key=target_s3["SecretKey"],
-                region_name=target_s3["Region"],
-            )
-
+            # Authenticated access
+            if target_s3.get("Endpoint"):
+                s3_client = boto3.client(
+                    "s3",
+                    aws_access_key_id=target_s3["AccessKey"],
+                    aws_secret_access_key=target_s3["SecretKey"],
+                    region_name=target_s3["Region"],
+                    endpoint_url=target_s3["Endpoint"],
+                )
+            else:
+                s3_client = boto3.client(
+                    "s3",
+                    aws_access_key_id=target_s3["AccessKey"],
+                    aws_secret_access_key=target_s3["SecretKey"],
+                    region_name=target_s3["Region"],
+                )
         try:
             with open(local_path, "rb") as put_data:
                 s3_client.put_object(
