@@ -727,7 +727,9 @@ Click **Edit Compute Servers** and enter the information for the GitHub reposito
 
 ### 2. Set Up our Data Store
 
-Click **Edit Data Stores**. Then , enter the endpoint, bucket, and region for your data store. This can be the same as what you used when following the tutorial.
+Click **Edit Data Stores**. Then, enter the endpoint, bucket, and region for your data store. This can be the same as what you used when following the tutorial.
+
+> ⚠️ Note that the S3 secrets you save in your GitHub repository. For example, with this configuration, your keys must be saved as `S3_ACCESSKEY` and `S3_SECRETKEY`.
 
 The workflow is set up to use an AWS S3 bucket in the region `us-east-1` by default:
 
@@ -755,7 +757,7 @@ To add arguments to the function, click **Add New Arguments** under the **Argume
 - `output_name`: weather-data.csv
 - `station_id`: USC00351862
 
-> ℹ️ `USC00351862` is the ID of the Oregon State University station in Corvallis, OR. For information on finding a different Station ID, see [Understanding our Data](#understanding-our-data)
+> ℹ️ `USC00351862` is the ID of the Oregon State University station in Corvallis, OR. For information on finding a different Station ID, see [Understanding our Data](#understanding-our-data).
 
 You should see the arguments entered as below:
 
@@ -830,7 +832,11 @@ Scroll to **Next Actions to Invoke**, click **Add New InvokeNext**, and use the 
 
 > ℹ️ This popup menu also allows us to define rank (parallel execution) and conditional invocation (depending on whether a function returns `true` or `false`). These are not in this tutorial, but refer to the documentation for more information ...
 
-Repeat this for our other Data Processing functions `ProcessTemperatureMin` and `ProcessTemperatureMax`. Our next invocations should now appear as below:
+Repeat this for our other Data Processing functions `ProcessTemperatureMin` and `ProcessTemperatureMax`.
+
+> ℹ️ Here we are marking the same function `PlotData` as the next invocation of multiple functions. By doing this, `PlotData` will run only once after each invoking function completes.
+
+Our next invocations should now appear as below:
 
 ![Next actions to invoke screenshot](../assets/weather-visualization-workflow-invoke-next-600px.png)
 
