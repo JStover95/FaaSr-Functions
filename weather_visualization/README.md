@@ -9,6 +9,16 @@
   - [1. Get our Data](#1-get-our-data)
   - [2. Process our Data](#2-process-our-data)
   - [3. Plot our Data](#3-plot-our-data)
+- [Building our Workflow](#building-our-workflow)
+  - [1. Set Up our Compute Server](#1-set-up-our-compute-server)
+  - [2. Set Up our Data Store](#2-set-up-our-data-store)
+  - [3. Add our Functions](#3-add-our-functions)
+    - [Get Data Function](#get-data-function)
+    - [Data Processing Functions](#data-processing-functions)
+    - [Plot Data Function](#plot-data-function)
+  - [4. Connect our Functions](#4-connect-our-functions)
+  - [5. Finalize our Workflow Configuration](#5-finalize-our-workflow-configuration)
+- [Download and Invoke our Workflow](#download-and-invoke-our-workflow)
 
 ## Introduction
 
