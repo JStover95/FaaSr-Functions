@@ -4,6 +4,7 @@ import random
 import sys
 import os
 import uuid
+import botocore
 from datetime import datetime
 from pathlib import Path
 
@@ -223,24 +224,38 @@ class FaaSrPayload:
                 self["DataStores"][server]["Region"] = "us-east-1"
 
             if self["DataStores"][server].get("Anonymous", False):
-                # Handle anonymous access (not yet implemented)
-                print("anonymous param not implemented")
-
-            if server_endpoint:
-                s3_client = boto3.client(
-                    "s3",
-                    aws_access_key_id=self["DataStores"][server]["AccessKey"],
-                    aws_secret_access_key=self["DataStores"][server]["SecretKey"],
-                    region_name=server_region,
-                    endpoint_url=server_endpoint,
-                )
+                # Handle anonymous access with unsigned signature for public buckets
+                logger.info(f"Using anonymous access for S3 server: {server}")
+                if server_endpoint:
+                    s3_client = boto3.client(
+                        "s3",
+                        region_name=server_region,
+                        endpoint_url=server_endpoint,
+                        config=botocore.config.Config(signature_version=botocore.UNSIGNED)
+                    )
+                else:
+                    s3_client = boto3.client(
+                        "s3",
+                        region_name=server_region,
+                        config=botocore.config.Config(signature_version=botocore.UNSIGNED)
+                    )
             else:
-                s3_client = boto3.client(
-                    "s3",
-                    aws_access_key_id=self["DataStores"][server]["AccessKey"],
-                    aws_secret_access_key=self["DataStores"][server]["SecretKey"],
-                    region_name=server_region,
-                )
+                # Authenticated access
+                if server_endpoint:
+                    s3_client = boto3.client(
+                        "s3",
+                        aws_access_key_id=self["DataStores"][server]["AccessKey"],
+                        aws_secret_access_key=self["DataStores"][server]["SecretKey"],
+                        region_name=server_region,
+                        endpoint_url=server_endpoint,
+                    )
+                else:
+                    s3_client = boto3.client(
+                        "s3",
+                        aws_access_key_id=self["DataStores"][server]["AccessKey"],
+                        aws_secret_access_key=self["DataStores"][server]["SecretKey"],
+                        region_name=server_region,
+                    )
             # Use boto3 head bucket to ensure that the
             # bucket exists and that we have acces to it
             try:
