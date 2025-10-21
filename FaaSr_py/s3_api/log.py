@@ -78,7 +78,8 @@ def faasr_log(faasr_payload, log_message):
         # Upload log back to S3
         try:
             with open(log_download_path, "rb") as log_data:
-                s3_client.put_object(Bucket=bucket, Body=log_data, Key=str(log_path))
+                file_content = log_data.read()
+                s3_client.put_object(Bucket=bucket, Body=file_content, Key=str(log_path),ContentLength=len(file_content))
         except s3_client.exceptions.ClientError as e:
             logger.error(f"Error reuploading log file: {e}")
             sys.exit(1)
