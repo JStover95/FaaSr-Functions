@@ -75,13 +75,19 @@ def faasr_log(faasr_payload, log_message):
         with open(log_download_path, "a") as f:
             f.write(logs)
 
-        # Upload log back to S3
+# Upload log back to S3
         try:
+            logger.info(f"DEBUG: Attempting to upload log to bucket: {bucket}")
             with open(log_download_path, "rb") as log_data:
+                logger.info(f"DEBUG: Reading file content")
                 file_content = log_data.read()
-                s3_client.put_object(Bucket=bucket, Body=file_content, Key=str(log_path),ContentLength=len(file_content))
+                logger.info(f"DEBUG: File content length: {len(file_content)} bytes")
+                logger.info(f"DEBUG: Calling put_object with ContentLength")
+                s3_client.put_object(Bucket=bucket, Body=file_content, Key=str(log_path), ContentLength=len(file_content))
+                logger.info("DEBUG: put_object call completed successfully")
         except s3_client.exceptions.ClientError as e:
             logger.error(f"Error reuploading log file: {e}")
+            logger.error(f"Error details: {str(e)}")
             sys.exit(1)
 
         log_download_path.unlink()
