@@ -259,11 +259,7 @@ class Executor:
         Returns:
             dict -- user function arguments
         """
-        args = self.faasr["ActionList"][action_name]["Arguments"]
-        if args is None:
-            return {}
-        else:
-            return args
+        return self.faasr["ActionList"][action_name].get("Arguments", {}) or {}
 
     def get_function_return(self, port=8000):
         """
