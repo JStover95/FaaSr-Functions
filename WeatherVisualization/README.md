@@ -46,7 +46,7 @@ Below is an example of the visualization we will be creating:
 
 ## Prerequisites
 
-This tutorial...
+This example function assumes you already completed the tutorial ([https://faasr.io/FaaSr-Docs/tutorial/](https://faasr.io/FaaSr-Docs/tutorial/)) and have the necessary repositories and configuration set up. This walkthrough will use the `FaaSr/FaaSr-Functions` repo as the function code source repository, but you may use your own repository as you follow along.
 
 ## Understanding our Data
 
@@ -784,7 +784,7 @@ Next, add our arguments:
 - `start`: 2025-01-01
 - `end`: 2025-03-01
 
-Now, set **Function's Git Repo/Path** to `FaaSr/FaaSr-Functions/WeatherVisualization/python` and leave **Function's Action Container** blank.
+Now, set **Function's Git Repo/Path** to the repository and folder containing the functions that we wrote in [Writing our Functions](#writing-our-functions), for example `FaaSr/FaaSr-Functions/WeatherVisualization/python`. Leave **Function's Action Container** blank.
 
 Because our function uses the pandas library, we must add it to the function. Under **Python Packages for the Function**, enter `pandas` in the **NewPackageName** field and click **Add Package**.
 
