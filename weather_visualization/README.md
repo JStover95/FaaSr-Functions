@@ -713,7 +713,7 @@ def plot_weather_comparison(
 
 Now that we wrote our three functions, we are ready to start building our workflow using the FaaSr Workflow Builder: [https://faasr.io/FaaSr-workflow-builder/](https://faasr.io/FaaSr-workflow-builder/).
 
-The final workflow file that we will create can be found in [weather_visualization.jso](./weather_visualization.json). Before getting started, you can visualize this workflow by clicking **Upload** from the Workflow Builder and either uploading the file or importing from its GitHub URL: [https://github.com/JStover95/FaaSr-Functions/blob/main/weather_visualization_py.json](https://github.com/JStover95/FaaSr-Functions/blob/main/weather_visualization_py.json).
+The final workflow file that we will create can be found in [weather_visualization.jso](./weather_visualization.json). Before getting started, you can visualize this workflow by clicking **Upload** from the Workflow Builder and either uploading the file or importing from its GitHub URL: [https://github.com/JStover95/FaaSr-Functions/blob/main/weather_visualization/weather_visualization.json](https://github.com/JStover95/FaaSr-Functions/blob/main/weather_visualization/weather_visualization.json).
 
 > ℹ️ As you make changes to your workflow, you can click the **vertical layout** or **horizontal layout** controls at the top of the right-hand layout view to re-arrange the layout with your changes.
 
@@ -727,11 +727,11 @@ Click **Edit Compute Servers** and enter the information for the GitHub reposito
 
 ### 2. Set Up our Data Store
 
-Click **Edit Data Stores**. Then, enter the endpoint, bucket, and region for your data store. This can be the same as what you used when following the tutorial.
+Click **Edit Data Stores**. Then, enter the endpoint, bucket, and region that was used in the tutorial (...). For **Endpoint**, **Bucket**, and **Region** enter `https://play.mini.io`, `faasr`, and `us-east-1`.
 
-> ⚠️ Note that the S3 secrets you save in your GitHub repository. For example, with this configuration, your keys must be saved as `S3_ACCESSKEY` and `S3_SECRETKEY`.
+> ℹ️ This workflow uses MinIO, but it possible to bring your own S3 data store, like AWS S3. See the documentation for more details (...).
 
-The workflow is set up to use an AWS S3 bucket in the region `us-east-1` by default:
+Your data store configuration should appear as below:
 
 ![Data store screenshot](../assets/weather-visualization-workflow-data-store-600px.png)
 
