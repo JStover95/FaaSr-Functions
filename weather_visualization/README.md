@@ -713,7 +713,7 @@ def plot_weather_comparison(
 
 Now that we wrote our three functions, we are ready to start building our workflow using the FaaSr Workflow Builder: [https://faasr.io/FaaSr-workflow-builder/](https://faasr.io/FaaSr-workflow-builder/).
 
-The final workflow file that we will create can be found in [weather_visualization.jso](./weather_visualization.json). Before getting started, you can visualize this workflow by clicking **Upload** from the Workflow Builder and either uploading the file or importing from its GitHub URL: [https://github.com/JStover95/FaaSr-Functions/blob/main/weather_visualization/weather_visualization.json](https://github.com/JStover95/FaaSr-Functions/blob/main/weather_visualization/weather_visualization.json).
+The final workflow file that we will create can be found in [WeatherVisualization.jso](./WeatherVisualization.json). Before getting started, you can visualize this workflow by clicking **Upload** from the Workflow Builder and either uploading the file or importing from its GitHub URL: [https://github.com/JStover95/FaaSr-Functions/blob/main/WeatherVisualization/WeatherVisualization.json](https://github.com/JStover95/FaaSr-Functions/blob/main/WeatherVisualization/WeatherVisualization.json).
 
 > ℹ️ As you make changes to your workflow, you can click the **vertical layout** or **horizontal layout** controls at the top of the right-hand layout view to re-arrange the layout with your changes.
 
@@ -755,8 +755,8 @@ Your configuration should appear as below:
 
 To add arguments to the function, click **Add New Arguments** under the **Arguments** header. In the popup window enter the following argument names and values:
 
-- `folder_name`: weather-visualization
-- `output_name`: weather-data.csv
+- `folder_name`: WeatherVisualization
+- `output_name`: WeatherData.csv
 - `station_id`: USC00351862
 
 > ℹ️ `USC00351862` is the ID of the Oregon State University station in Corvallis, OR. For information on finding a different Station ID, see [Understanding our Data](#understanding-our-data).
@@ -765,7 +765,7 @@ You should see the arguments entered as below:
 
 ![Function arguments](../assets/weather-visualization-workflow-function-arguments-600px.png)
 
-Next, for **Function's Git Repo/Path**, enter the Git repository name and folder that contains the Python files we created in [Writing our Functions](#writing-our-functions). For example: `JStover95/FaaSr-Functions/weather_visualization/python`. Leave **Function's Action Container** blank to use the default container.
+Next, for **Function's Git Repo/Path**, enter the Git repository name and folder that contains the Python files we created in [Writing our Functions](#writing-our-functions). For example: `FaaSr/FaaSr-Functions/WeatherVisualization/python`. Leave **Function's Action Container** blank to use the default container.
 
 > ℹ️ This is the Docker container that will run the FaaSr framework and invoke our functions. It is possible to use your own container here, but is only recommended for very advanced use cases and an in-depth knowledge of Docker.
 
@@ -773,18 +773,18 @@ Next, for **Function's Git Repo/Path**, enter the Git repository name and folder
 
 Next we will create three functions for processing our data, one for each variable that we are interested in (precipitation, minimum temperature, and maximum temperature).
 
-Create a new function called `ProcessPrecipitation`. For **Function Name** enter the name of the function we created in [2. Process our Data](#2-process-our-data): `compare_to_yearly_average`. Set **Language** and **Compute Server** to **Python** and **GH**.
+Create a new function called `ProcessPrecipitation`. For **Function Name** enter the name of the function we created in [2. Process our Data](#2-process-our-data): `compare_to_yearly_average`. Set **Language** and **Compute Server** to `Python` and `GH`.
 
 Next, add our arguments:
 
-- `folder_name`: weather-visualization
-- `input_name`: weather-data.csv
-- `output_name`: precipitation-data.csv
+- `folder_name`: WeatherVisualization
+- `input_name`: WeatherData.csv
+- `output_name`: PrecipitationData.csv
 - `column_name`: PRCP
 - `start`: 2025-01-01
 - `end`: 2025-03-01
 
-Now, set **Function's Git Repo/Path** to `JStover95/FaaSr-Functions/weather_visualization/python` and leave **Function's Action Container** blank.
+Now, set **Function's Git Repo/Path** to `FaaSr/FaaSr-Functions/WeatherVisualization/python` and leave **Function's Action Container** blank.
 
 Because our function uses the pandas library, we must add it to the function. Under **Python Packages for the Function**, enter `pandas` in the **NewPackageName** field and click **Add Package**.
 
@@ -800,12 +800,12 @@ With our Process Precipitation function created, we can simplify the creation of
 
 For the duplicated action, the only configuration we must change are the `output_name` and `column_name` arguments. Everything else can remain exactly the same, since FaaSr will run the exact same function:
 
-- `output_name`: temperature-min-data.csv
+- `output_name`: TemperatureMinData.csv
 - `column_name`: TMIN
 
 Finally, duplicate the action once more, naming the next function `ProcessTemperatureMax` and change the arguments accordingly:
 
-- `output_name`: temperature-max-data.csv
+- `output_name`: TemperatureMaxData.csv
 - `column_name`: TMAX
 
 #### Plot Data Function
@@ -816,13 +816,13 @@ For **Function Name** enter the name of the function we created in [3. Plot our 
 
 Enter the following arguments:
 
-- `folder_name`: weather-visualization
-- `input_precip_name`: precipitation-data.csv
-- `input_min_temp_name`: temperature-min-data.csv
-- `input_max_temp_name`: temperature-max-data.csv
+- `folder_name`: WeatherVisualization
+- `input_precip_name`: PrecipitationData.csv
+- `input_min_temp_name`: TemperatureMinData.csv
+- `input_max_temp_name`: TemperatureMaxData.csv
 - `location`: Corvallis, OR
   - You may change this location depending on which Station ID you decided to use in the Get Data function.
-- `output_name`: weather-comparison.png
+- `output_name`: WeatherComparison.png
 
 For Python packages, enter both `pandas` and `matplotlib`.
 
@@ -846,7 +846,7 @@ Now, repeat this process to connect each of our Data Processing functions to our
 
 ### 5. Finalize our Workflow Configuration
 
-Our final step is to finalize our workflow configuration. Click **Workflow Settings**, then for **Workflow Name** enter `weather_visualization` and for **Entry Point** select `GetData`. Leave the remaining configuration as default.
+Our final step is to finalize our workflow configuration. Click **Workflow Settings**, then for **Workflow Name** enter `WeatherVisualization` and for **Entry Point** select `GetData`. Leave the remaining configuration as default.
 
 > ℹ️ **Entry Point** is the first function we want to invoke in or workflow.
 > ℹ️ Refer to the documentation (...) for more details on the other configuration options in this menu.
@@ -861,6 +861,6 @@ With our workflow complete, click the **vertical layout** control at the top of 
 
 ![Workflow layout screenshot](../assets/weather-visualization-workflow-layout-600px.png)
 
-Click on **Download** and click the **Download weather_visualization.json** button in the popup menu.
+Click on **Download** and click the **Download WeatherVisualization.json** button in the popup menu.
 
 > ℹ️ It is possible to also download a particular Workflow Builder layout, in case it is necessary to share the particular layout with others on your team.
