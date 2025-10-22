@@ -719,9 +719,11 @@ The final workflow file that we will create can be found in [weather_visualizati
 
 ### 1. Set Up our Compute Server
 
-After opening the Workflow Builder, we will first add a compute server. This can be one of GitHub Actions, AWS Lambda, or more (see the documentation for more details ...). For this tutorial, we will use GitHub Actions.
+After opening the Workflow Builder, we will first add a compute server. Click **Edit Compute Servers**, then following the tutorial (...), enter your GitHub username for **UserName**, `Faasr-workflow` for **ActionRepoName**, and `main` for **Branch**.
 
-Click **Edit Compute Servers** and enter the information for the GitHub repository that you want to run the actions on. For example:
+> ℹ️ This workflow uses GitHub Actions, but it possible to bring your own compute server, like AWS Lambda. See the documentation for more details (...).
+
+Your configuration should appear as below:
 
 ![Compute server screenshot](../assets/weather-visualization-workflow-compute-server-600px.png)
 

@@ -76,9 +76,9 @@
     "GH": {
       "FaaSType": "GitHubActions",
       "UseSecretStore": true,
-      "ActionRepoName": "FaaSr-Functions",
+      "ActionRepoName": "FaaSr-workflow",
       "Branch": "main",
-      "UserName": "JStover95"
+      "UserName": "YOUR_USERNAME"
     }
   },
   "DataStores": {
