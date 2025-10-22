@@ -46,7 +46,7 @@ Below is an example of the visualization we will be creating:
 
 ## Prerequisites
 
-This example function assumes you already completed the tutorial ([https://faasr.io/FaaSr-Docs/tutorial/](https://faasr.io/FaaSr-Docs/tutorial/)) and have the necessary repositories and configuration set up. This walkthrough will use the `FaaSr/FaaSr-Functions` repo as the function code source repository, but you may use your own repository as you follow along.
+This example function assumes you already completed the FaaSr tutorial ([https://faasr.io/FaaSr-Docs/tutorial/](https://faasr.io/FaaSr-Docs/tutorial/)) and have the necessary repositories and configuration set up. This tutorial will use the `FaaSr/FaaSr-Functions` repo as the function code source repository, but you may use your own repository as you follow along.
 
 ## Understanding our Data
 
@@ -719,7 +719,7 @@ The final workflow file that we will create can be found in [WeatherVisualizatio
 
 ### 1. Set Up our Compute Server
 
-After opening the Workflow Builder, we will first add a compute server. Click **Edit Compute Servers**, then following the tutorial (...), enter your GitHub username for **UserName**, `Faasr-workflow` for **ActionRepoName**, and `main` for **Branch**.
+After opening the Workflow Builder, we will first add a compute server. Click **Edit Compute Servers**, then following the FaaSr tutorial (see [Prerequisites](#prerequisites)), enter your GitHub username for **UserName**, `Faasr-workflow` for **ActionRepoName**, and `main` for **Branch**.
 
 > ℹ️ This workflow uses GitHub Actions, but it possible to bring your own compute server, like AWS Lambda. See the documentation for more details (...).
 
@@ -729,7 +729,7 @@ Your configuration should appear as below:
 
 ### 2. Set Up our Data Store
 
-Click **Edit Data Stores**. Then, enter the endpoint, bucket, and region that was used in the tutorial (...). For **Endpoint**, **Bucket**, and **Region** enter `https://play.mini.io`, `faasr`, and `us-east-1`.
+Click **Edit Data Stores**. Then, enter the endpoint, bucket, and region that was used in the tutorial (see [Prerequisites](#prerequisites)). For **Endpoint**, **Bucket**, and **Region** enter `https://play.mini.io`, `faasr`, and `us-east-1`.
 
 > ℹ️ This workflow uses MinIO, but it possible to bring your own S3 data store, like AWS S3. See the documentation for more details (...).
 
