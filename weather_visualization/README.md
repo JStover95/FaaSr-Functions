@@ -713,7 +713,7 @@ def plot_weather_comparison(
 
 Now that we wrote our three functions, we are ready to start building our workflow using the FaaSr Workflow Builder: [https://faasr.io/FaaSr-workflow-builder/](https://faasr.io/FaaSr-workflow-builder/).
 
-The final workflow file that we will create can be found in [weather_visualization_py.json](../weather_visualization_py.json). Before getting started, you can visualize this workflow by clicking **Upload** from the Workflow Builder and either uploading the file or importing from its GitHub URL: [https://github.com/JStover95/FaaSr-Functions/blob/main/weather_visualization_py.json](https://github.com/JStover95/FaaSr-Functions/blob/main/weather_visualization_py.json).
+The final workflow file that we will create can be found in [weather_visualization.jso](./weather_visualization.json). Before getting started, you can visualize this workflow by clicking **Upload** from the Workflow Builder and either uploading the file or importing from its GitHub URL: [https://github.com/JStover95/FaaSr-Functions/blob/main/weather_visualization_py.json](https://github.com/JStover95/FaaSr-Functions/blob/main/weather_visualization_py.json).
 
 > ℹ️ As you make changes to your workflow, you can click the **vertical layout** or **horizontal layout** controls at the top of the right-hand layout view to re-arrange the layout with your changes.
 
@@ -844,7 +844,7 @@ Now, repeat this process to connect each of our Data Processing functions to our
 
 ### 5. Finalize our Workflow Configuration
 
-Our final step is to finalize our workflow configuration. Click **Workflow Settings**, then for **Workflow Name** enter `WeatherVisualizationWorkflow` and for **Entry Point** select `GetData`. Leave the remaining configuration as default.
+Our final step is to finalize our workflow configuration. Click **Workflow Settings**, then for **Workflow Name** enter `weather_visualization` and for **Entry Point** select `GetData`. Leave the remaining configuration as default.
 
 > ℹ️ **Entry Point** is the first function we want to invoke in or workflow.
 > ℹ️ Refer to the documentation (...) for more details on the other configuration options in this menu.
@@ -859,6 +859,6 @@ With our workflow complete, click the **vertical layout** control at the top of 
 
 ![Workflow layout screenshot](../assets/weather-visualization-workflow-layout-600px.png)
 
-Click on **Download** and click the **Download WeatherVisualizationWorkflow.json** button in the popup menu.
+Click on **Download** and click the **Download weather_visualization.json** button in the popup menu.
 
 > ℹ️ It is possible to also download a particular Workflow Builder layout, in case it is necessary to share the particular layout with others on your team.
