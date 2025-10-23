@@ -39,11 +39,11 @@ def get_outer_boundary(
     county: gpd.GeoDataFrame,
     degree_buffer: float = 0.5,
 ) -> gpd.GeoDataFrame:
-    bbox = county.bounds
-    min_x = bbox["minx"].iloc[0]
-    min_y = bbox["miny"].iloc[0]
-    max_x = bbox["maxx"].iloc[0]
-    max_y = bbox["maxy"].iloc[0]
+    min_x = float(county.bounds["minx"].iloc[0])
+    min_y = float(county.bounds["miny"].iloc[0])
+    max_x = float(county.bounds["maxx"].iloc[0])
+    max_y = float(county.bounds["maxy"].iloc[0])
+    faasr_log(f"(min_x, min_y, max_x, max_y) = ({min_x}, {min_y}, {max_x}, {max_y})")
     top_left = (min_x - degree_buffer, max_y + degree_buffer)
     top_right = (max_x + degree_buffer, max_y + degree_buffer)
     bottom_right = (max_x + degree_buffer, min_y - degree_buffer)
