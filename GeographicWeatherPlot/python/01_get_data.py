@@ -30,7 +30,7 @@ def get_geo_boundaries(
     counties = gpd.read_file("counties.zip")
     state = states[states["NAME"] == state_name]
     county = counties[counties["NAME"] == county_name]
-    includes_county = county.geometry.apply(lambda x: state.geometry.contains(x).values)
+    includes_county = county.geometry.apply(lambda x: state.geometry.contains(x)).values
     county = county[includes_county]
     return state, county
 
@@ -146,10 +146,6 @@ def get_geo_data_and_stations(
     state_name: str,
     county_name: str,
 ) -> None:
-    faasr_log(
-        f"Downloading geographic boundary data for {state_name} and {county_name} county."
-    )
-
     # 1. Download geographic boundary data
     download_geo_data(
         "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.zip",
@@ -160,9 +156,15 @@ def get_geo_data_and_stations(
         "counties.zip",
     )
 
+    faasr_log(
+        f"Downloaded geographic boundary data for {state_name} and {county_name} county."
+    )
+
     # 2. Get geographic boundary data
     state, county = get_geo_boundaries(state_name, county_name)
-    faasr_log(f"Downloaded boundary data for {state_name} and {county_name} county.")
+    faasr_log(
+        f"Retrieved geographic boundary data for {state_name} and {county_name} county."
+    )
 
     # 3. Calculate the outer boundary for station selection
     outer_boundary = get_outer_boundary(state, county)
