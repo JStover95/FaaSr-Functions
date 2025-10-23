@@ -40,7 +40,10 @@ def get_outer_boundary(
     degree_buffer: float = 0.5,
 ) -> gpd.GeoDataFrame:
     bbox = county.bounds
-    min_x, min_y, max_x, max_y = bbox.iloc[0]
+    min_x = bbox["minx"].iloc[0]
+    min_y = bbox["miny"].iloc[0]
+    max_x = bbox["maxx"].iloc[0]
+    max_y = bbox["maxy"].iloc[0]
     top_left = (min_x - degree_buffer, max_y + degree_buffer)
     top_right = (max_x + degree_buffer, max_y + degree_buffer)
     bottom_right = (max_x + degree_buffer, min_y - degree_buffer)
