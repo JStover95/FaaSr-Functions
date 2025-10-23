@@ -1,0 +1,57 @@
+{
+  "ActionList": {
+    "GetData": {
+      "Arguments": {
+        "output_folder": "GeographicWeatherPlot",
+        "state_name": "Oregon",
+        "county_name": "Benton"
+      },
+      "InvokeNext": ["ProcessData"],
+      "FaaSServer": "GH",
+      "Type": "Python",
+      "FunctionName": "get_geo_data_and_stations"
+    },
+    "ProcessData": {
+      "Arguments": {
+        "output_folder": "GeographicWeatherPlot"
+      },
+      "InvokeNext": [],
+      "FaaSServer": "GH",
+      "Type": "Python",
+      "FunctionName": "process_data"
+    }
+  },
+  "ComputeServers": {
+    "GH": {
+      "FaaSType": "GitHubActions",
+      "UseSecretStore": true,
+      "ActionRepoName": "FaaSr-Functions",
+      "Branch": "main",
+      "UserName": "JStover95"
+    }
+  },
+  "DataStores": {
+    "My_S3_Bucket": {
+      "Writable": "TRUE",
+      "Endpoint": "https://s3.us-east-1.amazonaws.com",
+      "Bucket": "faasr-sample-functions",
+      "Region": "us-east-1"
+    }
+  },
+  "ActionContainers": {
+    "GetData": "ghcr.io/faasr/github-actions-python:latest",
+    "ProcessData": "ghcr.io/faasr/github-actions-python:latest"
+  },
+  "FunctionInvoke": "GetData",
+  "DefaultDataStore": "My_S3_Bucket",
+  "FunctionGitRepo": {
+    "get_geo_data_and_stations": "JStover95/FaaSr-Functions/GeographicWeatherPlot/python",
+    "process_data": "JStover95/FaaSr-Functions/GeographicWeatherPlot/python"
+  },
+  "PyPIPackageDownloads": {
+    "get_geo_data_and_stations": ["geopandas"]
+  },
+  "FaaSrLog": "FaaSrLog",
+  "LoggingDataStore": "My_S3_Bucket",
+  "WorkflowName": "GeographicWeatherPlotWorkflow"
+}

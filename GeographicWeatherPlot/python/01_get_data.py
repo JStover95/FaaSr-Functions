@@ -25,7 +25,6 @@ def get_geo_boundaries(
 
 
 def get_outer_boundary(
-    state: gpd.GeoDataFrame,
     county: gpd.GeoDataFrame,
     degree_buffer: float = 0.5,
 ) -> gpd.GeoDataFrame:
@@ -41,7 +40,7 @@ def get_outer_boundary(
 
 def get_stations(year: str) -> gpd.GeoDataFrame:
     df = pd.read_fwf(
-        "ghcnd-inventory.txt",
+        "https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-inventory.txt",
         header=None,
         dtype={0: str, 1: float, 2: str, 3: str, 4: str, 5: str},
         colspecs=[(0, 11), (12, 20), (21, 30), (31, 35), (36, 40), (41, 45)],
@@ -135,7 +134,6 @@ def get_geo_data_and_stations(
     output_folder: str,
     state_name: str,
     county_name: str,
-    year: str,
 ) -> None:
     # 1. Download geographic boundary data
     state, county = get_geo_boundaries(state_name, county_name)
