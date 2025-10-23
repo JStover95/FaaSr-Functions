@@ -146,6 +146,10 @@ def get_geo_data_and_stations(
     state_name: str,
     county_name: str,
 ) -> None:
+    faasr_log(
+        f"Downloading geographic boundary data for {state_name} and {county_name} county."
+    )
+
     # 1. Download geographic boundary data
     download_geo_data(
         "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.zip",
