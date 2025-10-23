@@ -146,52 +146,62 @@ def get_geo_data_and_stations(
     state_name: str,
     county_name: str,
 ) -> None:
-    # 1. Download geographic boundary data
-    download_geo_data(
-        "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.zip",
-        "states.zip",
-    )
-    download_geo_data(
-        "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_county_20m.zip",
-        "counties.zip",
-    )
+    try:
+        # 1. Download geographic boundary data
+        download_geo_data(
+            "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.zip",
+            "states.zip",
+        )
+        download_geo_data(
+            "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_county_20m.zip",
+            "counties.zip",
+        )
 
-    faasr_log(
-        f"Downloaded geographic boundary data for {state_name} and {county_name} county."
-    )
+        faasr_log(
+            f"Downloaded geographic boundary data for {state_name} and {county_name} county."
+        )
 
-    # 2. Get geographic boundary data
-    state, county = get_geo_boundaries(state_name, county_name)
-    faasr_log(
-        f"Retrieved geographic boundary data for {state_name} and {county_name} county."
-    )
+        # 2. Get geographic boundary data
+        state, county = get_geo_boundaries(state_name, county_name)
+        faasr_log(
+            f"Retrieved geographic boundary data for {state_name} and {county_name} county."
+        )
 
-    # 3. Calculate the outer boundary for station selection
-    outer_boundary = get_outer_boundary(state, county)
+        # 3. Calculate the outer boundary for station selection
+        outer_boundary = get_outer_boundary(state, county)
 
-    bbox = outer_boundary.bounds
-    min_x, min_y, max_x, max_y = bbox.iloc[0]
-    faasr_log("Calculated outer boundary for station selection.")
-    faasr_log(f"(min_x, min_y, max_x, max_y) = ({min_x}, {min_y}, {max_x}, {max_y})")
+        bbox = outer_boundary.bounds
+        min_x, min_y, max_x, max_y = bbox.iloc[0]
+        faasr_log("Calculated outer boundary for station selection.")
+        faasr_log(
+            f"(min_x, min_y, max_x, max_y) = ({min_x}, {min_y}, {max_x}, {max_y})"
+        )
 
-    # 4. Download station data
-    year = (datetime.now() - timedelta(days=7)).strftime("%Y")
-    stations = get_stations(year)
-    faasr_log(f"Downloaded {len(stations)} stations with data for {year} or later.")
+        # 4. Download station data
+        year = (datetime.now() - timedelta(days=7)).strftime("%Y")
+        stations = get_stations(year)
+        faasr_log(f"Downloaded {len(stations)} stations with data for {year} or later.")
 
-    # 5. Get stations within the outer boundary
-    stations = stations.overlay(outer_boundary, how="intersection")
-    faasr_log(f"Filtered stations to {len(stations)} within the outer boundary.")
+        # 5. Get stations within the outer boundary
+        stations = stations.overlay(outer_boundary, how="intersection")
+        faasr_log(f"Filtered stations to {len(stations)} within the outer boundary.")
 
-    # 6. Upload the data
-    upload_boundaries(output_folder, state, county, outer_boundary)
-    upload_stations(output_folder, stations)
-    upload_boundaries_and_stations_plot(
-        output_folder,
-        state,
-        county,
-        outer_boundary,
-        stations,
-    )
+        # 6. Upload the data
+        upload_boundaries(output_folder, state, county, outer_boundary)
+        upload_stations(output_folder, stations)
+        upload_boundaries_and_stations_plot(
+            output_folder,
+            state,
+            county,
+            outer_boundary,
+            stations,
+        )
 
-    faasr_log("Completed get_geo_data_and_stations function.")
+        faasr_log("Completed get_geo_data_and_stations function.")
+
+    except Exception as e:
+        import traceback
+
+        faasr_log(f"Error in get_geo_data_and_stations function: {e}")
+        faasr_log(f"Traceback: {traceback.format_exc()}")
+        raise
