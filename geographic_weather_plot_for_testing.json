@@ -49,7 +49,7 @@
     "process_data": "JStover95/FaaSr-Functions/GeographicWeatherPlot/python"
   },
   "PyPIPackageDownloads": {
-    "get_geo_data_and_stations": ["geopandas"]
+    "get_geo_data_and_stations": ["geopandas", "matplotlib"]
   },
   "FaaSrLog": "FaaSrLog",
   "LoggingDataStore": "My_S3_Bucket",
