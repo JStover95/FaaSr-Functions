@@ -3,20 +3,31 @@ from datetime import datetime, timedelta
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import pandas as pd
+import requests
 from FaaSr_py.client.py_client_stubs import faasr_log, faasr_put_file
 from shapely.geometry import Point, Polygon
+
+
+def download_geo_data(url: str, output_name: str) -> None:
+    try:
+        response = requests.get(url, timeout=20, stream=True)
+        response.raise_for_status()
+
+        with open(output_name, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+
+    except Exception as e:
+        faasr_log(f"Error downloading data from {url}: {e}")
+        raise
 
 
 def get_geo_boundaries(
     state_name: str,
     county_name: str,
 ) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
-    states = gpd.read_file(
-        "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.zip"
-    )
-    counties = gpd.read_file(
-        "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_county_20m.zip"
-    )
+    states = gpd.read_file("states.zip")
+    counties = gpd.read_file("counties.zip")
     state = states[states["NAME"] == state_name]
     county = counties[counties["NAME"] == county_name]
     includes_county = county.geometry.apply(lambda x: state.geometry.contains(x).values)
@@ -136,10 +147,20 @@ def get_geo_data_and_stations(
     county_name: str,
 ) -> None:
     # 1. Download geographic boundary data
+    download_geo_data(
+        "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.zip",
+        "states.zip",
+    )
+    download_geo_data(
+        "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_county_20m.zip",
+        "counties.zip",
+    )
+
+    # 2. Get geographic boundary data
     state, county = get_geo_boundaries(state_name, county_name)
     faasr_log(f"Downloaded boundary data for {state_name} and {county_name} county.")
 
-    # 2. Calculate the outer boundary for station selection
+    # 3. Calculate the outer boundary for station selection
     outer_boundary = get_outer_boundary(state, county)
 
     bbox = outer_boundary.bounds
@@ -147,16 +168,16 @@ def get_geo_data_and_stations(
     faasr_log("Calculated outer boundary for station selection.")
     faasr_log(f"(min_x, min_y, max_x, max_y) = ({min_x}, {min_y}, {max_x}, {max_y})")
 
-    # 3. Download station data
+    # 4. Download station data
     year = (datetime.now() - timedelta(days=7)).strftime("%Y")
     stations = get_stations(year)
     faasr_log(f"Downloaded {len(stations)} stations with data for {year} or later.")
 
-    # 4. Get stations within the outer boundary
+    # 5. Get stations within the outer boundary
     stations = stations.overlay(outer_boundary, how="intersection")
     faasr_log(f"Filtered stations to {len(stations)} within the outer boundary.")
 
-    # 5. Upload the data
+    # 6. Upload the data
     upload_boundaries(output_folder, state, county, outer_boundary)
     upload_stations(output_folder, stations)
     upload_boundaries_and_stations_plot(
