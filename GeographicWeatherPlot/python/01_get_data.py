@@ -39,17 +39,10 @@ def get_outer_boundary(
     county: gpd.GeoDataFrame,
     degree_buffer: float = 0.5,
 ) -> gpd.GeoDataFrame:
-    min_x = float(county.bounds["minx"].iloc[0])
-    min_y = float(county.bounds["miny"].iloc[0])
-    max_x = float(county.bounds["maxx"].iloc[0])
-    max_y = float(county.bounds["maxy"].iloc[0])
-    faasr_log(f"(min_x, min_y, max_x, max_y) = ({min_x}, {min_y}, {max_x}, {max_y})")
-    faasr_log(f"degree_buffer = {degree_buffer}")
-    faasr_log(f"Type of min_x = {type(min_x)}")
-    faasr_log(f"Type of min_y = {type(min_y)}")
-    faasr_log(f"Type of max_x = {type(max_x)}")
-    faasr_log(f"Type of max_y = {type(max_y)}")
-    faasr_log(f"Type of degree_buffer = {type(degree_buffer)}")
+    min_x = county.bounds["minx"].iloc[0]
+    min_y = county.bounds["miny"].iloc[0]
+    max_x = county.bounds["maxx"].iloc[0]
+    max_y = county.bounds["maxy"].iloc[0]
     top_left = (min_x - degree_buffer, max_y + degree_buffer)
     top_right = (max_x + degree_buffer, max_y + degree_buffer)
     bottom_right = (max_x + degree_buffer, min_y - degree_buffer)
@@ -177,7 +170,7 @@ def get_geo_data_and_stations(
         )
 
         # 3. Calculate the outer boundary for station selection
-        outer_boundary = get_outer_boundary(state, county)
+        outer_boundary = get_outer_boundary(county)
 
         bbox = outer_boundary.bounds
         min_x, min_y, max_x, max_y = bbox.iloc[0]
