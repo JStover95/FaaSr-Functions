@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 
 import geopandas as gpd
@@ -162,6 +163,7 @@ def get_geo_data_and_stations(
         faasr_log(
             f"Downloaded geographic boundary data for {state_name} and {county_name} county."
         )
+        faasr_log(os.listdir("."))
 
         # 2. Get geographic boundary data
         state, county = get_geo_boundaries(state_name, county_name)
