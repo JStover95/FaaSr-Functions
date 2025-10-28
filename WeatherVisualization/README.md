@@ -14,11 +14,14 @@
   - [2. Set Up our Data Store](#2-set-up-our-data-store)
   - [3. Add our Functions](#3-add-our-functions)
     - [Get Data Function](#get-data-function)
-    - [Data Processing Functions](#data-processing-functions)
+    - [Process Data Functions](#process-data-functions)
     - [Plot Data Function](#plot-data-function)
   - [4. Connect our Functions](#4-connect-our-functions)
   - [5. Finalize our Workflow Configuration](#5-finalize-our-workflow-configuration)
-- [Download and Invoke our Workflow](#download-and-invoke-our-workflow)
+- [Download and Invoke the Workflow](#download-and-invoke-the-workflow)
+  - [Download the Workflow](#download-the-workflow)
+  - [Register and Invoke the Workflow](#register-and-invoke-the-workflow)
+  - [View the Output Data](#view-the-output-data)
 
 ## Introduction
 
@@ -769,7 +772,7 @@ Next, for **Function's Git Repo/Path**, enter the Git repository name and folder
 
 > ℹ️ This is the Docker container that will run the FaaSr framework and invoke our functions. It is possible to use your own container here, but is only recommended for very advanced use cases and an in-depth knowledge of Docker.
 
-#### Data Processing Functions
+#### Process Data Functions
 
 Next we will create three functions for processing our data, one for each variable that we are interested in (precipitation, minimum temperature, and maximum temperature).
 
@@ -830,11 +833,11 @@ For Python packages, enter both `pandas` and `matplotlib`.
 
 Our workflow's functions are configured, so our next step is to define its invocation paths. Navigate to our Get Data function, either by clicking it in the right-hand layout view or selecting it from the dropdown at the top of the left-hand menu.
 
-Scroll to **Next Actions to Invoke**, click **Add New InvokeNext**, and use the popup menu to connect the Get Data function with our Data Processing functions. With the leftmost dropdown menu, select `ProcessPrecipitation`, leave the remaining options unchanged, and click **Add New InvokeNext**.
+Scroll to **Next Actions to Invoke**, click **Add New InvokeNext**, and use the popup menu to connect the Get Data function with our Process Data functions. With the leftmost dropdown menu, select `ProcessPrecipitation`, leave the remaining options unchanged, and click **Add New InvokeNext**.
 
 > ℹ️ This popup menu also allows us to define rank (parallel execution) and conditional invocation (depending on whether a function returns `true` or `false`). These are not in this tutorial, but refer to the documentation for more information: [https://faasr.io/FaaSr-Docs/conditional/](https://faasr.io/FaaSr-Docs/conditional/).
 
-Repeat this for our other Data Processing functions `ProcessTemperatureMin` and `ProcessTemperatureMax`.
+Repeat this for our other Process Data functions `ProcessTemperatureMin` and `ProcessTemperatureMax`.
 
 > ℹ️ Here we are marking the same function `PlotData` as the next invocation of multiple functions. By doing this, `PlotData` will run only once after each invoking function completes.
 
@@ -842,7 +845,7 @@ Our next invocations should now appear as below:
 
 ![Next actions to invoke screenshot](../assets/weather-visualization-workflow-invoke-next-600px.png)
 
-Now, repeat this process to connect each of our Data Processing functions to our Plot Data function. From each, click **Add New InvokeNext**, and from the dropdown menu select `PlotData`.
+Now, repeat this process to connect each of our Process Data functions to our Plot Data function. From each, click **Add New InvokeNext**, and from the dropdown menu select `PlotData`.
 
 ### 5. Finalize our Workflow Configuration
 
@@ -855,12 +858,48 @@ Your workflow settings should appear as below:
 
 ![Workflow settings](../assets/weather-visualization-workflow-settings-600px.png)
 
-## Download and Invoke our Workflow
+## Download and Invoke the Workflow
 
 With our workflow complete, click the **vertical layout** control at the top of the right-hand layout view to see our changes. The complete workflow should appear as below:
 
 ![Workflow layout screenshot](../assets/weather-visualization-workflow-layout-600px.png)
 
+### Download the Workflow
+
 Click on **Download** and click the **Download WeatherVisualization.json** button in the popup menu.
 
-> ℹ️ It is possible to also download a particular Workflow Builder layout, in case it is necessary to share the particular layout with others on your team.
+> ℹ️ It is possible to also download a particular Workflow Builder layout, in case it is necessary to share the particular layout with others on your team. See the documentation for more information: [https://faasr.io/FaaSr-Docs/workflows/#working-with-layout-files](https://faasr.io/FaaSr-Docs/workflows/#working-with-layout-files).
+
+### Register and Invoke the Workflow
+
+Navigate to your **FaaSr-workflow** repository (see [Prerequisites](#prerequisites) for more information) and upload the workflow file, then follow the necessary steps to register and invoke your workflow:
+
+1. Navigate to your repo's **Actions** tab and from the left-hand menu select the **(FAASR REGISTER)** workflow.
+2. Click **Run workflow**, enter the name of the JSON file `WeatherVisualization.json`, and click **Run workflow**.
+   - Wait for the FaaSr Register workflow to complete, and you should see the five functions appear in the left-hand menu, prefixed with the workflow name (e.g., **WeatherVisualization-GetData**).
+3. Repeat steps 1 and 2 with the **(FAASR INVOKE)** workflow.
+   - You can monitor the  workflow's process by clicking on each function in the left-hand menu to view their workflow runs.
+
+### View the Output Data
+
+After successful invocation, your S3 bucket should contain the following outputs:
+
+> ℹ️ How you view these outputs depends on the S3 provider you used for this tutorial.
+
+```plaintext
+your-bucket/
+├── FaaSrLog/
+└── WeatherVisualization/
+    ├── CurrentYearPrecipitationData.csv
+    ├── CurrentYearTemperatureMaxData.csv
+    ├── CurrentYearTemperatureMinData.csv
+    ├── PreviousYearsPrecipitationData.csv
+    ├── PreviousYearsTemperatureMaxData.csv
+    ├── PreviousYearsTemperatureMinData.csv
+    ├── WeatherComparison.png
+    └── WeatherData.csv
+```
+
+**FaaSrLog** includes the workflow's log outputs, which can be useful for troubleshooting any issues. See the documentation for more details: [https://faasr.io/FaaSr-Docs/logs/](https://faasr.io/FaaSr-Docs/logs/). **WeatherVisualization** includes all our workflow outputs, including the intermediate CSV outputs generated by our Get Data and Process Data functions.
+
+The final generated graph is **WeatherComparison.png**.
