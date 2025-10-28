@@ -721,7 +721,7 @@ The final workflow file that we will create can be found in [WeatherVisualizatio
 
 After opening the Workflow Builder, we will first add a compute server. Click **Edit Compute Servers**, then following the FaaSr tutorial (see [Prerequisites](#prerequisites)), enter your GitHub username for **UserName**, `Faasr-workflow` for **ActionRepoName**, and `main` for **Branch**.
 
-> ℹ️ This workflow uses GitHub Actions, but it possible to bring your own compute server, like AWS Lambda. See the documentation for more details (...).
+> ℹ️ This workflow uses GitHub Actions, but it possible to bring your own compute server, like AWS Lambda. See the documentation for more details: [https://faasr.io/FaaSr-Docs/advanced/](https://faasr.io/FaaSr-Docs/advanced/).
 
 Your configuration should appear as below:
 
@@ -731,7 +731,7 @@ Your configuration should appear as below:
 
 Click **Edit Data Stores**. Then, enter the endpoint, bucket, and region that was used in the tutorial (see [Prerequisites](#prerequisites)). For **Endpoint**, **Bucket**, and **Region** enter `https://play.mini.io`, `faasr`, and `us-east-1`.
 
-> ℹ️ This workflow uses MinIO, but it possible to bring your own S3 data store, like AWS S3. See the documentation for more details (...).
+> ℹ️ This workflow uses MinIO, but it possible to bring your own S3 data store, like AWS S3. See the documentation for more details [https://faasr.io/FaaSr-Docs/workflows/#data-stores](https://faasr.io/FaaSr-Docs/workflows/#data-stores).
 
 Your data store configuration should appear as below:
 
@@ -832,7 +832,7 @@ Our workflow's functions are configured, so our next step is to define its invoc
 
 Scroll to **Next Actions to Invoke**, click **Add New InvokeNext**, and use the popup menu to connect the Get Data function with our Data Processing functions. With the leftmost dropdown menu, select `ProcessPrecipitation`, leave the remaining options unchanged, and click **Add New InvokeNext**.
 
-> ℹ️ This popup menu also allows us to define rank (parallel execution) and conditional invocation (depending on whether a function returns `true` or `false`). These are not in this tutorial, but refer to the documentation for more information ...
+> ℹ️ This popup menu also allows us to define rank (parallel execution) and conditional invocation (depending on whether a function returns `true` or `false`). These are not in this tutorial, but refer to the documentation for more information: [https://faasr.io/FaaSr-Docs/conditional/](https://faasr.io/FaaSr-Docs/conditional/).
 
 Repeat this for our other Data Processing functions `ProcessTemperatureMin` and `ProcessTemperatureMax`.
 
@@ -849,7 +849,7 @@ Now, repeat this process to connect each of our Data Processing functions to our
 Our final step is to finalize our workflow configuration. Click **Workflow Settings**, then for **Workflow Name** enter `WeatherVisualization` and for **Entry Point** select `GetData`. Leave the remaining configuration as default.
 
 > ℹ️ **Entry Point** is the first function we want to invoke in or workflow.
-> ℹ️ Refer to the documentation (...) for more details on the other configuration options in this menu.
+> ℹ️ Refer to the documentation for more details on the other configuration options in this menu: [https://faasr.io/FaaSr-Docs/workflows/#workflow-settings](https://faasr.io/FaaSr-Docs/workflows/#workflow-settings).
 
 Your workflow settings should appear as below:
 
