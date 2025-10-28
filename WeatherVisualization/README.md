@@ -25,7 +25,7 @@
 
 ## Introduction
 
-The Weather Visualization Workflow is an example of a common FaaSr use case. It pulls data from the NOAA Global Historical Climatology Network Daily (GHCND) dataset, processes the data, and creates a visualization that is uploaded to S3.
+The Weather Visualization Workflow is an example of a common FaaSr use case. It pulls data from the NOAA Global Historical Climatology Network Daily (GHCND) dataset, processes the data, and creates a visualization that is uploaded to S3. This tutorial is a comprehensive walkthrough of the process for creating your own workflows, from writing the code to viewing its outputs.
 
 ```mermaid
 flowchart LR
