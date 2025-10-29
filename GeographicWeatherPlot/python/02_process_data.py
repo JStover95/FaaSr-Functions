@@ -117,7 +117,7 @@ def process_data(output_folder: str) -> None:
     faasr_log(f"Loaded input data from folder {output_folder}")
 
     # 2. Download station data
-    station_ids = stations["STATION"].tolist()
+    station_ids = stations["Station ID"].tolist()
     files = download_station_data(station_ids)
 
     faasr_log(f"Downloaded station data for {len(station_ids)} stations")
