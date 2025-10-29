@@ -103,30 +103,38 @@ def load_all_station_data(
 
 
 def process_data(output_folder: str) -> None:
-    # 1. Load input data
-    get_input_data(output_folder, "county.geojson")
-    get_input_data(output_folder, "outer_boundary.geojson")
-    get_input_data(output_folder, "state.geojson")
-    get_input_data(output_folder, "stations.geojson")
+    try:
+        # 1. Load input data
+        get_input_data(output_folder, "county.geojson")
+        get_input_data(output_folder, "outer_boundary.geojson")
+        get_input_data(output_folder, "state.geojson")
+        get_input_data(output_folder, "stations.geojson")
 
-    county = gpd.read_file("county.geojson")
-    outer_boundary = gpd.read_file("outer_boundary.geojson")
-    state = gpd.read_file("state.geojson")
-    stations = gpd.read_file("stations.geojson")
+        county = gpd.read_file("county.geojson")
+        outer_boundary = gpd.read_file("outer_boundary.geojson")
+        state = gpd.read_file("state.geojson")
+        stations = gpd.read_file("stations.geojson")
 
-    faasr_log(f"Loaded input data from folder {output_folder}")
+        faasr_log(f"Loaded input data from folder {output_folder}")
 
-    # 2. Download station data
-    station_ids = stations["Station ID"].tolist()
-    files = download_station_data(station_ids)
+        # 2. Download station data
+        station_ids = stations["Station ID"].tolist()
+        files = download_station_data(station_ids)
 
-    faasr_log(f"Downloaded station data for {len(station_ids)} stations")
+        faasr_log(f"Downloaded station data for {len(station_ids)} stations")
 
-    last_week = datetime.now() - timedelta(days=7)
-    start_date = last_week - timedelta(days=last_week.weekday())
-    end_date = start_date + timedelta(days=6)
-    min_temp_gdf, max_temp_gdf = load_all_station_data(files, start_date, end_date)
+        last_week = datetime.now() - timedelta(days=7)
+        start_date = last_week - timedelta(days=last_week.weekday())
+        end_date = start_date + timedelta(days=6)
+        min_temp_gdf, max_temp_gdf = load_all_station_data(files, start_date, end_date)
 
-    faasr_log(
-        f"Loaded {len(min_temp_gdf)} rows of minimum temperature data and {len(max_temp_gdf)} rows of maximum temperature data for week starting {last_week}"
-    )
+        faasr_log(
+            f"Loaded {len(min_temp_gdf)} rows of minimum temperature data and {len(max_temp_gdf)} rows of maximum temperature data for week starting {last_week}"
+        )
+
+    except Exception as e:
+        import traceback
+
+        faasr_log(f"Error processing data: {e}")
+        faasr_log(f"Traceback: {traceback.format_exc()}")
+        raise e
