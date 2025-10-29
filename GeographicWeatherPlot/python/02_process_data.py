@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import geopandas as gpd
 import pandas as pd
 import requests
-from FaaSr_py.client.py_client_stubs import faasr_get_file, faasr_log
+from FaaSr_py.client.py_client_stubs import faasr_get_file, faasr_log, faasr_put_file
 from shapely.geometry import Point
 
 
@@ -87,6 +87,7 @@ def load_station_data(
     geometry = df.apply(lambda row: Point(row["LONGITUDE"], row["LATITUDE"]), axis=1)
     min_temp_gdf = gpd.GeoDataFrame(df[["STATION", "DATE", "TMIN"]], geometry=geometry)
     max_temp_gdf = gpd.GeoDataFrame(df[["STATION", "DATE", "TMAX"]], geometry=geometry)
+
     return min_temp_gdf, max_temp_gdf
 
 
@@ -103,7 +104,23 @@ def load_all_station_data(
         min_temp_gdfs.append(min_temp_gdf)
         max_temp_gdfs.append(max_temp_gdf)
 
-    return pd.concat(min_temp_gdfs), pd.concat(max_temp_gdfs)
+    min_temp_gdf = pd.concat(min_temp_gdfs).dropna()
+    max_temp_gdf = pd.concat(max_temp_gdfs).dropna()
+
+    min_temp_groups = min_temp_gdf[["STATION", "TMIN"]].groupby("STATION")
+    max_temp_groups = max_temp_gdf[["STATION", "TMAX"]].groupby("STATION")
+
+    avg_min_temp_gdf = min_temp_groups.mean().reset_index()
+    avg_max_temp_gdf = max_temp_groups.mean().reset_index()
+
+    temp_gdf = pd.concat([min_temp_gdf, max_temp_gdf])
+    temp_gdf = temp_gdf[["STATION", "geometry"]].drop_duplicates(subset=["STATION"])
+    temp_gdf = temp_gdf.merge(avg_min_temp_gdf, on="STATION", how="left")
+    temp_gdf = temp_gdf.merge(avg_max_temp_gdf, on="STATION", how="left")
+    temp_gdf["TMIN"] = temp_gdf["TMIN"] / 10
+    temp_gdf["TMAX"] = temp_gdf["TMAX"] / 10
+
+    return temp_gdf
 
 
 def process_data(output_folder: str) -> None:
@@ -130,15 +147,24 @@ def process_data(output_folder: str) -> None:
         last_week = datetime.now() - timedelta(days=7)
         start_date = last_week - timedelta(days=last_week.weekday())
         end_date = start_date + timedelta(days=6)
-        min_temp_gdf, max_temp_gdf = load_all_station_data(
+        temp_gdf = load_all_station_data(
             files,
             start_date.strftime("%Y-%m-%d"),
             end_date.strftime("%Y-%m-%d"),
         )
 
         faasr_log(
-            f"Loaded {len(min_temp_gdf)} rows of minimum temperature data and {len(max_temp_gdf)} rows of maximum temperature data for week starting {last_week}"
+            f"Loaded {len(temp_gdf)} rows of temperature data for week starting {last_week}"
         )
+
+        pd.to_csv("temp_gdf.csv", index=False)
+        faasr_put_file(
+            local_file="temp_gdf.csv",
+            remote_folder=output_folder,
+            remote_file="temp_gdf.csv",
+        )
+
+        faasr_log(f"Saved temperature data to FaaSr bucket {output_folder}")
 
     except Exception as e:
         import traceback
