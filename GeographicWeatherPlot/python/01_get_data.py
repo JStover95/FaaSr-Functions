@@ -217,11 +217,11 @@ def get_geo_data_and_stations(
     """
     # 1. Download geographic boundary data
     download_data(
-        "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.zip",
+        "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_5m.zip",
         "states.zip",
     )
     download_data(
-        "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_county_20m.zip",
+        "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_county_5m.zip",
         "counties.zip",
     )
     faasr_log(f"Downloaded boundary data for {state_name} and {county_name} county.")
