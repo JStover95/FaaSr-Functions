@@ -7,10 +7,10 @@ from FaaSr_py.client.py_client_stubs import faasr_get_file, faasr_log
 from shapely.geometry import Point
 
 
-def get_input_data(folder_name: str, input_name: str) -> None:
+def get_input_data(output_folder: str, input_name: str) -> None:
     faasr_get_file(
         local_file=input_name,
-        remote_folder=folder_name,
+        remote_folder=output_folder,
         remote_file=input_name,
     )
 
@@ -102,19 +102,19 @@ def load_all_station_data(
     return pd.concat(min_temp_gdfs), pd.concat(max_temp_gdfs)
 
 
-def process_data(folder_name: str) -> None:
+def process_data(output_folder: str) -> None:
     # 1. Load input data
-    get_input_data(folder_name, "county.geojson")
-    get_input_data(folder_name, "outer_boundary.geojson")
-    get_input_data(folder_name, "state.geojson")
-    get_input_data(folder_name, "stations.geojson")
+    get_input_data(output_folder, "county.geojson")
+    get_input_data(output_folder, "outer_boundary.geojson")
+    get_input_data(output_folder, "state.geojson")
+    get_input_data(output_folder, "stations.geojson")
 
     county = gpd.read_file("county.geojson")
     outer_boundary = gpd.read_file("outer_boundary.geojson")
     state = gpd.read_file("state.geojson")
     stations = gpd.read_file("stations.geojson")
 
-    faasr_log(f"Loaded input data from folder {folder_name}")
+    faasr_log(f"Loaded input data from folder {output_folder}")
 
     # 2. Download station data
     station_ids = stations["STATION"].tolist()
