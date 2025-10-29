@@ -67,9 +67,13 @@ def download_station_data(station_ids: list[str]) -> list[str]:
     return files
 
 
-def load_station_data(file: str, start_date: str, end_date: str) -> gpd.GeoDataFrame:
+def load_station_data(
+    file_name: str,
+    start_date: str,
+    end_date: str,
+) -> gpd.GeoDataFrame:
     df = pd.read_csv(
-        f"data/{file}",
+        file_name,
         dtype={
             "STATION": str,
             "DATE": str,
