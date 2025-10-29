@@ -8,7 +8,7 @@ from FaaSr_py.client.py_client_stubs import faasr_log, faasr_put_file
 from shapely.geometry import Point, Polygon
 
 
-def download_geo_data(url: str, output_name: str) -> None:
+def download_data(url: str, output_name: str) -> None:
     try:
         response = requests.get(url, timeout=20)
         response.raise_for_status()
@@ -149,11 +149,11 @@ def get_geo_data_and_stations(
 ) -> None:
     try:
         # 1. Download geographic boundary data
-        download_geo_data(
+        download_data(
             "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.zip",
             "states.zip",
         )
-        download_geo_data(
+        download_data(
             "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_county_20m.zip",
             "counties.zip",
         )
