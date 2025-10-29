@@ -130,7 +130,11 @@ def process_data(output_folder: str) -> None:
         last_week = datetime.now() - timedelta(days=7)
         start_date = last_week - timedelta(days=last_week.weekday())
         end_date = start_date + timedelta(days=6)
-        min_temp_gdf, max_temp_gdf = load_all_station_data(files, start_date, end_date)
+        min_temp_gdf, max_temp_gdf = load_all_station_data(
+            files,
+            start_date.strftime("%Y-%m-%d"),
+            end_date.strftime("%Y-%m-%d"),
+        )
 
         faasr_log(
             f"Loaded {len(min_temp_gdf)} rows of minimum temperature data and {len(max_temp_gdf)} rows of maximum temperature data for week starting {last_week}"
