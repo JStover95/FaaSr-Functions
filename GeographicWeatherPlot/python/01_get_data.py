@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
 import geopandas as gpd
-import matplotlib.pyplot as plt
 import pandas as pd
 import requests
 from FaaSr_py.client.py_client_stubs import faasr_log, faasr_put_file
@@ -9,6 +8,13 @@ from shapely.geometry import Point, Polygon
 
 
 def download_data(url: str, output_name: str) -> None:
+    """
+    Download data from a URL and save it to a local folder.
+
+    Args:
+        url: The URL to download the data from.
+        output_name: The name of the file to save the data to.
+    """
     try:
         response = requests.get(url, timeout=20)
         response.raise_for_status()
@@ -25,12 +31,27 @@ def get_geo_boundaries(
     state_name: str,
     county_name: str,
 ) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
+    """
+    Get the geographic boundaries for a given state and county. This will load
+    `states.zip` and `counties.zip` from the working directory and then filter
+    the data to the given state and county.
+
+    Args:
+        state_name: The name of the state to get the boundaries for.
+        county_name: The name of the county to get the boundaries for.
+
+    Returns:
+        A tuple containing the state and county GeoDataFrames.
+    """
     states = gpd.read_file("states.zip")
     counties = gpd.read_file("counties.zip")
     state = states[states["NAME"] == state_name]
     county = counties[counties["NAME"] == county_name]
+
+    # Get only the county within the state
     includes_county = county.geometry.apply(lambda x: state.geometry.contains(x)).values
     county = county[includes_county]
+
     return state, county
 
 
@@ -38,19 +59,50 @@ def get_outer_boundary(
     county: gpd.GeoDataFrame,
     degree_buffer: float = 0.5,
 ) -> gpd.GeoDataFrame:
+    """
+    Get the outer boundary for a given county. This adds `degree_buffer` degrees to the
+    maximum and minimum latitude and longitude.
+
+    Args:
+        county: The county GeoDataFrame.
+        degree_buffer: The number of degrees to add to the maximum and minimum latitude
+            and longitude.
+
+    Returns:
+        A GeoDataFrame containing the outer boundary.
+    """
+
+    # Get the minimum and maximum latitude and longitude
     min_x = county.bounds["minx"].iloc[0]
     min_y = county.bounds["miny"].iloc[0]
     max_x = county.bounds["maxx"].iloc[0]
     max_y = county.bounds["maxy"].iloc[0]
+
+    # Add the buffer to the minimum and maximum latitude and longitude
     top_left = (min_x - degree_buffer, max_y + degree_buffer)
     top_right = (max_x + degree_buffer, max_y + degree_buffer)
     bottom_right = (max_x + degree_buffer, min_y - degree_buffer)
     bottom_left = (min_x - degree_buffer, min_y - degree_buffer)
+
     outer_polygon = Polygon([top_left, top_right, bottom_right, bottom_left])
     return gpd.GeoDataFrame(geometry=[outer_polygon])
 
 
 def get_stations(year: str) -> gpd.GeoDataFrame:
+    """
+    Get all stations with TMAX and TMIN data on or after the given year. This will
+    download the station inventory data from the NOAA Global Historical Climatology
+    Network Daily (GHCND) dataset and filter the data to the given year.
+
+    Args:
+        year: The year to get the stations for.
+
+    Returns:
+        A GeoDataFrame containing the stations with TMAX and TMIN data on or after
+        the given year.
+    """
+
+    # Download the station inventory data
     df = pd.read_fwf(
         "https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-inventory.txt",
         header=None,
@@ -67,16 +119,19 @@ def get_stations(year: str) -> gpd.GeoDataFrame:
         "End Date",
     ]
 
+    # Get the station IDs with both TMAX and TMIN data
     tmax_ids = df[df["Element Type"] == "TMAX"]["Station ID"].unique()
     tmin_ids = df[df["Element Type"] == "TMIN"]["Station ID"].unique()
     ids_with_both = set(tmax_ids) & set(tmin_ids)
 
+    # Filter the data to the year and only include stations with both TMAX and TMIN data
     df = (
         df[df["Station ID"].isin(ids_with_both) & (df["End Date"] >= year)]
         .drop_duplicates(subset=["Station ID"])
         .drop(columns=["Element Type", "Begin Date", "End Date"])
     )
 
+    # Create a geometry column for the stations
     df["geometry"] = df.apply(
         lambda row: Point(row["Longitude"], row["Latitude"]),
         axis=1,
@@ -91,9 +146,22 @@ def upload_boundaries(
     county: gpd.GeoDataFrame,
     outer_boundary: gpd.GeoDataFrame,
 ) -> None:
+    """
+    Upload the geographic boundaries to the FaaSr folder.
+
+    Args:
+        output_folder: The name of the folder to upload the data to.
+        state: The state GeoDataFrame.
+        county: The county GeoDataFrame.
+        outer_boundary: The outer boundary GeoDataFrame.
+    """
+
+    # Save the geographic boundaries to local files
     state.to_file("state.geojson", driver="GeoJSON")
     county.to_file("county.geojson", driver="GeoJSON")
     outer_boundary.to_file("outer_boundary.geojson", driver="GeoJSON")
+
+    # Upload the geographic boundaries to the FaaSr folder
     faasr_put_file(
         local_file="state.geojson",
         remote_folder=output_folder,
@@ -112,33 +180,22 @@ def upload_boundaries(
 
 
 def upload_stations(output_folder: str, stations: gpd.GeoDataFrame) -> None:
+    """
+    Upload the stations to the FaaSr folder.
+
+    Args:
+        output_folder: The name of the folder to upload the data to.
+        stations: The stations GeoDataFrame.
+    """
+
+    # Save the stations to a local file
     stations.to_file("stations.geojson", driver="GeoJSON")
+
+    # Upload the stations to the FaaSr folder
     faasr_put_file(
         local_file="stations.geojson",
         remote_folder=output_folder,
         remote_file="stations.geojson",
-    )
-
-
-def upload_boundaries_and_stations_plot(
-    output_folder: str,
-    state: gpd.GeoDataFrame,
-    county: gpd.GeoDataFrame,
-    outer_boundary: gpd.GeoDataFrame,
-    stations: gpd.GeoDataFrame,
-) -> None:
-    pd.concat([state, county, outer_boundary, stations]).plot(
-        facecolor="none",
-        edgecolor="black",
-        linewidth=0.5,
-    )
-
-    plt.savefig("boundaries_and_stations_plot.png")
-
-    faasr_put_file(
-        local_file="boundaries_and_stations_plot.png",
-        remote_folder=output_folder,
-        remote_file="boundaries_and_stations_plot.png",
     )
 
 
@@ -190,13 +247,6 @@ def get_geo_data_and_stations(
         # 6. Upload the data
         upload_boundaries(output_folder, state, county, outer_boundary)
         upload_stations(output_folder, stations)
-        upload_boundaries_and_stations_plot(
-            output_folder,
-            state,
-            county,
-            outer_boundary,
-            stations,
-        )
 
         faasr_log("Completed get_geo_data_and_stations function.")
 
