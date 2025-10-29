@@ -10,12 +10,11 @@ from shapely.geometry import Point, Polygon
 
 def download_geo_data(url: str, output_name: str) -> None:
     try:
-        response = requests.get(url, timeout=20, stream=True)
+        response = requests.get(url, timeout=20)
         response.raise_for_status()
 
         with open(output_name, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
+            f.write(response.content)
 
     except Exception as e:
         faasr_log(f"Error downloading data from {url}: {e}")
