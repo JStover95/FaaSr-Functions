@@ -1,0 +1,49 @@
+{
+  "ActionList": {
+    "PlotData": {
+      "Arguments": {
+        "folder_name": "GeographicWeatherPlot"
+      },
+      "InvokeNext": [],
+      "FaaSServer": "GH",
+      "Type": "Python",
+      "FunctionName": "plot_county_weekly_temperature"
+    }
+  },
+  "ComputeServers": {
+    "GH": {
+      "FaaSType": "GitHubActions",
+      "UseSecretStore": true,
+      "ActionRepoName": "FaaSr-Functions",
+      "Branch": "main",
+      "UserName": "JStover95"
+    }
+  },
+  "DataStores": {
+    "My_S3_Bucket": {
+      "Writable": "TRUE",
+      "Endpoint": "https://s3.us-east-1.amazonaws.com",
+      "Bucket": "faasr-sample-functions",
+      "Region": "us-east-1"
+    }
+  },
+  "ActionContainers": {
+    "PlotData": "ghcr.io/faasr/github-actions-python:latest"
+  },
+  "FunctionInvoke": "PlotData",
+  "DefaultDataStore": "My_S3_Bucket",
+  "FunctionGitRepo": {
+    "plot_county_weekly_temperature": "JStover95/FaaSr-Functions/GeographicWeatherPlot/python"
+  },
+  "PyPIPackageDownloads": {
+    "plot_county_weekly_temperature": [
+      "geopandas",
+      "matplotlib",
+      "numpy",
+      "scipy"
+    ]
+  },
+  "FaaSrLog": "FaaSrLog",
+  "LoggingDataStore": "My_S3_Bucket",
+  "WorkflowName": "GeographicWeatherPlotWorkflowPlot"
+}
