@@ -127,6 +127,19 @@ def add_boundaries(ax: Axes, gdf: gpd.GeoDataFrame) -> None:
     gdf.plot(ax=ax, facecolor="none", edgecolor="black", linewidth=1)
 
 
+def set_limits(ax: Axes, gdf: gpd.GeoDataFrame) -> None:
+    """
+    Set the limits of a plot.
+
+    Args:
+        ax: The axes to set the limits of.
+        gdf: The GeoDataFrame to set the limits of.
+    """
+    minx, miny, maxx, maxy = get_bounds(gdf)
+    ax.set_xlim(minx, maxx)
+    ax.set_ylim(miny, maxy)
+
+
 def set_aspect_ratio(ax: Axes, gdf: gpd.GeoDataFrame) -> None:
     """
     Set the aspect ratio of a plot.
@@ -136,9 +149,6 @@ def set_aspect_ratio(ax: Axes, gdf: gpd.GeoDataFrame) -> None:
         gdf: The GeoDataFrame to set the aspect ratio of.
     """
     minx, miny, maxx, maxy = get_bounds(gdf)
-    ax.set_xlim(minx, maxx)
-    ax.set_ylim(miny, maxy)
-
     original_aspect_ratio = (maxx - minx) / (maxy - miny)
     ax.set_aspect(original_aspect_ratio)
 
@@ -201,13 +211,15 @@ def plot_county_weekly_temperature(folder_name: str):
     add_boundaries(ax2, state_gdf)
     add_boundaries(ax2, county_gdf)
 
-    # 5. Set each plot's aspect ratio
+    # 5. Set each plot's limits and aspect ratio
+    set_limits(ax1, outer_gdf)
+    set_limits(ax2, outer_gdf)
     set_aspect_ratio(ax1, county_gdf)
     set_aspect_ratio(ax2, county_gdf)
 
     # 6. Set ticks to every .5 degrees
-    set_ticks(ax1, county_gdf)
-    set_ticks(ax2, county_gdf)
+    set_ticks(ax1, outer_gdf)
+    set_ticks(ax2, outer_gdf)
 
     # 7. Save the plot to a file and upload it to the S3 bucket
     plt.tight_layout()
