@@ -15,10 +15,19 @@
       "Arguments": {
         "output_folder": "GeographicWeatherPlot"
       },
-      "InvokeNext": [],
+      "InvokeNext": ["PlotData"],
       "FaaSServer": "GH",
       "Type": "Python",
       "FunctionName": "process_ghcnd_data"
+    },
+    "PlotData": {
+      "Arguments": {
+        "output_folder": "GeographicWeatherPlot"
+      },
+      "InvokeNext": [],
+      "FaaSServer": "GH",
+      "Type": "Python",
+      "FunctionName": "plot_county_weekly_temperature"
     }
   },
   "ComputeServers": {
@@ -46,11 +55,18 @@
   "DefaultDataStore": "My_S3_Bucket",
   "FunctionGitRepo": {
     "get_geo_data_and_stations": "JStover95/FaaSr-Functions/GeographicWeatherPlot/python",
-    "process_ghcnd_data": "JStover95/FaaSr-Functions/GeographicWeatherPlot/python"
+    "process_ghcnd_data": "JStover95/FaaSr-Functions/GeographicWeatherPlot/python",
+    "plot_county_weekly_temperature": "JStover95/FaaSr-Functions/GeographicWeatherPlot/python"
   },
   "PyPIPackageDownloads": {
     "get_geo_data_and_stations": ["geopandas"],
-    "process_ghcnd_data": ["geopandas"]
+    "process_ghcnd_data": ["geopandas"],
+    "plot_county_weekly_temperature": [
+      "geopandas",
+      "matplotlib",
+      "numpy",
+      "scipy"
+    ]
   },
   "FaaSrLog": "FaaSrLog",
   "LoggingDataStore": "My_S3_Bucket",
