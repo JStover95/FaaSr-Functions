@@ -95,7 +95,7 @@ def load_all_station_data(
     files: list[str],
     start_date: str,
     end_date: str,
-) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
+) -> gpd.GeoDataFrame:
     min_temp_gdfs: list[gpd.GeoDataFrame] = []
     max_temp_gdfs: list[gpd.GeoDataFrame] = []
 
@@ -157,7 +157,7 @@ def process_data(output_folder: str) -> None:
             f"Loaded {len(temp_gdf)} rows of temperature data for week starting {last_week}"
         )
 
-        pd.to_csv("temp_gdf.csv", index=False)
+        temp_gdf.to_csv("temp_gdf.csv", index=False)
         faasr_put_file(
             local_file="temp_gdf.csv",
             remote_folder=output_folder,
