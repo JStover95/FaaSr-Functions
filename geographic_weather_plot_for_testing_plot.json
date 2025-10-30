@@ -1,5 +1,12 @@
 {
   "ActionList": {
+    "Empty": {
+      "Arguments": {},
+      "InvokeNext": ["PlotData"],
+      "FaaSServer": "GH",
+      "Type": "Python",
+      "FunctionName": "empty_function"
+    },
     "PlotData": {
       "Arguments": {
         "folder_name": "GeographicWeatherPlot"
@@ -28,11 +35,13 @@
     }
   },
   "ActionContainers": {
+    "Empty": "ghcr.io/faasr/github-actions-python:latest",
     "PlotData": "ghcr.io/faasr/github-actions-python:latest"
   },
-  "FunctionInvoke": "PlotData",
+  "FunctionInvoke": "Empty",
   "DefaultDataStore": "My_S3_Bucket",
   "FunctionGitRepo": {
+    "empty_function": "JStover95/FaaSr-Functions",
     "plot_county_weekly_temperature": "JStover95/FaaSr-Functions/GeographicWeatherPlot/python"
   },
   "PyPIPackageDownloads": {
