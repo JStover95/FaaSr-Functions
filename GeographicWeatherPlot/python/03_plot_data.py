@@ -186,6 +186,7 @@ def plot_county_weekly_temperature(folder_name: str, county_name: str):
 
     # 3. Plot the heatmaps
     _, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+    plt.suptitle(f"Temperature Heatmap for {county_name} County")
     create_heatmap(
         ax1,
         temp_gdf["TMIN"],
@@ -223,7 +224,6 @@ def plot_county_weekly_temperature(folder_name: str, county_name: str):
 
     # 7. Save the plot to a file and upload it to the S3 bucket
     plt.tight_layout()
-    plt.title(f"Temperature Heatmap for {county_name} County")
     plt.savefig("temperature_heatmap.png")
 
     faasr_put_file(
