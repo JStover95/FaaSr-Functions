@@ -7,6 +7,16 @@ from scipy.interpolate import griddata
 
 
 def load_input_data(folder_name: str, file_name: str) -> gpd.GeoDataFrame:
+    """
+    Load the input data from the FaaSr bucket and return it as a geopandas GeoDataFrame.
+
+    Args:
+        folder_name: The name of the folder to get the input data from.
+        file_name: The name of the input file to get the data from.
+
+    Returns:
+        A geopandas GeoDataFrame containing the input data.
+    """
     faasr_get_file(
         local_file=file_name,
         remote_folder=folder_name,
@@ -16,12 +26,30 @@ def load_input_data(folder_name: str, file_name: str) -> gpd.GeoDataFrame:
 
 
 def get_bounds(gdf: gpd.GeoDataFrame) -> tuple[float, float, float, float]:
+    """
+    Get the outer bounds of a geopandas GeoDataFrame.
+
+    Args:
+        gdf: The geopandas GeoDataFrame to get the bounds of.
+
+    Returns:
+        A tuple containing the minimum and maximum x and y coordinates.
+    """
     region_bounds = gdf.bounds
     minx, miny, maxx, maxy = region_bounds.iloc[0]
     return minx, miny, maxx, maxy
 
 
 def create_grid(gdf: gpd.GeoDataFrame) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Create a grid for the heatmap interpolation.
+
+    Args:
+        gdf: The geopandas GeoDataFrame to create the grid for.
+
+    Returns:
+        A tuple containing the x and y grids.
+    """
     minx, miny, maxx, maxy = get_bounds(gdf)
     grid_resolution = 100
     x_grid = np.linspace(minx, maxx, grid_resolution)
@@ -39,7 +67,20 @@ def create_heatmap(
     Y_grid: np.ndarray,
     title: str,
     cmap: str,
-):
+) -> None:
+    """
+    Create a heatmap for the given values.
+
+    Args:
+        ax: The axes to plot the heatmap on.
+        values: The values to plot the heatmap for.
+        points: The points to plot the heatmap for.
+        X_grid: The x grid to plot the heatmap on.
+        Y_grid: The y grid to plot the heatmap on.
+        title: The title of the heatmap.
+        cmap: The colormap to use for the heatmap.
+    """
+    # Interpolate the values on the grid
     interpolation = griddata(
         points,
         values,
@@ -48,7 +89,7 @@ def create_heatmap(
         fill_value=np.nan,
     )
 
-    # Plot minimum temperature heatmap
+    # Plot the heatmap
     im1 = ax.contourf(
         X_grid,
         Y_grid,
@@ -57,6 +98,8 @@ def create_heatmap(
         cmap=cmap,
         alpha=0.8,
     )
+
+    # Plot the stations as scatter points
     ax.scatter(
         points[:, 0],
         points[:, 1],
@@ -66,54 +109,73 @@ def create_heatmap(
         edgecolors="black",
         linewidth=0.5,
     )
+
     ax.set_title(title)
     ax.set_xlabel("Longitude")
     ax.set_ylabel("Latitude")
     plt.colorbar(im1, ax=ax, label="Temperature (°C)")
 
 
-def add_boundaries(
-    ax: Axes,
-    state_gdf: gpd.GeoDataFrame,
-    county_gdf: gpd.GeoDataFrame,
-    outer_gdf: gpd.GeoDataFrame,
-):
-    minx, miny, maxx, maxy = get_bounds(outer_gdf)
-    state_gdf.plot(ax=ax, facecolor="none", edgecolor="black", linewidth=1)
-    county_gdf.plot(ax=ax, facecolor="none", edgecolor="black", linewidth=1)
-    outer_gdf.plot(ax=ax, facecolor="none", edgecolor="black", linewidth=1)
+def add_boundaries(ax: Axes, gdf: gpd.GeoDataFrame) -> None:
+    """
+    Add geographic boundaries to a plot.
+
+    Args:
+        ax: The axes to plot the boundaries on.
+        gdf: The GeoDataFrame to plot the boundaries of.
+    """
+    gdf.plot(ax=ax, facecolor="none", edgecolor="black", linewidth=1)
+
+
+def set_aspect_ratio(ax: Axes, gdf: gpd.GeoDataFrame) -> None:
+    """
+    Set the aspect ratio of a plot.
+
+    Args:
+        ax: The axes to set the aspect ratio of.
+        gdf: The GeoDataFrame to set the aspect ratio of.
+    """
+    minx, miny, maxx, maxy = get_bounds(gdf)
     ax.set_xlim(minx, maxx)
     ax.set_ylim(miny, maxy)
 
-
-def reset_aspect_ratio(ax: Axes, gdf: gpd.GeoDataFrame):
-    minx, miny, maxx, maxy = get_bounds(gdf)
     original_aspect_ratio = (maxx - minx) / (maxy - miny)
     ax.set_aspect(original_aspect_ratio)
 
 
-def set_ticks(ax: Axes, gdf: gpd.GeoDataFrame):
+def set_ticks(ax: Axes, gdf: gpd.GeoDataFrame) -> None:
+    """
+    Set the ticks of a plot.
+
+    Args:
+        ax: The axes to set the ticks of.
+        gdf: The GeoDataFrame to use for the outer bounds.
+    """
     minx, miny, maxx, maxy = get_bounds(gdf)
     ax.set_xticks(np.arange(minx + 0.5 - minx % 0.5, maxx, 0.5))
     ax.set_yticks(np.arange(miny + 0.5 - miny % 0.5, maxy, 0.5))
 
 
 def plot_county_weekly_temperature(folder_name: str):
+    """
+    Plot the weekly temperature for a given county, save the plot to a file, and upload
+    it to the S3 bucket.
+
+    Args:
+        folder_name: The name of the folder to get the input data from.
+    """
     # 1. Load input data
     outer_gdf = load_input_data(folder_name, "outer_boundary.geojson")
     temp_gdf = load_input_data(folder_name, "temp_gdf.geojson")
     state_gdf = load_input_data(folder_name, "state.geojson")
     county_gdf = load_input_data(folder_name, "county.geojson")
 
-    # Create a grid for interpolation
+    # 2. Prepare the grid and points for heatmap interpolation
     X_grid, Y_grid = create_grid(outer_gdf)
-
-    # Extract coordinates and temperature values
     points = np.column_stack([temp_gdf.geometry.x, temp_gdf.geometry.y])
 
-    # Create separate heatmaps for min and max temperatures
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
-
+    # 3. Plot the heatmaps
+    _, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
     create_heatmap(
         ax1,
         temp_gdf["TMIN"],
@@ -133,32 +195,21 @@ def plot_county_weekly_temperature(folder_name: str):
         "Reds",
     )
 
-    # Add geographic boundaries to both subplots
-    add_boundaries(ax1, state_gdf, county_gdf, outer_gdf)
-    add_boundaries(ax2, state_gdf, county_gdf, outer_gdf)
+    # 4. Add geographic boundaries to both subplots
+    add_boundaries(ax1, state_gdf)
+    add_boundaries(ax1, county_gdf)
+    add_boundaries(ax2, state_gdf)
+    add_boundaries(ax2, county_gdf)
 
-    # Set aspect ration to original resolution
-    # county_bbox = county_gdf.bounds
-    # county_min_x = county_bbox["minx"].iloc[0]
-    # county_min_y = county_bbox["miny"].iloc[0]
-    # county_max_x = county_bbox["maxx"].iloc[0]
-    # county_max_y = county_bbox["maxy"].iloc[0]
-    # original_aspect_ratio = (county_max_x - county_min_x) / (
-    #     county_max_y - county_min_y
-    # )
-    # ax1.set_aspect(original_aspect_ratio)
-    # ax2.set_aspect(original_aspect_ratio)
-    reset_aspect_ratio(ax1, county_gdf)
-    reset_aspect_ratio(ax2, county_gdf)
+    # 5. Set each plot's aspect ratio
+    set_aspect_ratio(ax1, county_gdf)
+    set_aspect_ratio(ax2, county_gdf)
 
-    # Set ticks to every .5 degrees
-    # ax1.set_xticks(np.arange(minx + 0.5 - minx % 0.5, maxx, 0.5))
-    # ax1.set_yticks(np.arange(miny + 0.5 - miny % 0.5, maxy, 0.5))
-    # ax2.set_xticks(np.arange(minx + 0.5 - minx % 0.5, maxx, 0.5))
-    # ax2.set_yticks(np.arange(miny + 0.5 - miny % 0.5, maxy, 0.5))
+    # 6. Set ticks to every .5 degrees
     set_ticks(ax1, county_gdf)
     set_ticks(ax2, county_gdf)
 
+    # 7. Save the plot to a file and upload it to the S3 bucket
     plt.tight_layout()
     plt.savefig("temperature_heatmap.png")
 
