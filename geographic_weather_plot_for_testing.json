@@ -22,7 +22,7 @@
     },
     "PlotData": {
       "Arguments": {
-        "output_folder": "GeographicWeatherPlot"
+        "folder_name": "GeographicWeatherPlot"
       },
       "InvokeNext": [],
       "FaaSServer": "GH",
