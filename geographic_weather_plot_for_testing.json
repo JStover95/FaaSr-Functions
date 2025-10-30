@@ -2,7 +2,7 @@
   "ActionList": {
     "GetData": {
       "Arguments": {
-        "output_folder": "GeographicWeatherPlot",
+        "folder_name": "GeographicWeatherPlot",
         "state_name": "Oregon",
         "county_name": "Benton"
       },
@@ -13,7 +13,7 @@
     },
     "ProcessData": {
       "Arguments": {
-        "output_folder": "GeographicWeatherPlot"
+        "folder_name": "GeographicWeatherPlot"
       },
       "InvokeNext": ["PlotData"],
       "FaaSServer": "GH",

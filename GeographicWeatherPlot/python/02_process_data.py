@@ -115,17 +115,17 @@ def load_all_station_data(
     return temp_gdf
 
 
-def process_ghcnd_data(output_folder: str) -> None:
+def process_ghcnd_data(folder_name: str) -> None:
     try:
         # 1. Load input data
         faasr_get_file(
             local_file="stations.geojson",
-            remote_folder=output_folder,
+            remote_folder=folder_name,
             remote_file="stations.geojson",
         )
         stations = gpd.read_file("stations.geojson")
 
-        faasr_log(f"Loaded input data from folder {output_folder}")
+        faasr_log(f"Loaded input data from folder {folder_name}")
 
         # 2. Download station data
         station_ids = stations["Station ID"].tolist()
@@ -151,11 +151,11 @@ def process_ghcnd_data(output_folder: str) -> None:
         temp_gdf.to_file("temp_gdf.geojson", driver="GeoJSON")
         faasr_put_file(
             local_file="temp_gdf.geojson",
-            remote_folder=output_folder,
+            remote_folder=folder_name,
             remote_file="temp_gdf.geojson",
         )
 
-        faasr_log(f"Saved temperature data to FaaSr bucket {output_folder}")
+        faasr_log(f"Saved temperature data to FaaSr bucket {folder_name}")
 
     except Exception as e:
         import traceback

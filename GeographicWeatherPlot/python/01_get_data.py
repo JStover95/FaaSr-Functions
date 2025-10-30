@@ -200,7 +200,7 @@ def upload_stations(output_folder: str, stations: gpd.GeoDataFrame) -> None:
 
 
 def get_geo_data_and_stations(
-    output_folder: str,
+    folder_name: str,
     state_name: str,
     county_name: str,
 ) -> None:
@@ -211,7 +211,7 @@ def get_geo_data_and_stations(
     TMIN data on or after the given year.
 
     Args:
-        output_folder: The name of the folder to upload the data to.
+        folder_name: The name of the folder to upload the data to.
         state_name: The name of the state to get the boundaries for.
         county_name: The name of the county to get the boundaries for.
     """
@@ -247,6 +247,6 @@ def get_geo_data_and_stations(
     faasr_log(f"Filtered stations to {len(stations)} within the outer boundary.")
 
     # 6. Upload the data
-    upload_boundaries(output_folder, state, county, outer_boundary)
-    upload_stations(output_folder, stations)
+    upload_boundaries(folder_name, state, county, outer_boundary)
+    upload_stations(folder_name, stations)
     faasr_log("Completed get_geo_data_and_stations function.")
