@@ -18,7 +18,7 @@
       "InvokeNext": [],
       "FaaSServer": "GH",
       "Type": "Python",
-      "FunctionName": "process_data"
+      "FunctionName": "process_ghcnd_data"
     }
   },
   "ComputeServers": {
@@ -46,11 +46,11 @@
   "DefaultDataStore": "My_S3_Bucket",
   "FunctionGitRepo": {
     "get_geo_data_and_stations": "JStover95/FaaSr-Functions/GeographicWeatherPlot/python",
-    "process_data": "JStover95/FaaSr-Functions/GeographicWeatherPlot/python"
+    "process_ghcnd_data": "JStover95/FaaSr-Functions/GeographicWeatherPlot/python"
   },
   "PyPIPackageDownloads": {
     "get_geo_data_and_stations": ["geopandas"],
-    "process_data": ["geopandas"]
+    "process_ghcnd_data": ["geopandas"]
   },
   "FaaSrLog": "FaaSrLog",
   "LoggingDataStore": "My_S3_Bucket",

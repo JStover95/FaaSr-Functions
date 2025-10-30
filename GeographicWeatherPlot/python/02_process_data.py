@@ -7,14 +7,6 @@ from FaaSr_py.client.py_client_stubs import faasr_get_file, faasr_log, faasr_put
 from shapely.geometry import Point
 
 
-def get_input_data(output_folder: str, input_name: str) -> None:
-    faasr_get_file(
-        local_file=input_name,
-        remote_folder=output_folder,
-        remote_file=input_name,
-    )
-
-
 def build_url(station_id: str) -> str:
     """
     Build the URL for the NOAA Global Historical Climatology Network Daily (GHCND)
@@ -123,17 +115,14 @@ def load_all_station_data(
     return temp_gdf
 
 
-def process_data(output_folder: str) -> None:
+def process_ghcnd_data(output_folder: str) -> None:
     try:
         # 1. Load input data
-        get_input_data(output_folder, "county.geojson")
-        get_input_data(output_folder, "outer_boundary.geojson")
-        get_input_data(output_folder, "state.geojson")
-        get_input_data(output_folder, "stations.geojson")
-
-        county = gpd.read_file("county.geojson")
-        outer_boundary = gpd.read_file("outer_boundary.geojson")
-        state = gpd.read_file("state.geojson")
+        faasr_get_file(
+            local_file="stations.geojson",
+            remote_folder=output_folder,
+            remote_file="stations.geojson",
+        )
         stations = gpd.read_file("stations.geojson")
 
         faasr_log(f"Loaded input data from folder {output_folder}")
@@ -144,6 +133,7 @@ def process_data(output_folder: str) -> None:
 
         faasr_log(f"Downloaded station data for {len(station_ids)} stations")
 
+        # 3. Load and process all station data
         last_week = datetime.now() - timedelta(days=7)
         start_date = last_week - timedelta(days=last_week.weekday())
         end_date = start_date + timedelta(days=6)
@@ -157,11 +147,12 @@ def process_data(output_folder: str) -> None:
             f"Loaded {len(temp_gdf)} rows of temperature data for week starting {last_week}"
         )
 
-        temp_gdf.to_csv("temp_gdf.csv", index=False)
+        # 4. Upload the temperature data
+        temp_gdf.to_file("temp_gdf.geojson", driver="GeoJSON")
         faasr_put_file(
-            local_file="temp_gdf.csv",
+            local_file="temp_gdf.geojson",
             remote_folder=output_folder,
-            remote_file="temp_gdf.csv",
+            remote_file="temp_gdf.geojson",
         )
 
         faasr_log(f"Saved temperature data to FaaSr bucket {output_folder}")
