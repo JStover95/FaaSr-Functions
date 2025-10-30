@@ -166,7 +166,7 @@ def set_ticks(ax: Axes, gdf: gpd.GeoDataFrame) -> None:
     ax.set_yticks(np.arange(miny + 0.5 - miny % 0.5, maxy, 0.5))
 
 
-def plot_county_weekly_temperature(folder_name: str):
+def plot_county_weekly_temperature(folder_name: str, county_name: str):
     """
     Plot the weekly temperature for a given county, save the plot to a file, and upload
     it to the S3 bucket.
@@ -223,6 +223,7 @@ def plot_county_weekly_temperature(folder_name: str):
 
     # 7. Save the plot to a file and upload it to the S3 bucket
     plt.tight_layout()
+    plt.title(f"Temperature Heatmap for {county_name} County")
     plt.savefig("temperature_heatmap.png")
 
     faasr_put_file(

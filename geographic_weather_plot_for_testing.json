@@ -22,7 +22,8 @@
     },
     "PlotData": {
       "Arguments": {
-        "folder_name": "GeographicWeatherPlot"
+        "folder_name": "GeographicWeatherPlot",
+        "county_name": "Benton"
       },
       "InvokeNext": [],
       "FaaSServer": "GH",
