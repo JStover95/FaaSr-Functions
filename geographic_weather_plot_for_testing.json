@@ -49,7 +49,8 @@
   },
   "ActionContainers": {
     "GetData": "ghcr.io/faasr/github-actions-python:latest",
-    "ProcessData": "ghcr.io/faasr/github-actions-python:latest"
+    "ProcessData": "ghcr.io/faasr/github-actions-python:latest",
+    "PlotData": "ghcr.io/faasr/github-actions-python:latest"
   },
   "FunctionInvoke": "GetData",
   "DefaultDataStore": "My_S3_Bucket",
