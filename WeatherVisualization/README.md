@@ -2,6 +2,7 @@
 
 ## Table of Contents
 
+- [Key Topics](#key-topics)
 - [Introduction](#introduction)
 - [Prerequisites](#prerequisites)
 - [Understanding our Data](#understanding-our-data)
@@ -22,6 +23,13 @@
   - [Download the Workflow](#download-the-workflow)
   - [Register and Invoke the Workflow](#register-and-invoke-the-workflow)
   - [View the Output Data](#view-the-output-data)
+
+## Key Topics
+
+- Writing functions
+- Invoking multiple functions in parallel
+- Duplicating functions
+- Adding Python packages
 
 ## Introduction
 
