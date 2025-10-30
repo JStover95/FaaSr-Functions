@@ -133,7 +133,7 @@ def set_limits(ax: Axes, gdf: gpd.GeoDataFrame) -> None:
 
     Args:
         ax: The axes to set the limits of.
-        gdf: The GeoDataFrame to set the limits of.
+        gdf: The GeoDataFrame to use for the outer bounds.
     """
     minx, miny, maxx, maxy = get_bounds(gdf)
     ax.set_xlim(minx, maxx)
@@ -146,7 +146,7 @@ def set_aspect_ratio(ax: Axes, gdf: gpd.GeoDataFrame) -> None:
 
     Args:
         ax: The axes to set the aspect ratio of.
-        gdf: The GeoDataFrame to set the aspect ratio of.
+        gdf: The GeoDataFrame to use for the aspect ratio.
     """
     minx, miny, maxx, maxy = get_bounds(gdf)
     original_aspect_ratio = (maxx - minx) / (maxy - miny)
