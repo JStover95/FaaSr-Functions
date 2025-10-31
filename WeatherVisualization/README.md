@@ -30,6 +30,7 @@
 - Invoking multiple functions in parallel
 - Duplicating functions
 - Adding Python packages
+- Workflow Builder GUI
 
 ## Introduction
 
