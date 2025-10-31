@@ -3,6 +3,7 @@
     "GetData": {
       "Arguments": {
         "folder_name": "WeatherGeographicPlot",
+        "state_name": "Oregon",
         "county_name": "Benton"
       },
       "InvokeNext": ["ProcessData"],
