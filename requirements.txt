@@ -1,0 +1,6 @@
+-e git+ssh://git@github.com/JStover95/FaaSr-Functions.git@082f6dedb555029d02e7004968e8940f7f048c5f#egg=FaaSr_py&subdirectory=faasr_backend
+geopandas==1.1.1
+matplotlib==3.10.7
+numpy==2.3.4
+pandas==2.3.3
+scipy==1.16.3
