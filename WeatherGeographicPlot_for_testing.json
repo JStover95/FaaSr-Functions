@@ -36,7 +36,7 @@
       "UseSecretStore": true,
       "ActionRepoName": "FaaSr-workflow",
       "Branch": "main",
-      "UserName": "YOUR_USERNAME"
+      "UserName": "JStover95"
     }
   },
   "DataStores": {
@@ -51,9 +51,9 @@
   "FunctionInvoke": "GetData",
   "DefaultDataStore": "S3",
   "FunctionGitRepo": {
-    "get_geo_data_and_stations": "YOUR_USERNAME/FaaSr-Functions/WeatherGeographicPlot/python",
-    "process_ghcnd_data": "YOUR_USERNAME/FaaSr-Functions/WeatherGeographicPlot/python",
-    "plot_county_weekly_temperature": "YOUR_USERNAME/FaaSr-Functions/WeatherGeographicPlot/python"
+    "get_geo_data_and_stations": "JStover95/FaaSr-Functions/WeatherGeographicPlot/python",
+    "process_ghcnd_data": "JStover95/FaaSr-Functions/WeatherGeographicPlot/python",
+    "plot_county_weekly_temperature": "JStover95/FaaSr-Functions/WeatherGeographicPlot/python"
   },
   "FunctionGitHubPackage": {
     "get_geo_data_and_stations": ["geopandas"],
