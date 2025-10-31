@@ -43,8 +43,8 @@
   "DataStores": {
     "S3": {
       "Writable": "TRUE",
-      "Endpoint": "https://play.mini.io",
-      "Bucket": "faasr",
+      "Endpoint": "https://s3.us-east-1.amazonaws.com",
+      "Bucket": "faasr-sample-functions",
       "Region": "us-east-1"
     }
   },
