@@ -55,7 +55,7 @@
     "process_ghcnd_data": "YOUR_USERNAME/FaaSr-Functions/WeatherGeographicPlot/python",
     "plot_county_weekly_temperature": "YOUR_USERNAME/FaaSr-Functions/WeatherGeographicPlot/python"
   },
-  "FunctionGitHubPackage": {
+  "PyPIPackageDownloads": {
     "get_geo_data_and_stations": ["geopandas"],
     "process_ghcnd_data": ["geopandas"],
     "plot_county_weekly_temperature": [
