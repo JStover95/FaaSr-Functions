@@ -3,7 +3,12 @@ from datetime import datetime, timedelta
 import geopandas as gpd
 import pandas as pd
 import requests
-from FaaSr_py.client.py_client_stubs import faasr_get_file, faasr_log, faasr_put_file
+from FaaSr_py.client.py_client_stubs import (
+    faasr_get_file,
+    faasr_invocation_id,
+    faasr_log,
+    faasr_put_file,
+)
 from shapely.geometry import Point
 
 
@@ -46,6 +51,28 @@ def download_data(url: str, output_name: str) -> int:
     except Exception as e:
         faasr_log(f"Error downloading data from {url}: {e}")
         raise e
+
+
+def get_file(file_name: str, folder_name: str) -> None:
+    """
+    Get a file from the FaaSr bucket.
+    """
+    faasr_get_file(
+        local_file=file_name,
+        remote_folder=f"{folder_name}/{faasr_invocation_id()}",
+        remote_file=file_name,
+    )
+
+
+def put_file(file_name: str, folder_name: str) -> None:
+    """
+    Put a file to the FaaSr bucket.
+    """
+    faasr_put_file(
+        local_file=file_name,
+        remote_folder=f"{folder_name}/{faasr_invocation_id()}",
+        remote_file=file_name,
+    )
 
 
 def download_station_data(station_ids: list[str]) -> list[str]:
@@ -118,11 +145,7 @@ def load_all_station_data(
 def process_ghcnd_data(folder_name: str) -> None:
     try:
         # 1. Load input data
-        faasr_get_file(
-            local_file="stations.geojson",
-            remote_folder=folder_name,
-            remote_file="stations.geojson",
-        )
+        get_file("stations.geojson", folder_name)
         stations = gpd.read_file("stations.geojson")
 
         faasr_log(f"Loaded input data from folder {folder_name}")
@@ -149,11 +172,7 @@ def process_ghcnd_data(folder_name: str) -> None:
 
         # 4. Upload the temperature data
         temp_gdf.to_file("temp_gdf.geojson", driver="GeoJSON")
-        faasr_put_file(
-            local_file="temp_gdf.geojson",
-            remote_folder=folder_name,
-            remote_file="temp_gdf.geojson",
-        )
+        put_file("temp_gdf.geojson", folder_name)
 
         faasr_log(f"Saved temperature data to FaaSr bucket {folder_name}")
 

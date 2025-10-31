@@ -1,9 +1,36 @@
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
-from FaaSr_py.client.py_client_stubs import faasr_get_file, faasr_log, faasr_put_file
+from FaaSr_py.client.py_client_stubs import (
+    faasr_get_file,
+    faasr_invocation_id,
+    faasr_log,
+    faasr_put_file,
+)
 from matplotlib.axes import Axes
 from scipy.interpolate import griddata
+
+
+def get_file(file_name: str, folder_name: str) -> None:
+    """
+    Get a file from the FaaSr bucket.
+    """
+    faasr_get_file(
+        local_file=file_name,
+        remote_folder=f"{folder_name}/{faasr_invocation_id()}",
+        remote_file=file_name,
+    )
+
+
+def put_file(file_name: str, folder_name: str) -> None:
+    """
+    Put a file to the FaaSr bucket.
+    """
+    faasr_put_file(
+        local_file=file_name,
+        remote_folder=f"{folder_name}/{faasr_invocation_id()}",
+        remote_file=file_name,
+    )
 
 
 def load_input_data(folder_name: str, file_name: str) -> gpd.GeoDataFrame:
@@ -17,11 +44,7 @@ def load_input_data(folder_name: str, file_name: str) -> gpd.GeoDataFrame:
     Returns:
         A geopandas GeoDataFrame containing the input data.
     """
-    faasr_get_file(
-        local_file=file_name,
-        remote_folder=folder_name,
-        remote_file=file_name,
-    )
+    get_file(file_name, folder_name)
     return gpd.read_file(file_name)
 
 
@@ -226,9 +249,5 @@ def plot_county_weekly_temperature(folder_name: str, county_name: str):
     plt.tight_layout()
     plt.savefig("temperature_heatmap.png")
 
-    faasr_put_file(
-        local_file="temperature_heatmap.png",
-        remote_folder=folder_name,
-        remote_file="temperature_heatmap.png",
-    )
+    put_file("temperature_heatmap.png", folder_name)
     faasr_log(f"Uploaded temperature heatmap to {folder_name}/temperature_heatmap.png")

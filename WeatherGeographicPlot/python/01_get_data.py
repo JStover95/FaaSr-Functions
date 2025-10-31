@@ -3,7 +3,11 @@ from datetime import datetime, timedelta
 import geopandas as gpd
 import pandas as pd
 import requests
-from FaaSr_py.client.py_client_stubs import faasr_log, faasr_put_file
+from FaaSr_py.client.py_client_stubs import (
+    faasr_invocation_id,
+    faasr_log,
+    faasr_put_file,
+)
 from shapely.geometry import Point, Polygon
 
 
@@ -25,6 +29,21 @@ def download_data(url: str, output_name: str) -> None:
     except Exception as e:
         faasr_log(f"Error downloading data from {url}: {e}")
         raise
+
+
+def put_file(file_name: str, output_folder: str) -> None:
+    """
+    Put a file to the FaaSr folder.
+
+    Args:
+        file_name: The name of the file to put.
+        output_folder: The name of the folder to put the file in.
+    """
+    faasr_put_file(
+        local_file=file_name,
+        remote_folder=f"{output_folder}/{faasr_invocation_id()}",
+        remote_file=file_name,
+    )
 
 
 def get_geo_boundaries(
@@ -162,21 +181,9 @@ def upload_boundaries(
     outer_boundary.to_file("outer_boundary.geojson", driver="GeoJSON")
 
     # Upload the geographic boundaries to the FaaSr folder
-    faasr_put_file(
-        local_file="state.geojson",
-        remote_folder=output_folder,
-        remote_file="state.geojson",
-    )
-    faasr_put_file(
-        local_file="county.geojson",
-        remote_folder=output_folder,
-        remote_file="county.geojson",
-    )
-    faasr_put_file(
-        local_file="outer_boundary.geojson",
-        remote_folder=output_folder,
-        remote_file="outer_boundary.geojson",
-    )
+    put_file("state.geojson", output_folder)
+    put_file("county.geojson", output_folder)
+    put_file("outer_boundary.geojson", output_folder)
 
 
 def upload_stations(output_folder: str, stations: gpd.GeoDataFrame) -> None:
@@ -192,11 +199,7 @@ def upload_stations(output_folder: str, stations: gpd.GeoDataFrame) -> None:
     stations.to_file("stations.geojson", driver="GeoJSON")
 
     # Upload the stations to the FaaSr folder
-    faasr_put_file(
-        local_file="stations.geojson",
-        remote_folder=output_folder,
-        remote_file="stations.geojson",
-    )
+    put_file("stations.geojson", output_folder)
 
 
 def get_geo_data_and_stations(
