@@ -48,7 +48,11 @@
       "Region": "us-east-1"
     }
   },
-  "ActionContainers": {},
+  "ActionContainers": {
+    "GetData": "ghcr.io/faasr/github-actions-python:latest",
+    "ProcessData": "ghcr.io/faasr/github-actions-python:latest",
+    "PlotData": "ghcr.io/faasr/github-actions-python:latest"
+  },
   "FunctionInvoke": "GetData",
   "DefaultDataStore": "S3",
   "FunctionGitRepo": {
@@ -68,5 +72,6 @@
   },
   "FaaSrLog": "FaaSrLog",
   "LoggingDataStore": "S3",
-  "WorkflowName": "WeatherGeographicPlot"
+  "WorkflowName": "WeatherGeographicPlot",
+  "InvocationIDFromDate": "%Y%m%d"
 }
