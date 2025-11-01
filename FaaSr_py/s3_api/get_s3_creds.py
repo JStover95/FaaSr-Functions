@@ -62,7 +62,7 @@ def faasr_get_s3_creds(faasr_payload, server_name=""):
     return {
         "bucket": target_s3["Bucket"],
         "region": target_s3["Region"],
-        "endpoint": target_s3.get("Endpoint"),
+        "endpoint": endpoint,
         "secret_key": secret_key,
         "access_key": access_key,
         "anonymous": anonymous,
