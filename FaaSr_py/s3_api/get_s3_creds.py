@@ -50,10 +50,12 @@ def faasr_get_s3_creds(faasr_payload, server_name=""):
             sys.exit(1)
 
     endpoint = target_s3.get("Endpoint")
+    print("Endpoint is:",endpoint)
     if not endpoint or endpoint == "":
         # Construct default AWS S3 endpoint from region
         region = target_s3["Region"]
         endpoint = f"https://s3.{region}.amazonaws.com"
+        print("Endpoint in if:",endpoint)
 
 
     # return credentials as namedtuple
