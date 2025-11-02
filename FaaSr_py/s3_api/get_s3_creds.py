@@ -49,11 +49,18 @@ def faasr_get_s3_creds(faasr_payload, server_name=""):
             logger.error(f"Missing key in S3 data store: {e}")
             sys.exit(1)
 
+    endpoint = target_s3.get("Endpoint")
+    if not endpoint or endpoint == "":
+        # Construct default AWS S3 endpoint from region
+        region = target_s3["Region"]
+        endpoint = f"https://s3.{region}.amazonaws.com"
+
+
     # return credentials as namedtuple
     return {
         "bucket": target_s3["Bucket"],
         "region": target_s3["Region"],
-        "endpoint": target_s3.get("Endpoint"),
+        "endpoint": endpoint,
         "secret_key": secret_key,
         "access_key": access_key,
         "anonymous": anonymous,
