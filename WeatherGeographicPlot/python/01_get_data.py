@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import geopandas as gpd
 import pandas as pd
@@ -159,49 +159,6 @@ def get_stations(year: str) -> gpd.GeoDataFrame:
     return gpd.GeoDataFrame(df[["Station ID", "geometry"]])
 
 
-def upload_boundaries(
-    output_folder: str,
-    state: gpd.GeoDataFrame,
-    county: gpd.GeoDataFrame,
-    outer_boundary: gpd.GeoDataFrame,
-) -> None:
-    """
-    Upload the geographic boundaries to the FaaSr folder.
-
-    Args:
-        output_folder: The name of the folder to upload the data to.
-        state: The state GeoDataFrame.
-        county: The county GeoDataFrame.
-        outer_boundary: The outer boundary GeoDataFrame.
-    """
-
-    # Save the geographic boundaries to local files
-    state.to_file("state.geojson", driver="GeoJSON")
-    county.to_file("county.geojson", driver="GeoJSON")
-    outer_boundary.to_file("outer_boundary.geojson", driver="GeoJSON")
-
-    # Upload the geographic boundaries to the FaaSr folder
-    put_file("state.geojson", output_folder)
-    put_file("county.geojson", output_folder)
-    put_file("outer_boundary.geojson", output_folder)
-
-
-def upload_stations(output_folder: str, stations: gpd.GeoDataFrame) -> None:
-    """
-    Upload the stations to the FaaSr folder.
-
-    Args:
-        output_folder: The name of the folder to upload the data to.
-        stations: The stations GeoDataFrame.
-    """
-
-    # Save the stations to a local file
-    stations.to_file("stations.geojson", driver="GeoJSON")
-
-    # Upload the stations to the FaaSr folder
-    put_file("stations.geojson", output_folder)
-
-
 def get_geo_data_and_stations(
     folder_name: str,
     state_name: str,
@@ -235,13 +192,9 @@ def get_geo_data_and_stations(
 
     # 3. Calculate the outer boundary for station selection
     outer_boundary = get_outer_boundary(county)
-    bbox = outer_boundary.bounds
-    min_x, min_y, max_x, max_y = bbox.iloc[0]
-    faasr_log("Calculated outer boundary for station selection.")
-    faasr_log(f"(min_x, min_y, max_x, max_y) = ({min_x}, {min_y}, {max_x}, {max_y})")
 
     # 4. Download station data
-    year = (datetime.now() - timedelta(days=7)).strftime("%Y")
+    year = datetime.now().year
     stations = get_stations(year)
     faasr_log(f"Downloaded {len(stations)} stations with data for {year} or later.")
 
@@ -250,6 +203,14 @@ def get_geo_data_and_stations(
     faasr_log(f"Filtered stations to {len(stations)} within the outer boundary.")
 
     # 6. Upload the data
-    upload_boundaries(folder_name, state, county, outer_boundary)
-    upload_stations(folder_name, stations)
+    state.to_file("state.geojson", driver="GeoJSON")
+    county.to_file("county.geojson", driver="GeoJSON")
+    outer_boundary.to_file("outer_boundary.geojson", driver="GeoJSON")
+    stations.to_file("stations.geojson", driver="GeoJSON")
+
+    put_file("state.geojson", folder_name)
+    put_file("county.geojson", folder_name)
+    put_file("outer_boundary.geojson", folder_name)
+    put_file("stations.geojson", folder_name)
+
     faasr_log("Completed get_geo_data_and_stations function.")
