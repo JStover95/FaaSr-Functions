@@ -157,7 +157,7 @@ def process_ghcnd_data(folder_name: str) -> None:
         faasr_log(f"Downloaded station data for {len(station_ids)} stations")
 
         # 3. Load and process all station data
-        last_week = datetime.now() - timedelta(days=7)
+        last_week = datetime.now() - timedelta(days=28)
         start_date = last_week - timedelta(days=last_week.weekday())
         end_date = start_date + timedelta(days=6)
         temp_gdf = load_all_station_data(
