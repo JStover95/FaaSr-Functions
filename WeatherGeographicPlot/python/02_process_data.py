@@ -102,17 +102,10 @@ def load_station_data(
             "TMAX": float,
         },
     )
-    faasr_log("--------------- Before filtering ---------------")
-    faasr_log(str(df.head()))
     df = df[(df["DATE"] >= start_date) & (df["DATE"] <= end_date)]
-    faasr_log("--------------- After filtering ---------------")
-    faasr_log(str(df.head()))
     geometry = df.apply(lambda row: Point(row["LONGITUDE"], row["LATITUDE"]), axis=1)
     min_temp_gdf = gpd.GeoDataFrame(df[["STATION", "DATE", "TMIN"]], geometry=geometry)
     max_temp_gdf = gpd.GeoDataFrame(df[["STATION", "DATE", "TMAX"]], geometry=geometry)
-    faasr_log("--------------- Before concatenating ---------------")
-    faasr_log(str(min_temp_gdf.head()))
-    faasr_log(str(max_temp_gdf.head()))
 
     return min_temp_gdf, max_temp_gdf
 
