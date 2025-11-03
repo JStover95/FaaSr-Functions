@@ -91,8 +91,8 @@ First, we will write our imports:
 - `requests`: We will use requests to download data from public URLs.
 - `faasr_log`: This will write log outputs to S3.
 - `faasr_put_file`: We will use this function for storing our output data on S3.
-- `faasr_invocation_id`: Retrieves the current invocation ID (in this tutorial, a timestamp), which we will use to make sure each run will not overwrite previous runs.
-- `Point` and `Polygon`: Data types for manipulating geographic points and boundaries.
+- `faasr_invocation_id`: Retrieves the current invocation ID (in this tutorial, a timestamp), which we will use to make sure each run will not overwrite data from previous runs.
+- `Point` and `Polygon`: Data types for manipulating geographic coordinates and boundaries.
 
 ```python
 from datetime import datetime
@@ -148,9 +148,9 @@ def put_file(file_name: str, output_folder: str) -> None:
     )
 ```
 
-Next we will need two functions for handling our geographic data. The first, `get_geo_boundaries` retrieves our state's and county's boundaries. [US counties in different states can have the same name](https://www.fws.gov/sites/default/files/documents/Standard_CountyName.pdf), so we use the function GeoDataFrame `contains` to ensure we get only the county within our state boundaries.
+Next we will need two functions for handling our geographic data. The first, `get_geo_boundaries` retrieves our state's and county's boundaries. [US counties in different states can have the same name](https://www.fws.gov/sites/default/files/documents/Standard_CountyName.pdf), so we use the GeoDataFrame `contains` method to ensure we get only the county within our state boundaries.
 
-> ℹ️ This function uses boolean indexing to locate specific rows. For more details see pandas [Indexing and selecting data](https://pandas.pydata.org/docs/user_guide/indexing.html). \
+> ℹ️ This function uses boolean indexing to locate specific rows. For more information see pandas [Indexing and selecting data](https://pandas.pydata.org/docs/user_guide/indexing.html). \
 > ℹ️ This function uses apply for efficient operations on DataFrames. For more information refer to the [pandas documentation](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.apply.html).
 
 ```python
