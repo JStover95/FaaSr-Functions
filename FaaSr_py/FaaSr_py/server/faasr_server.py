@@ -91,6 +91,8 @@ def register_request_handler(faasr_payload):
                     return_obj.Data["folder_list"] = faasr_get_folder_list(
                         faasr_payload=faasr_payload, **args
                     )
+                case "faasr_invocation_id":
+                    return_obj.Data["invocation_id"] = faasr_payload.get("InvocationID", "")
                 case "faasr_rank":
                     return_obj.Data = faasr_rank(faasr_payload=faasr_payload)
                 case "faasr_get_s3_creds":
