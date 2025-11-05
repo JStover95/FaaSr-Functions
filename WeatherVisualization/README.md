@@ -725,7 +725,7 @@ def plot_weather_comparison(
 
 Now that we wrote our three functions, we are ready to start building our workflow using the FaaSr Workflow Builder: [https://faasr.io/FaaSr-workflow-builder/](https://faasr.io/FaaSr-workflow-builder/).
 
-The final workflow file that we will create can be found in [WeatherVisualization.jso](./WeatherVisualization.json). Before getting started, you can visualize this workflow by clicking **Upload** from the Workflow Builder and either uploading the file or importing from its GitHub URL: [https://github.com/FaaSr/FaaSr-Functions/blob/main/WeatherVisualization/WeatherVisualization.json](https://github.com/FaaSr/FaaSr-Functions/blob/main/WeatherVisualization/WeatherVisualization.json).
+The final workflow file that we will create can be found in [WeatherVisualization.json](./WeatherVisualization.json). Before getting started, you can visualize this workflow by clicking **Upload** from the Workflow Builder and either uploading the file or importing from its GitHub URL: [https://github.com/FaaSr/FaaSr-Functions/blob/main/WeatherVisualization/WeatherVisualization.json](https://github.com/FaaSr/FaaSr-Functions/blob/main/WeatherVisualization/WeatherVisualization.json).
 
 > ℹ️ As you make changes to your workflow, you can click the **vertical layout** or **horizontal layout** controls at the top of the right-hand layout view to re-arrange the layout with your changes.
 
