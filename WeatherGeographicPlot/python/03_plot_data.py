@@ -217,7 +217,7 @@ def plot_county_weekly_temperature(folder_name: str, county_name: str):
     points = np.column_stack([temp_gdf.geometry.x, temp_gdf.geometry.y])
 
     # 3. Plot the heatmaps
-    _, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+    _, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
     now = datetime.strptime(faasr_invocation_id(), "%Y-%m-%d-%H-%M-%S")
     prev_week = now - timedelta(days=28)
     start_date = prev_week - timedelta(days=prev_week.weekday())
