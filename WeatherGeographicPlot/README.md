@@ -1023,11 +1023,11 @@ Now, repeat this process to connect our Process Data functions to our Plot Data 
 
 ### 5. Finalize our Workflow Configuration
 
-Our final step is to finalize our workflow configuration. Click **Workflow Settings**, then for **Workflow Name** enter `WeatherGeographicPlot` and for **Entry Point**
+Our final step is to finalize our workflow configuration. Click **Workflow Settings**, then for **Workflow Name** enter `WeatherGeographicPlot` and for **Entry Point** select `GetData`.
 
 > ℹ️ **Entry Point** is the first function we want to invoke in or workflow.
 
-Next, we will use a _timestamp invocation ID_, which will ensure that the folder we upload outputs to using `faasr_invocation_id` will be formatted as a unique timestamp on each run. From the **InvocationID** dropdown, select **Timestamp**. Then, for **Timestamp format** enter `%Y-%m-%d_%H-%M-%S`. This format string will produce timestamps formatted as `Year-Month-Day_Hour-Minute-Second`, for example, `2025-11-05_17-42-06`.
+Next, we will use a _timestamp invocation ID_, which will ensure that the folder we upload outputs to using `faasr_invocation_id` will be formatted as a unique timestamp on each run. From the **InvocationID** dropdown, select **Timestamp**. Then, for **Timestamp format** enter `%Y-%m-%d-%H-%M-%S`. This format string will produce timestamps formatted as `Year-Month-Day-Hour-Minute-Second`, for example, `2025-11-05-17-42-06`.
 
 > ℹ️ For more information on invocation IDs, please refer to the documentation: [https://faasr.io/FaaSr-Docs/invocationid/](https://faasr.io/FaaSr-Docs/invocationid/). \
 > ℹ️ Refer to the documentation for more details on the other configuration options in this menu: [https://faasr.io/FaaSr-Docs/workflows/#workflow-settings](https://faasr.io/FaaSr-Docs/workflows/#workflow-settings).
