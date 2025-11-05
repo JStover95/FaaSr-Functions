@@ -195,7 +195,7 @@ def get_geo_data_and_stations(
         outer_boundary = get_outer_boundary(county)
 
         # 4. Download station data
-        year = datetime.now().year
+        year = str(datetime.now().year)
         stations = get_stations(year)
         faasr_log(f"Downloaded {len(stations)} stations with data for {year} or later.")
 
