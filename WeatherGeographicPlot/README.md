@@ -959,45 +959,78 @@ Click **Edit Data Stores**. Then, enter the endpoint, bucket, and region that wa
 
 ### 3. Add our Functions
 
-Create three actions under **Edit Actions/Functions**:
+#### Get Data Function
 
-- GetData
-  - Function Name: `get_geo_data_and_stations`
-  - Language: Python; Compute Server: GH
-  - Function's Git Repo/Path: `FaaSr/FaaSr-Functions/GeographicWeatherPlot/python`
-  - Arguments:
-    - `folder_name`: GeographicWeatherPlot
-    - `state_name`: Oregon
-    - `county_name`: Benton
-  - Python Packages: `geopandas`
+Navigate back to **Edit Actions/Functions** and find the field labeled **Start typing to create a new action...**, then enter `GetData` and press Enter.
 
-- ProcessData
-  - Function Name: `process_ghcnd_data`
-  - Language: Python; Compute Server: GH
-  - Function's Git Repo/Path: `FaaSr/FaaSr-Functions/GeographicWeatherPlot/python`
-  - Arguments:
-    - `folder_name`: GeographicWeatherPlot
-  - Python Packages: `geopandas`
+With the function created, we can begin configuring it. For **Function Name**, enter the name of the function we created in [1. Get our Data](#1-get-our-data): `get_geo_data_and_stations`. For **Language**, select **Python**, and for **Compute Server**, ensure it is set to the default **GH** that we created in [1. Set Up our Computer Server](#1-set-up-our-compute-server).
 
-- PlotData
-  - Function Name: `plot_county_weekly_temperature`
-  - Language: Python; Compute Server: GH
-  - Function's Git Repo/Path: `FaaSr/FaaSr-Functions/GeographicWeatherPlot/python`
-  - Arguments:
-    - `folder_name`: GeographicWeatherPlot
-  - Python Packages: `geopandas`, `matplotlib`, `numpy`, `scipy`
+> ⚠️ Notice here that `get_geo_data_and_stations` is the _Function Name_ (the name of the actual Python function that FaaSr will run), while `GetData` is the _Action ID_ (the unique identifier that FaaSr will use for orchestrating the workflow).
+
+To add arguments to the function, click **Add New Arguments** under the **Arguments** header. In the popup window enter the following argument names and values:
+
+- `folder_name`: WeatherGeographicPlot
+- `state_name`: Oregon
+- `county_name`: Benton
+
+Next, for **Function's Git Repo/Path**, enter the Git repository name and folder that contains the Python files we created in [Writing our Functions](#writing-our-functions). For example: `FaaSr/FaaSr-Functions/WeatherGeographicPlot/python`. Leave **Function's Action Container** blank to use the default container.
+
+> ℹ️ This is the Docker container that will run the FaaSr framework and invoke our functions. It is possible to use your own container here, but is only recommended for very advanced use cases and an in-depth knowledge of Docker.
+
+Because our function uses the geopandas library, we must add it to the function. Under **Python Packages for the Function**, enter `geopandas` in the **NewPackageName** field and click **Add Package**.
+
+> ℹ️ FaaSr will always install the latest version of Python packages. It recommended to write your code with the latest available versions to avoid any conflicts with old package versions.
+
+#### Process Data Function
+
+Create a new function called `ProcessData`. For **Function Name** enter the name of the function we created in [2. Process our Data](#2-process-our-data): `process_ghcnd_data`. Set **Language** and **Compute Server** to `Python` and `GH`.
+
+This function only requires one argument:
+
+- `folder_name`: WeatherGeographicPlot
+
+Now, set **Function's Git Repo/Path** to the repository and folder containing the functions that we wrote in [Writing our Functions](#writing-our-functions), for example `FaaSr/FaaSr-Functions/WeatherGeographicPlot/python`. Leave **Function's Action Container** blank.
+
+Finally, add `geopandas` to the functions Python packages.
+
+#### Plot Data Function
+
+Finally we will create the function for plotting our data. Create a new function called `PlotData`. Use the same configuration as our previous functions with the following differences:
+
+For **Function Name** enter the name of the function we created in [3. Plot our Data](#3-plot-our-data): `plot_county_weekly_temperature`.
+
+Enter the following arguments:
+
+- `folder_name`: WeatherGeographicPlot
+- `county_name`: Benton
+
+Add the following Python packages:
+
+- `geopandas`
+- `matplotlib`
+- `numpy`
+- `scipy`
 
 ### 4. Connect our Functions
 
-- Set `GetData` → InvokeNext: `ProcessData`
-- Set `ProcessData` → InvokeNext: `PlotData`
+Our workflow's functions are configured, so our next step is to define its invocation paths. Navigate to our Get Data function, either by clicking it in the right-hand layout view or selecting it from the dropdown at the top of the left-hand menu.
+
+Scroll to **Next Actions to Invoke**, click **Add New InvokeNext**, and use the popup menu to connect the Get Data function with our Process Data function. With the leftmost dropdown menu, select `ProcessData`, leave the remaining options unchanged, and click **Add New InvokeNext**.
+
+> ℹ️ This popup menu also allows us to define rank (parallel execution) and conditional invocation (depending on whether a function returns `true` or `false`). These are not in this tutorial, but refer to the documentation for more information: [https://faasr.io/FaaSr-Docs/conditional/](https://faasr.io/FaaSr-Docs/conditional/).
+
+Now, repeat this process to connect our Process Data functions to our Plot Data function. From the Process Data function, click **Add New InvokeNext**, and from the dropdown menu select `PlotData`.
 
 ### 5. Finalize our Workflow Configuration
 
-- Workflow Name: `GeographicWeatherPlotWorkflow`
-- Entry Point: `GetData`
+Our final step is to finalize our workflow configuration. Click **Workflow Settings**, then for **Workflow Name** enter `WeatherGeographicPlot` and for **Entry Point**
 
-Optionally, export your configuration by clicking **Download** to save a JSON file (e.g., the included `geographic_weather_plot_for_testing.json`).
+> ℹ️ **Entry Point** is the first function we want to invoke in or workflow.
+
+Next, we will use a _timestamp invocation ID_, which will ensure that the folder we upload outputs to using `faasr_invocation_id` will be formatted as a unique timestamp on each run. From the **InvocationID** dropdown, select **Timestamp**. Then, for **Timestamp format** enter `%Y-%m-%d_%H-%M-%S`. This format string will produce timestamps formatted as `Year-Month-Day_Hour-Minute-Second`, for example, `2025-11-05_17-42-06`.
+
+> ℹ️ For more information on invocation IDs, please refer to the documentation: [https://faasr.io/FaaSr-Docs/invocationid/](https://faasr.io/FaaSr-Docs/invocationid/). \
+> ℹ️ Refer to the documentation for more details on the other configuration options in this menu: [https://faasr.io/FaaSr-Docs/workflows/#workflow-settings](https://faasr.io/FaaSr-Docs/workflows/#workflow-settings).
 
 ## Download and Invoke the Workflow
 
