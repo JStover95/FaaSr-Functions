@@ -695,7 +695,7 @@ def load_input_data(folder_name: str, file_name: str) -> gpd.GeoDataFrame:
     return gpd.read_file(file_name)
 ```
 
-Throughout this function we will need to reference the outer limits, or _bounding box_ of our geographic data. `get_bounds` returns the minimum and maximum x and y coordinates of a GeoDataFrame.
+Throughout this function we will need to reference the outer limits, or _bounding box_, of our geographic data. `get_bounds` returns the minimum and maximum x and y coordinates of a GeoDataFrame.
 
 ```python
 def get_bounds(gdf: gpd.GeoDataFrame) -> tuple[float, float, float, float]:
@@ -803,8 +803,10 @@ Next we will write helper functions for modifying our subplots (which are passed
 
 - `add_boundaries` plots the boundaries of a GeoDataFrame on our subplot.
 - `set_limits` sets the subplot's x and y limits to the outer bounds of a GeoDataFrame.
-- `set_aspect_ratio` smiilarly uses a GeoDataFrame to set a subplot's aspect ratio.
+- `set_aspect_ratio` similarly uses a GeoDataFrame to set a subplot's aspect ratio.
 - `set_ticks` creates x and y ticks every 0.5 degrees.
+
+> ℹ️ To see a robust catalog of operations you can perform on a subplot in matplotlib, see [Subplots, axes and figures](https://matplotlib.org/stable/gallery/subplots_axes_and_figures/index.html).
 
 ```python
 def add_boundaries(ax: Axes, gdf: gpd.GeoDataFrame) -> None:
@@ -865,6 +867,8 @@ Finally, we can put everything together in a single function that:
 5. Sets the x and y limits and aspect ratios of each subplot.
 6. Sets axis ticks to every 0.5 degrees.
 7. Saves and uploads the file to the FaaSr bucket.
+
+> ℹ️ For more information on working with subplots in matplotlib, see [Create multiple subplots using plt.subplots](https://matplotlib.org/stable/gallery/subplots_axes_and_figures/subplots_demo.html).
 
 ```python
 def plot_county_weekly_temperature(folder_name: str, county_name: str):
