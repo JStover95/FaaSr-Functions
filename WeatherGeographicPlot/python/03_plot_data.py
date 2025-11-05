@@ -207,10 +207,10 @@ def plot_county_weekly_temperature(folder_name: str, county_name: str):
         folder_name: The name of the folder to get the input data from.
     """
     # 1. Load input data
-    outer_gdf = load_input_data(folder_name, "outer_boundary.geojson")
-    temp_gdf = load_input_data(folder_name, "temp_gdf.geojson")
-    state_gdf = load_input_data(folder_name, "state.geojson")
-    county_gdf = load_input_data(folder_name, "county.geojson")
+    outer_gdf = load_input_data(folder_name, "OuterBoundary.geojson")
+    temp_gdf = load_input_data(folder_name, "TemperatureData.geojson")
+    state_gdf = load_input_data(folder_name, "State.geojson")
+    county_gdf = load_input_data(folder_name, "County.geojson")
 
     # 2. Prepare the grid and points for heatmap interpolation
     X_grid, Y_grid = create_grid(outer_gdf)
@@ -261,6 +261,6 @@ def plot_county_weekly_temperature(folder_name: str, county_name: str):
 
     # 7. Save the plot to a file and upload it to the S3 bucket
     plt.tight_layout()
-    plt.savefig("temperature_heatmap.png")
-    put_file("temperature_heatmap.png", folder_name)
-    faasr_log(f"Uploaded temperature heatmap to {folder_name}/temperature_heatmap.png")
+    plt.savefig("TemperatureHeatmap.png")
+    put_file("TemperatureHeatmap.png", folder_name)
+    faasr_log(f"Uploaded temperature heatmap to {folder_name}/TemperatureHeatmap.png")

@@ -203,14 +203,14 @@ def get_geo_data_and_stations(
     faasr_log(f"Filtered stations to {len(stations)} within the outer boundary.")
 
     # 6. Upload the data
-    state.to_file("state.geojson", driver="GeoJSON")
-    county.to_file("county.geojson", driver="GeoJSON")
-    outer_boundary.to_file("outer_boundary.geojson", driver="GeoJSON")
-    stations.to_file("stations.geojson", driver="GeoJSON")
+    state.to_file("State.geojson", driver="GeoJSON")
+    county.to_file("County.geojson", driver="GeoJSON")
+    outer_boundary.to_file("OuterBoundary.geojson", driver="GeoJSON")
+    stations.to_file("Stations.geojson", driver="GeoJSON")
 
-    put_file("state.geojson", folder_name)
-    put_file("county.geojson", folder_name)
-    put_file("outer_boundary.geojson", folder_name)
-    put_file("stations.geojson", folder_name)
+    put_file("State.geojson", folder_name)
+    put_file("County.geojson", folder_name)
+    put_file("OuterBoundary.geojson", folder_name)
+    put_file("Stations.geojson", folder_name)
 
     faasr_log("Completed get_geo_data_and_stations function.")

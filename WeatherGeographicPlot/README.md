@@ -340,15 +340,15 @@ def get_geo_data_and_stations(
     faasr_log(f"Filtered stations to {len(stations)} within the outer boundary.")
 
     # 6. Upload the data
-    state.to_file("state.geojson", driver="GeoJSON")
-    county.to_file("county.geojson", driver="GeoJSON")
-    outer_boundary.to_file("outer_boundary.geojson", driver="GeoJSON")
-    stations.to_file("stations.geojson", driver="GeoJSON")
+    state.to_file("State.geojson", driver="GeoJSON")
+    county.to_file("County.geojson", driver="GeoJSON")
+    outer_boundary.to_file("OuterBoundary.geojson", driver="GeoJSON")
+    stations.to_file("Stations.geojson", driver="GeoJSON")
 
-    put_file("state.geojson", folder_name)
-    put_file("county.geojson", folder_name)
-    put_file("outer_boundary.geojson", folder_name)
-    put_file("stations.geojson", folder_name)
+    put_file("State.geojson", folder_name)
+    put_file("County.geojson", folder_name)
+    put_file("OuterBoundary.geojson", folder_name)
+    put_file("Stations.geojson", folder_name)
 
     faasr_log("Completed get_geo_data_and_stations function.")
 ```
@@ -592,8 +592,8 @@ def process_ghcnd_data(folder_name: str) -> None:
     output data to the FaaSr bucket.
     """
     # 1. Load input data
-    get_file("stations.geojson", folder_name)
-    stations = gpd.read_file("stations.geojson")
+    get_file("Stations.geojson", folder_name)
+    stations = gpd.read_file("Stations.geojson")
     faasr_log(f"Loaded input data from folder {folder_name}")
 
     # 2. Download station data
@@ -617,8 +617,8 @@ def process_ghcnd_data(folder_name: str) -> None:
     )
 
     # 4. Upload the temperature data
-    temp_gdf.to_file("temp_gdf.geojson", driver="GeoJSON")
-    put_file("temp_gdf.geojson", folder_name)
+    temp_gdf.to_file("TemperatureData.geojson", driver="GeoJSON")
+    put_file("TemperatureData.geojson", folder_name)
 
     faasr_log(f"Saved temperature data to FaaSr bucket {folder_name}")
 
@@ -888,10 +888,10 @@ def plot_county_weekly_temperature(folder_name: str, county_name: str):
         folder_name: The name of the folder to get the input data from.
     """
     # 1. Load input data
-    outer_gdf = load_input_data(folder_name, "outer_boundary.geojson")
-    temp_gdf = load_input_data(folder_name, "temp_gdf.geojson")
-    state_gdf = load_input_data(folder_name, "state.geojson")
-    county_gdf = load_input_data(folder_name, "county.geojson")
+    outer_gdf = load_input_data(folder_name, "OuterBoundary.geojson")
+    temp_gdf = load_input_data(folder_name, "TemperatureData.geojson")
+    state_gdf = load_input_data(folder_name, "State.geojson")
+    county_gdf = load_input_data(folder_name, "County.geojson")
 
     # 2. Prepare the grid and points for heatmap interpolation
     X_grid, Y_grid = create_grid(outer_gdf)
@@ -942,16 +942,16 @@ def plot_county_weekly_temperature(folder_name: str, county_name: str):
 
     # 7. Save the plot to a file and upload it to the S3 bucket
     plt.tight_layout()
-    plt.savefig("temperature_heatmap.png")
-    put_file("temperature_heatmap.png", folder_name)
-    faasr_log(f"Uploaded temperature heatmap to {folder_name}/temperature_heatmap.png")
+    plt.savefig("TemperatureHeatmap.png")
+    put_file("TemperatureHeatmap.png", folder_name)
+    faasr_log(f"Uploaded temperature heatmap to {folder_name}/TemperatureHeatmap.png")
 ```
 
 ## Building our Workflow
 
 Now that we wrote our three functions, we are ready to start building our workflow using the FaaSr Workflow Builder: [https://faasr.io/FaaSr-workflow-builder/](https://faasr.io/FaaSr-workflow-builder/).
 
-> ℹ️ For screenshots of the Workflow Builder GUI, please refer to **Building our Workflow** in the [Weather Visualization tutorial](../WeatherVisualization/README.md#building-our-workflow).
+> ℹ️ For screenshots of the Workflow Builder GUI, please refer to **Building our Workflow** in the [Weather Visualization tutorial](../WeatherGeographicPlot/README.md#building-our-workflow).
 
 The final workflow file that we will create can be found in [WeatherGeographicPlot.json](./WeatherGeographicPlot.json). Before getting started, you can visualize this workflow by clicking Upload from the Workflow Builder and either uploading the file or importing from its GitHub URL: [https://github.com/FaaSr/FaaSr-Functions/blob/main/WeatherGeographicPlot/WeatherGeographicPlot.json].
 
@@ -1046,35 +1046,46 @@ Next, we will use a _timestamp invocation ID_, which will ensure that the folder
 
 ## Download and Invoke the Workflow
 
+With our workflow complete, click the **horizontal layout** control at the top of the right-hand layout view to see our changes. The complete workflow should appear as below:
+
+![Workflow layout screenshot](../assets/weather-geographic-workflow-layout-600px.png)
+
 ### Download the Workflow
 
-In the builder, click **Download** and save the JSON. Alternatively, reuse the provided JSON and adjust values as needed.
+Click on **Download** and click the **Download WeatherGeographicPlot.json** button in the popup menu.
+
+> ℹ️ It is possible to also download a particular Workflow Builder layout, in case it is necessary to share the particular layout with others on your team. See the documentation for more information: [https://faasr.io/FaaSr-Docs/workflows/#working-with-layout-files](https://faasr.io/FaaSr-Docs/workflows/#working-with-layout-files).
 
 ### Register and Invoke the Workflow
 
-In your `FaaSr-workflow` repo:
+Navigate to your **FaaSr-workflow** repository (see [Prerequisites](#prerequisites) for more information) and upload the workflow file, then follow the necessary steps to register and invoke your workflow:
 
-1. Go to **Actions** → **(FAASR REGISTER)** → Run workflow with the JSON filename (e.g., `geographic_weather_plot_for_testing.json`).
-2. After registration completes, run **(FAASR INVOKE)** with the same filename.
-3. Monitor runs for `GeographicWeatherPlot-GetData`, `GeographicWeatherPlot-ProcessData`, and `GeographicWeatherPlot-PlotData` in the left pane.
+1. Navigate to your repo's **Actions** tab and from the left-hand menu select the **(FAASR REGISTER)** workflow.
+2. Click **Run workflow**, enter the name of the JSON file `WeatherGeographicPlot.json`, and click **Run workflow**.
+   - Wait for the FaaSr Register workflow to complete, and you should see the five functions appear in the left-hand menu, prefixed with the workflow name (e.g., **WeatherGeographicPlot-GetData**).
+3. Repeat steps 1 and 2 with the **(FAASR INVOKE)** workflow.
+   - You can monitor the  workflow's process by clicking on each function in the left-hand menu to view their workflow runs.
 
 ### View the Output Data
 
-After a successful invocation, your S3 bucket should contain:
+After successful invocation, your S3 bucket should contain the following outputs:
+
+> ℹ️ How you view these outputs depends on the S3 provider you used for this tutorial.
 
 ```plaintext
 your-bucket/
 ├── FaaSrLog/
-└── GeographicWeatherPlot/
-    ├── state.geojson
-    ├── county.geojson
-    ├── outer_boundary.geojson
-    ├── stations.geojson
-    ├── temp_gdf.geojson
-    └── temperature_heatmap.png
+└── WeatherGeographicPlot/
+    ├── CurrentYearPrecipitationData.csv
+    ├── CurrentYearTemperatureMaxData.csv
+    ├── CurrentYearTemperatureMinData.csv
+    ├── PreviousYearsPrecipitationData.csv
+    ├── PreviousYearsTemperatureMaxData.csv
+    ├── PreviousYearsTemperatureMinData.csv
+    ├── WeatherComparison.png
+    └── WeatherData.csv
 ```
 
-- `FaaSrLog` contains logs for troubleshooting
-- `GeographicWeatherPlot` contains intermediate GeoJSONs and the final heatmap image
+**FaaSrLog** includes the workflow's log outputs, which can be useful for troubleshooting any issues. See the documentation for more details: [https://faasr.io/FaaSr-Docs/logs/](https://faasr.io/FaaSr-Docs/logs/). **WeatherGeographicPlot** includes all our workflow outputs, including the intermediate CSV outputs generated by our Get Data and Process Data functions.
 
-That’s it—you now have an automated, reproducible geospatial weather visualization workflow in FaaSr.
+The final generated graph is **WeatherComparison.png**.

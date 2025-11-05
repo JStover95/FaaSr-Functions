@@ -202,8 +202,8 @@ def process_ghcnd_data(folder_name: str) -> None:
     output data to the FaaSr bucket.
     """
     # 1. Load input data
-    get_file("stations.geojson", folder_name)
-    stations = gpd.read_file("stations.geojson")
+    get_file("Stations.geojson", folder_name)
+    stations = gpd.read_file("Stations.geojson")
     faasr_log(f"Loaded input data from folder {folder_name}")
 
     # 2. Download station data
@@ -227,7 +227,7 @@ def process_ghcnd_data(folder_name: str) -> None:
     )
 
     # 4. Upload the temperature data
-    temp_gdf.to_file("temp_gdf.geojson", driver="GeoJSON")
-    put_file("temp_gdf.geojson", folder_name)
+    temp_gdf.to_file("TemperatureData.geojson", driver="GeoJSON")
+    put_file("TemperatureData.geojson", folder_name)
 
     faasr_log(f"Saved temperature data to FaaSr bucket {folder_name}")
