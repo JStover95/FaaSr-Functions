@@ -73,5 +73,5 @@
   "FaaSrLog": "FaaSrLog",
   "LoggingDataStore": "S3",
   "WorkflowName": "WeatherGeographicPlot",
-  "InvocationIDFromDate": "%Y%m%d"
+  "InvocationIDFromDate": "%Y-%m-%d_%H-%M-%S"
 }
