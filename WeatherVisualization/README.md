@@ -860,7 +860,7 @@ Now, repeat this process to connect each of our Process Data functions to our Pl
 
 Our final step is to finalize our workflow configuration. Click **Workflow Settings**, then for **Workflow Name** enter `WeatherVisualization` and for **Entry Point** select `GetData`. Leave the remaining configuration as default.
 
-> ℹ️ **Entry Point** is the first function we want to invoke in or workflow.
+> ℹ️ **Entry Point** is the first function we want to invoke in or workflow. \
 > ℹ️ Refer to the documentation for more details on the other configuration options in this menu: [https://faasr.io/FaaSr-Docs/workflows/#workflow-settings](https://faasr.io/FaaSr-Docs/workflows/#workflow-settings).
 
 Your workflow settings should appear as below:
