@@ -518,9 +518,9 @@ def get_temperature_data(
     return min_temp_gdf, max_temp_gdf
 ```
 
-Next we will wrap `get_temperature_data` in the following function `get_all_temperature_data` that get the temperature data for each of our selected stations and creates a single GeoDataFrame with the average temperature data we will use for plotting.
+Next we will wrap `get_temperature_data` in the following function `get_all_temperature_data`, which gets the temperature data for each of our selected stations and creates a single GeoDataFrame with the average temperature data we will use for plotting.
 
-After getting all station's data, this function first concatenates all minimum and maximum temperature data into single DataFrames and missing data is dropped using `dropna`. Next, we use pandas' `groupby` method to calculate each station's average temperature. Then, we create a single GeoDataFrame with our selected stations and their coordinates and merge it with our calculated average values. Finally, we convert temperature from tenth degrees Celsius to whole degrees Celsius.
+After getting all stations' data, this function first concatenates all minimum and maximum temperature data into single DataFrames and missing data is dropped using `dropna`. Next, we use pandas' `groupby` method to calculate each station's average temperature. Then, we create a single GeoDataFrame with our selected stations and their coordinates and merge it with our calculated average values. Finally, we convert temperature from tenth degrees Celsius to whole degrees Celsius.
 
 > ℹ️ For more information on grouping and merging DataFrames, please refer to [Group by: split-apply-combine](https://pandas.pydata.org/docs/dev/user_guide/groupby.html) and [Merge, join, concatenate and compare](https://pandas.pydata.org/docs/dev/user_guide/merging.html) from the pandas documentation.
 
