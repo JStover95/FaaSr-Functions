@@ -581,7 +581,9 @@ Finally, we will orchestrate our data processing with a single function that:
 3. Processes all station data.
 4. Uploads the processed data to the FaaSr bucket.
 
-Note that here we use `timedelta` to retrieve historic data from Monday to Sunday four weeks prior (28 days). This is done to ensure availability of archived GHCND data.
+Here we retrieve the invocation ID and use `datetime.strptime` to convert it to a datetime object, which we can then use use with `timedelta` to retrieve historic data from Monday to Sunday four weeks prior (28 days).
+
+> ℹ️ For more information on parsing and formatting timestamps in Python, refer to [`strftime()` and `strptime()` Behavior](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior) from the Python docs.
 
 ```python
 def process_ghcnd_data(folder_name: str) -> None:
@@ -600,8 +602,9 @@ def process_ghcnd_data(folder_name: str) -> None:
     faasr_log(f"Downloaded station data for {len(station_ids)} stations")
 
     # 3. Load and process all station data
-    last_week = datetime.now() - timedelta(days=28)
-    start_date = last_week - timedelta(days=last_week.weekday())
+    now = datetime.strptime(faasr_invocation_id(), "%Y-%m-%d-%H-%M-%S")
+    prev_week = now - timedelta(days=28)
+    start_date = prev_week - timedelta(days=prev_week.weekday())
     end_date = start_date + timedelta(days=6)
     temp_gdf = get_all_temperature_data(
         files,
@@ -610,7 +613,7 @@ def process_ghcnd_data(folder_name: str) -> None:
     )
 
     faasr_log(
-        f"Loaded {len(temp_gdf)} rows of temperature data for week starting {last_week}"
+        f"Loaded {len(temp_gdf)} rows of temperature data for week starting {prev_week}"
     )
 
     # 4. Upload the temperature data
@@ -632,6 +635,8 @@ First we will define our imports, which also include:
 - `griddata`: a function imported from the `scipy` library that we will use to interpolate temperature data between our stations' coordinates.
 
 ```python
+from datetime import datetime, timedelta
+
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -869,6 +874,8 @@ Finally, we can put everything together in a single function that:
 6. Sets axis ticks to every 0.5 degrees.
 7. Saves and uploads the file to the FaaSr bucket.
 
+Here we use matplot lib to create two subplots, and again we use datetime operations to display the week in the figure title.
+
 > ℹ️ For more information on working with subplots in matplotlib, see [Create multiple subplots using plt.subplots](https://matplotlib.org/stable/gallery/subplots_axes_and_figures/subplots_demo.html).
 
 ```python
@@ -892,7 +899,12 @@ def plot_county_weekly_temperature(folder_name: str, county_name: str):
 
     # 3. Plot the heatmaps
     _, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
-    plt.suptitle(f"Temperature Heatmap for {county_name} County")
+    now = datetime.strptime(faasr_invocation_id(), "%Y-%m-%d-%H-%M-%S")
+    prev_week = now - timedelta(days=28)
+    start_date = prev_week - timedelta(days=prev_week.weekday())
+    plt.suptitle(
+        f"Temperature Heatmap for {county_name} County for week starting {start_date.strftime('%a, %b %d, %Y')}"
+    )
     create_heatmap(
         ax1,
         temp_gdf["TMIN"],
