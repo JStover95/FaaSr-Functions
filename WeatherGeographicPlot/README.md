@@ -937,17 +937,25 @@ def plot_county_weekly_temperature(folder_name: str, county_name: str):
 
 ## Building our Workflow
 
-You can build this workflow with the FaaSr Workflow Builder: `https://faasr.io/FaaSr-workflow-builder/`.
+Now that we wrote our three functions, we are ready to start building our workflow using the FaaSr Workflow Builder: [https://faasr.io/FaaSr-workflow-builder/](https://faasr.io/FaaSr-workflow-builder/).
 
-For reference, see the sample workflow file in this repo: `geographic_weather_plot_for_testing.json`.
+> ℹ️ For screenshots of the Workflow Builder GUI, please refer to **Building our Workflow** in the [Weather Visualization tutorial](../WeatherVisualization/README.md#building-our-workflow).
+
+The final workflow file that we will create can be found in [WeatherGeographicPlot.json](./WeatherGeographicPlot.json). Before getting started, you can visualize this workflow by clicking Upload from the Workflow Builder and either uploading the file or importing from its GitHub URL: [https://github.com/FaaSr/FaaSr-Functions/blob/main/WeatherGeographicPlot/WeatherGeographicPlot.json].
+
+> ℹ️ As you make changes to your workflow, you can click the vertical layout or horizontal layout controls at the top of the right-hand layout view to re-arrange the layout with your changes.
 
 ### 1. Set Up our Compute Server
 
-Click **Edit Compute Servers** and configure to use your GitHub settings (see the main tutorial). Use `GH` for the default GitHub Actions server.
+After opening the Workflow Builder, we will first add a compute server. Click **Edit Compute Servers**, then following the FaaSr tutorial (see [Prerequisites](#prerequisites)), enter your GitHub username for **UserName**, `Faasr-workflow` for **ActionRepoName**, and `main` for **Branch**.
+
+> ℹ️ This workflow uses GitHub Actions, but it is possible to bring your own compute server, like AWS Lambda. See the documentation for more details: [https://faasr.io/FaaSr-Docs/advanced/](https://faasr.io/FaaSr-Docs/advanced/).
 
 ### 2. Set Up our Data Store
 
-Click **Edit Data Stores** and add your S3-compatible store (endpoint, bucket, region). Ensure it’s writable and selected as default.
+Click **Edit Data Stores**. Then, enter the endpoint, bucket, and region that was used in the tutorial (see [Prerequisites](#prerequisites)). For **Endpoint**, **Bucket**, and **Region** enter `https://play.mini.io`, `faasr`, and `us-east-1`.
+
+> ℹ️ This workflow uses MinIO, but it is possible to bring your own S3 data store, like AWS S3. See the documentation for more details [https://faasr.io/FaaSr-Docs/workflows/#data-stores](https://faasr.io/FaaSr-Docs/workflows/#data-stores).
 
 ### 3. Add our Functions
 
