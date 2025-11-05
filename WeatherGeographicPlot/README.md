@@ -2,6 +2,7 @@
 
 ## Table of Contents
 
+- [Key Topics](#key-topics)
 - [Introduction](#introduction)
 - [Prerequisites](#prerequisites)
 - [Understanding our Data](#understanding-our-data)
