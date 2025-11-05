@@ -82,10 +82,12 @@ The US Census Bureau Cartographic Boundary Data contains boundaries for states, 
 
 This first function in our workflow will pull the US Census Bureau boundary data and the GHCND inventory metadata, then upload the geographic data needed for the rest of our workflow:
 
-- `county.geojson`: The boundary data of our county of interest.
-- `outer_boundary.geojson`: An outer boundary used to select our stations.
-- `state.geojson`: The boundary data of the state containing our county.
-- `stations.geojson`: The coordinates of each station we will use for our visualization.
+- `County.geojson`: The boundary data of our county of interest.
+- `OuterBoundary.geojson`: An outer boundary used to select our stations.
+- `State.geojson`: The boundary data of the state containing our county.
+- `Stations.geojson`: The coordinates of each station, which we will use for our visualization.
+
+The complete function can be found in [01_get_data.py](./python/01_get_data.py).
 
 First, we will write our imports:
 
@@ -190,7 +192,7 @@ The second, `get_outer_boundary` adds a buffer to the outer limits of our county
 
 ![Outer boundary example figure](../assets/weather-geographic-outer-boundary-600px.png)
 
-> ℹ️ This function uses `Polygon` and `GeoDataFrame` data types for working with geographic boundaries. Refer to the [Shapely documentation](https://shapely.readthedocs.io/en/stable/manual.html#polygons) and [GeoPandas documentation](https://geopandas.org/en/stable/docs/user_guide/data_structures.html#geodataframe) for more detail.
+> ℹ️ This function uses `Polygon` and `GeoDataFrame` data types for working with geographic boundaries. Refer to the [Shapely documentation](https://shapely.readthedocs.io/en/stable/manual.html#polygons) and [GeoPandas documentation](https://geopandas.org/en/stable/docs/user_guide/data_structures.html#geodataframe) for more information.
 
 ```python
 def get_outer_boundary(
@@ -877,7 +879,7 @@ Finally, we can put everything together in a single function that:
 6. Sets axis ticks to every 0.5 degrees.
 7. Saves and uploads the file to the FaaSr bucket.
 
-Here we use matplot lib to create two subplots, and again we use datetime operations to display the week in the figure title.
+Here we use matplotlib to create two subplots, and again we use datetime operations to display the week in the figure title.
 
 > ℹ️ For more information on working with subplots in matplotlib, see [Create multiple subplots using plt.subplots](https://matplotlib.org/stable/gallery/subplots_axes_and_figures/subplots_demo.html).
 
@@ -954,11 +956,11 @@ def plot_county_weekly_temperature(folder_name: str, county_name: str):
 
 Now that we wrote our three functions, we are ready to start building our workflow using the FaaSr Workflow Builder: [https://faasr.io/FaaSr-workflow-builder/](https://faasr.io/FaaSr-workflow-builder/).
 
-> ℹ️ For screenshots of the Workflow Builder GUI, please refer to **Building our Workflow** in the [Weather Visualization tutorial](../WeatherGeographicPlot/README.md#building-our-workflow).
+> ℹ️ For screenshots of the Workflow Builder GUI, please refer to **Building our Workflow** in the [Weather Visualization tutorial](../WeatherVisualization/README.md#building-our-workflow).
 
-The final workflow file that we will create can be found in [WeatherGeographicPlot.json](./WeatherGeographicPlot.json). Before getting started, you can visualize this workflow by clicking Upload from the Workflow Builder and either uploading the file or importing from its GitHub URL: [https://github.com/FaaSr/FaaSr-Functions/blob/main/WeatherGeographicPlot/WeatherGeographicPlot.json].
+The final workflow file that we will create can be found in [WeatherGeographicPlot.json](./WeatherGeographicPlot.json). Before getting started, you can visualize this workflow by clicking Upload from the Workflow Builder and either uploading the file or importing from its GitHub URL: [https://github.com/FaaSr/FaaSr-Functions/blob/main/WeatherGeographicPlot/WeatherGeographicPlot.json](https://github.com/FaaSr/FaaSr-Functions/blob/main/WeatherGeographicPlot/WeatherGeographicPlot.json).
 
-> ℹ️ As you make changes to your workflow, you can click the vertical layout or horizontal layout controls at the top of the right-hand layout view to re-arrange the layout with your changes.
+> ℹ️ As you make changes to your workflow, you can click the **vertical layout** or **horizontal layout** controls at the top of the right-hand layout view to re-arrange the layout with your changes.
 
 ### 1. Set Up our Compute Server
 
@@ -1010,7 +1012,7 @@ Finally, add `geopandas` to the functions Python packages.
 
 #### Plot Data Function
 
-Finally we will create the function for plotting our data. Create a new function called `PlotData`. Use the same configuration as our previous functions with the following differences:
+Finally we will create the function for plotting our data. Create a new function called `PlotData`. Use the same configuration as our previous functions with the following differences.
 
 For **Function Name** enter the name of the function we created in [3. Plot our Data](#3-plot-our-data): `plot_county_weekly_temperature`.
 
