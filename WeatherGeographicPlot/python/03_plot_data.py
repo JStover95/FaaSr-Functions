@@ -14,6 +14,10 @@ from scipy.interpolate import griddata
 def get_file(file_name: str, folder_name: str) -> None:
     """
     Get a file from the FaaSr bucket.
+
+    Args:
+        file_name: The name of the file to get from the FaaSr bucket.
+        folder_name: The name of the folder to get the file from.
     """
     faasr_get_file(
         local_file=file_name,
@@ -25,6 +29,10 @@ def get_file(file_name: str, folder_name: str) -> None:
 def put_file(file_name: str, folder_name: str) -> None:
     """
     Put a file to the FaaSr bucket.
+
+    Args:
+        file_name: The name of the file to put to the FaaSr bucket.
+        folder_name: The name of the folder to put the file to.
     """
     faasr_put_file(
         local_file=file_name,
@@ -103,7 +111,7 @@ def create_heatmap(
         title: The title of the heatmap.
         cmap: The colormap to use for the heatmap.
     """
-    # Interpolate the values on the grid
+    # Interpolate temperature values across the coordinate grid
     interpolation = griddata(
         points,
         values,
@@ -112,7 +120,7 @@ def create_heatmap(
         fill_value=np.nan,
     )
 
-    # Plot the heatmap
+    # Plot the heatmap as a filled contour plot
     im1 = ax.contourf(
         X_grid,
         Y_grid,
@@ -172,8 +180,7 @@ def set_aspect_ratio(ax: Axes, gdf: gpd.GeoDataFrame) -> None:
         gdf: The GeoDataFrame to use for the aspect ratio.
     """
     minx, miny, maxx, maxy = get_bounds(gdf)
-    original_aspect_ratio = (maxx - minx) / (maxy - miny)
-    ax.set_aspect(original_aspect_ratio)
+    ax.set_aspect((maxx - minx) / (maxy - miny))
 
 
 def set_ticks(ax: Axes, gdf: gpd.GeoDataFrame) -> None:
@@ -241,13 +248,12 @@ def plot_county_weekly_temperature(folder_name: str, county_name: str):
     set_aspect_ratio(ax1, county_gdf)
     set_aspect_ratio(ax2, county_gdf)
 
-    # 6. Set ticks to every .5 degrees
+    # 6. Set ticks to every 0.5 degrees
     set_ticks(ax1, outer_gdf)
     set_ticks(ax2, outer_gdf)
 
     # 7. Save the plot to a file and upload it to the S3 bucket
     plt.tight_layout()
     plt.savefig("temperature_heatmap.png")
-
     put_file("temperature_heatmap.png", folder_name)
     faasr_log(f"Uploaded temperature heatmap to {folder_name}/temperature_heatmap.png")
