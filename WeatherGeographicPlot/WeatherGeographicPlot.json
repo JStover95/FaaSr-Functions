@@ -6,29 +6,33 @@
         "state_name": "Oregon",
         "county_name": "Benton"
       },
-      "InvokeNext": ["ProcessData"],
+      "InvokeNext": [
+        "ProcessData"
+      ],
       "FaaSServer": "GH",
       "Type": "Python",
       "FunctionName": "get_geo_data_and_stations"
     },
     "ProcessData": {
-      "FunctionName": "process_ghcnd_data",
-      "FaaSServer": "GH",
       "Arguments": {
         "folder_name": "WeatherGeographicPlot"
       },
-      "InvokeNext": ["PlotData"],
-      "Type": "Python"
+      "InvokeNext": [
+        "PlotData"
+      ],
+      "FaaSServer": "GH",
+      "Type": "Python",
+      "FunctionName": "process_ghcnd_data"
     },
     "PlotData": {
-      "FunctionName": "plot_county_weekly_temperature",
-      "FaaSServer": "GH",
       "Arguments": {
         "folder_name": "WeatherGeographicPlot",
         "county_name": "Benton"
       },
       "InvokeNext": [],
-      "Type": "Python"
+      "FaaSServer": "GH",
+      "Type": "Python",
+      "FunctionName": "plot_county_weekly_temperature"
     }
   },
   "ComputeServers": {
@@ -56,13 +60,17 @@
   "FunctionInvoke": "GetData",
   "DefaultDataStore": "S3",
   "FunctionGitRepo": {
-    "get_geo_data_and_stations": "YOUR_USERNAME/FaaSr-Functions/WeatherGeographicPlot/python",
-    "process_ghcnd_data": "YOUR_USERNAME/FaaSr-Functions/WeatherGeographicPlot/python",
-    "plot_county_weekly_temperature": "YOUR_USERNAME/FaaSr-Functions/WeatherGeographicPlot/python"
+    "get_geo_data_and_stations": "FaaSr/FaaSr-Functions/WeatherGeographicPlot/python",
+    "process_ghcnd_data": "FaaSr/FaaSr-Functions/WeatherGeographicPlot/python",
+    "plot_county_weekly_temperature": "FaaSr/FaaSr-Functions/WeatherGeographicPlot/python"
   },
   "PyPIPackageDownloads": {
-    "get_geo_data_and_stations": ["geopandas"],
-    "process_ghcnd_data": ["geopandas"],
+    "get_geo_data_and_stations": [
+      "geopandas"
+    ],
+    "process_ghcnd_data": [
+      "geopandas"
+    ],
     "plot_county_weekly_temperature": [
       "geopandas",
       "matplotlib",
@@ -73,5 +81,5 @@
   "FaaSrLog": "FaaSrLog",
   "LoggingDataStore": "S3",
   "WorkflowName": "WeatherGeographicPlot",
-  "InvocationIDFromDate": "%Y-%m-%d_%H-%M-%S"
+  "InvocationIDFromDate": "%Y-%m-%d-%H-%M-%S"
 }
