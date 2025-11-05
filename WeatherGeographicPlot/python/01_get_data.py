@@ -175,42 +175,49 @@ def get_geo_data_and_stations(
         state_name: The name of the state to get the boundaries for.
         county_name: The name of the county to get the boundaries for.
     """
-    # 1. Download geographic boundary data
-    download_data(
-        "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.zip",
-        "states.zip",
-    )
-    download_data(
-        "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_county_5m.zip",
-        "counties.zip",
-    )
-    faasr_log(f"Downloaded boundary data for {state_name} and {county_name} county.")
+    try:
+        # 1. Download geographic boundary data
+        download_data(
+            "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.zip",
+            "states.zip",
+        )
+        download_data(
+            "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_county_5m.zip",
+            "counties.zip",
+        )
+        faasr_log(f"Downloaded boundary data for {state_name} and {county_name} county.")
 
-    # 2. Get geographic boundary data
-    state, county = get_geo_boundaries(state_name, county_name)
-    faasr_log(f"Retrieved geographic data for {state_name} and {county_name} county.")
+        # 2. Get geographic boundary data
+        state, county = get_geo_boundaries(state_name, county_name)
+        faasr_log(f"Retrieved geographic data for {state_name} and {county_name} county.")
 
-    # 3. Calculate the outer boundary for station selection
-    outer_boundary = get_outer_boundary(county)
+        # 3. Calculate the outer boundary for station selection
+        outer_boundary = get_outer_boundary(county)
 
-    # 4. Download station data
-    year = datetime.now().year
-    stations = get_stations(year)
-    faasr_log(f"Downloaded {len(stations)} stations with data for {year} or later.")
+        # 4. Download station data
+        year = datetime.now().year
+        stations = get_stations(year)
+        faasr_log(f"Downloaded {len(stations)} stations with data for {year} or later.")
 
-    # 5. Get stations within the outer boundary
-    stations = stations.overlay(outer_boundary, how="intersection")
-    faasr_log(f"Filtered stations to {len(stations)} within the outer boundary.")
+        # 5. Get stations within the outer boundary
+        stations = stations.overlay(outer_boundary, how="intersection")
+        faasr_log(f"Filtered stations to {len(stations)} within the outer boundary.")
 
-    # 6. Upload the data
-    state.to_file("state.geojson", driver="GeoJSON")
-    county.to_file("county.geojson", driver="GeoJSON")
-    outer_boundary.to_file("outer_boundary.geojson", driver="GeoJSON")
-    stations.to_file("stations.geojson", driver="GeoJSON")
+        # 6. Upload the data
+        state.to_file("state.geojson", driver="GeoJSON")
+        county.to_file("county.geojson", driver="GeoJSON")
+        outer_boundary.to_file("outer_boundary.geojson", driver="GeoJSON")
+        stations.to_file("stations.geojson", driver="GeoJSON")
 
-    put_file("state.geojson", folder_name)
-    put_file("county.geojson", folder_name)
-    put_file("outer_boundary.geojson", folder_name)
-    put_file("stations.geojson", folder_name)
+        put_file("state.geojson", folder_name)
+        put_file("county.geojson", folder_name)
+        put_file("outer_boundary.geojson", folder_name)
+        put_file("stations.geojson", folder_name)
 
-    faasr_log("Completed get_geo_data_and_stations function.")
+        faasr_log("Completed get_geo_data_and_stations function.")
+
+    except Exception as e:
+        import traceback
+        faasr_log(f"Error in get_geo_data_and_stations function: {e}")
+        faasr_log(traceback.format_exc())
+        raise
