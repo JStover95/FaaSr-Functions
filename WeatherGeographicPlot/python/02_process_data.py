@@ -212,8 +212,9 @@ def process_ghcnd_data(folder_name: str) -> None:
     faasr_log(f"Downloaded station data for {len(station_ids)} stations")
 
     # 3. Process all station data
-    last_week = datetime.now() - timedelta(days=28)
-    start_date = last_week - timedelta(days=last_week.weekday())
+    now = datetime.strptime(faasr_invocation_id(), "%Y-%m-%d-%H-%M-%S")
+    prev_week = now - timedelta(days=28)
+    start_date = prev_week - timedelta(days=prev_week.weekday())
     end_date = start_date + timedelta(days=6)
     temp_gdf = get_all_temperature_data(
         files,
@@ -222,7 +223,7 @@ def process_ghcnd_data(folder_name: str) -> None:
     )
 
     faasr_log(
-        f"Loaded {len(temp_gdf)} rows of temperature data for week starting {last_week}"
+        f"Loaded {len(temp_gdf)} rows of temperature data for week starting {prev_week}"
     )
 
     # 4. Upload the temperature data
