@@ -34,7 +34,7 @@
   "FunctionInvoke": "start",
   "DefaultDataStore": "S3",
   "FunctionGitRepo": {
-    "idigbio_media_download": "FaaSr/FaaSr-Functions"
+    "idigbio_media_download": "FaaSr/FaaSr-Functions/idigbio_media_download"
   },
   "FaaSrLog": "FaaSrLog",
   "LoggingDataStore": "S3",
