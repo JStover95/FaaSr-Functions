@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from FaaSr_py.client.py_client_stubs import (
     faasr_get_file,
     faasr_invocation_id,
@@ -260,6 +261,84 @@ def plot_county_weekly_temperature(folder_name: str, county_name: str):
     set_ticks(ax2, outer_gdf)
 
     # 7. Save the plot to a file and upload it to the S3 bucket
+    plt.tight_layout()
+    plt.savefig("TemperatureHeatmap.png")
+    put_file("TemperatureHeatmap.png", folder_name)
+    faasr_log(f"Uploaded temperature heatmap to {folder_name}/TemperatureHeatmap.png")
+
+
+def plot_county_weekly_temperature_ranked(
+    folder_name: str,
+    county_name: str,
+    num_ranks: int,
+):
+    """
+    Plot the weekly temperature for a given county, save the plot to a file, and upload
+    it to the S3 bucket.
+
+    Args:
+        folder_name: The name of the folder to get the input data from.
+    """
+    # 1. Load geographic data
+    outer_gdf = load_input_data(folder_name, "OuterBoundary.geojson")
+    state_gdf = load_input_data(folder_name, "State.geojson")
+    county_gdf = load_input_data(folder_name, "County.geojson")
+
+    # 2. Load temperature data
+    temp_gdfs = []
+    for rank in range(1, num_ranks + 1):
+        gdf = load_input_data(folder_name, f"TemperatureData_{rank}.geojson")
+        temp_gdfs.append(gdf)
+    temp_gdf = pd.concat(temp_gdfs)
+
+    # 3. Prepare the grid and points for heatmap interpolation
+    X_grid, Y_grid = create_grid(outer_gdf)
+    points = np.column_stack([temp_gdf.geometry.x, temp_gdf.geometry.y])
+
+    # 4. Plot the heatmaps
+    _, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+    now = datetime.strptime(faasr_invocation_id(), "%Y-%m-%d-%H-%M-%S")
+    prev_week = now - timedelta(days=28)
+    start_date = prev_week - timedelta(days=prev_week.weekday())
+    plt.suptitle(
+        f"Temperature Heatmap for {county_name} County for week starting {start_date.strftime('%a, %b %d, %Y')}"
+    )
+    create_heatmap(
+        ax1,
+        temp_gdf["TMIN"],
+        points,
+        X_grid,
+        Y_grid,
+        "Minimum Temperature Heatmap (°C)",
+        "Blues_r",
+    )
+    create_heatmap(
+        ax2,
+        temp_gdf["TMAX"],
+        points,
+        X_grid,
+        Y_grid,
+        "Maximum Temperature Heatmap (°C)",
+        "Reds",
+    )
+
+    # 5. Add geographic boundaries to both subplots
+    add_boundaries(ax1, state_gdf)
+    add_boundaries(ax1, county_gdf)
+    add_boundaries(ax2, state_gdf)
+    add_boundaries(ax2, county_gdf)
+
+    # 6. Set each plot's limits and aspect ratio
+    set_limits(ax1, outer_gdf)
+    set_limits(ax2, outer_gdf)
+    set_aspect_ratio(ax1, county_gdf)
+    set_aspect_ratio(ax2, county_gdf)
+
+    # 7. Set ticks to every 0.5 degrees
+    set_ticks(ax1, outer_gdf)
+    set_ticks(ax2, outer_gdf)
+
+    # 8. Save the plot to a file and upload it to the S3 bucket
     plt.tight_layout()
     plt.savefig("TemperatureHeatmap.png")
     put_file("TemperatureHeatmap.png", folder_name)
