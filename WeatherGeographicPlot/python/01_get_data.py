@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 import requests
 from FaaSr_py.client.py_client_stubs import (
@@ -207,6 +208,70 @@ def get_geo_data_and_stations(
     county.to_file("County.geojson", driver="GeoJSON")
     outer_boundary.to_file("OuterBoundary.geojson", driver="GeoJSON")
     stations.to_file("Stations.geojson", driver="GeoJSON")
+
+    put_file("State.geojson", folder_name)
+    put_file("County.geojson", folder_name)
+    put_file("OuterBoundary.geojson", folder_name)
+    put_file("Stations.geojson", folder_name)
+
+    faasr_log("Completed get_geo_data_and_stations function.")
+
+
+def get_geo_data_and_stations_ranked(
+    folder_name: str,
+    state_name: str,
+    county_name: str,
+    num_ranks: int,
+) -> None:
+    """
+    Get the geographic boundaries and stations for a given state and county. This will
+    download the geographic boundary data from the Census Bureau and then filter the
+    data to the given state and county. It will then get the stations with TMAX and
+    TMIN data on or after the given year.
+
+    Args:
+        folder_name: The name of the folder to upload the data to.
+        state_name: The name of the state to get the boundaries for.
+        county_name: The name of the county to get the boundaries for.
+    """
+    # 1. Download geographic boundary data
+    download_data(
+        "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_20m.zip",
+        "states.zip",
+    )
+    download_data(
+        "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_county_5m.zip",
+        "counties.zip",
+    )
+    faasr_log(f"Downloaded boundary data for {state_name} and {county_name} county.")
+
+    # 2. Get geographic boundary data
+    state, county = get_geo_boundaries(state_name, county_name)
+    faasr_log(f"Retrieved geographic data for {state_name} and {county_name} county.")
+
+    # 3. Calculate the outer boundary for station selection
+    outer_boundary = get_outer_boundary(county)
+
+    # 4. Download station data
+    year = str(datetime.now().year)
+    stations = get_stations(year)
+    faasr_log(f"Downloaded {len(stations)} stations with data for {year} or later.")
+
+    # 5. Get stations within the outer boundary
+    stations = stations.overlay(outer_boundary, how="intersection")
+    faasr_log(f"Filtered stations to {len(stations)} within the outer boundary.")
+
+    # 6. Chunk stations into num_ranks groups
+    stations: list[gpd.GeoDataFrame] = np.array_split(stations, num_ranks)
+
+    # 7. Upload the data
+    state.to_file("State.geojson", driver="GeoJSON")
+    county.to_file("County.geojson", driver="GeoJSON")
+    outer_boundary.to_file("OuterBoundary.geojson", driver="GeoJSON")
+
+    for i, station_group in enumerate(stations):
+        station_group.to_file(f"Stations_{i + 1}.geojson", driver="GeoJSON")
+        put_file(f"Stations_{i + 1}.geojson", folder_name)
 
     put_file("State.geojson", folder_name)
     put_file("County.geojson", folder_name)
