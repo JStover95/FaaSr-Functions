@@ -2,7 +2,7 @@
   "ActionList": {
     "GetData": {
       "Arguments": {
-        "folder_name": "WeatherGeographicPlot",
+        "folder_name": "WeatherGeographicPlotRanked",
         "state_name": "Oregon",
         "county_name": "Benton",
         "num_ranks": 4
@@ -14,7 +14,7 @@
     },
     "ProcessData": {
       "Arguments": {
-        "folder_name": "WeatherGeographicPlot"
+        "folder_name": "WeatherGeographicPlotRanked"
       },
       "InvokeNext": ["PlotData"],
       "FaaSServer": "GH",
@@ -23,7 +23,7 @@
     },
     "PlotData": {
       "Arguments": {
-        "folder_name": "WeatherGeographicPlot",
+        "folder_name": "WeatherGeographicPlotRanked",
         "county_name": "Benton",
         "num_ranks": 4
       },
@@ -39,14 +39,14 @@
       "UseSecretStore": true,
       "ActionRepoName": "FaaSr-workflow",
       "Branch": "main",
-      "UserName": "YOUR_USERNAME"
+      "UserName": "JStover95"
     }
   },
   "DataStores": {
     "S3": {
       "Writable": "TRUE",
-      "Endpoint": "https://play.min.io",
-      "Bucket": "faasr",
+      "Endpoint": "https://s3.us-east-1.amazonaws.com",
+      "Bucket": "faasr-sample-functions",
       "Region": "us-east-1"
     }
   },
