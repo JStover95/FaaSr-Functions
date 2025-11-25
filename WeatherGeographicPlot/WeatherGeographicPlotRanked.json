@@ -58,14 +58,14 @@
   "FunctionInvoke": "GetData",
   "DefaultDataStore": "S3",
   "FunctionGitRepo": {
-    "get_geo_data_and_stations": "FaaSr/FaaSr-Functions/WeatherGeographicPlot/python",
-    "process_ghcnd_data": "FaaSr/FaaSr-Functions/WeatherGeographicPlot/python",
-    "plot_county_weekly_temperature": "FaaSr/FaaSr-Functions/WeatherGeographicPlot/python"
+    "get_geo_data_and_stations_ranked": "FaaSr/FaaSr-Functions/WeatherGeographicPlot/python",
+    "process_ghcnd_data_ranked": "FaaSr/FaaSr-Functions/WeatherGeographicPlot/python",
+    "plot_county_weekly_temperature_ranked": "FaaSr/FaaSr-Functions/WeatherGeographicPlot/python"
   },
   "PyPIPackageDownloads": {
-    "get_geo_data_and_stations": ["geopandas"],
-    "process_ghcnd_data": ["geopandas"],
-    "plot_county_weekly_temperature": [
+    "get_geo_data_and_stations_ranked": ["geopandas"],
+    "process_ghcnd_data_ranked": ["geopandas"],
+    "plot_county_weekly_temperature_ranked": [
       "geopandas",
       "matplotlib",
       "numpy",
@@ -74,6 +74,6 @@
   },
   "FaaSrLog": "FaaSrLog",
   "LoggingDataStore": "S3",
-  "WorkflowName": "WeatherGeographicPlot",
+  "WorkflowName": "WeatherGeographicPlotRanked",
   "InvocationIDFromDate": "%Y-%m-%d-%H-%M-%S"
 }
