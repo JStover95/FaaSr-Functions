@@ -10,6 +10,7 @@ Functions and workflow configurations for the basic FaaSr tutorial.
 - tutorialRpy.json: basic FaaSr tutorial workflow with one R function (create_sample_data) and one Python function (compute_sum) and using GitHub Actions
 
 ### Additional workflows
+- tutorialLarger.json: a larger workflow graph consisting of multiple R functions, including a different implementation of compute_sum which uses Arrow
 - tutorialOW.json: basic FaaSr tutorial workflow using OpenWhisk for compute_sum function. Requires an OpenWhisk server and `OW_APIkey` secret
 
 ## Functions

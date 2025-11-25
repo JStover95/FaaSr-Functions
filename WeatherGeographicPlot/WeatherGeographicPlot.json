@@ -6,9 +6,7 @@
         "state_name": "Oregon",
         "county_name": "Benton"
       },
-      "InvokeNext": [
-        "ProcessData"
-      ],
+      "InvokeNext": ["ProcessData"],
       "FaaSServer": "GH",
       "Type": "Python",
       "FunctionName": "get_geo_data_and_stations"
@@ -17,9 +15,7 @@
       "Arguments": {
         "folder_name": "WeatherGeographicPlot"
       },
-      "InvokeNext": [
-        "PlotData"
-      ],
+      "InvokeNext": ["PlotData"],
       "FaaSServer": "GH",
       "Type": "Python",
       "FunctionName": "process_ghcnd_data"
@@ -47,7 +43,7 @@
   "DataStores": {
     "S3": {
       "Writable": "TRUE",
-      "Endpoint": "https://play.mini.io",
+      "Endpoint": "https://play.min.io",
       "Bucket": "faasr",
       "Region": "us-east-1"
     }
@@ -65,12 +61,8 @@
     "plot_county_weekly_temperature": "FaaSr/FaaSr-Functions/WeatherGeographicPlot/python"
   },
   "PyPIPackageDownloads": {
-    "get_geo_data_and_stations": [
-      "geopandas"
-    ],
-    "process_ghcnd_data": [
-      "geopandas"
-    ],
+    "get_geo_data_and_stations": ["geopandas"],
+    "process_ghcnd_data": ["geopandas"],
     "plot_county_weekly_temperature": [
       "geopandas",
       "matplotlib",

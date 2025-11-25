@@ -970,7 +970,7 @@ After opening the Workflow Builder, we will first add a compute server. Click **
 
 ### 2. Set Up our Data Store
 
-Click **Edit Data Stores**. Then, enter the endpoint, bucket, and region that was used in the tutorial (see [Prerequisites](#prerequisites)). For **Endpoint**, **Bucket**, and **Region** enter `https://play.mini.io`, `faasr`, and `us-east-1`.
+Click **Edit Data Stores**. Then, enter the endpoint, bucket, and region that was used in the tutorial (see [Prerequisites](#prerequisites)). For **Endpoint**, **Bucket**, and **Region** enter `https://play.min.io`, `faasr`, and `us-east-1`.
 
 > ℹ️ This workflow uses MinIO, but it is possible to bring your own S3 data store, like AWS S3. See the documentation for more details [https://faasr.io/FaaSr-Docs/workflows/#data-stores](https://faasr.io/FaaSr-Docs/workflows/#data-stores).
 
