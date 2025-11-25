@@ -263,6 +263,8 @@ def get_geo_data_and_stations_ranked(
 
     # 6. Chunk stations into num_ranks groups
     stations: list[gpd.GeoDataFrame] = np.array_split(stations, num_ranks)
+    lengths = [len(station_group) for station_group in stations]
+    faasr_log(f"Chunks stations into {num_ranks} groups with lengths {lengths}.")
 
     # 7. Upload the data
     state.to_file("State.geojson", driver="GeoJSON")
