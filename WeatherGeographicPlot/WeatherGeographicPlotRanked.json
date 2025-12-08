@@ -7,7 +7,7 @@
         "county_name": "Benton",
         "num_ranks": 4
       },
-      "InvokeNext": ["ProcessData"],
+      "InvokeNext": ["ProcessData(4)"],
       "FaaSServer": "GH",
       "Type": "Python",
       "FunctionName": "get_geo_data_and_stations_ranked"
