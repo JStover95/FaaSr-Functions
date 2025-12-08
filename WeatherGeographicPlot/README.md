@@ -29,6 +29,7 @@
 - Using timestamp invocation IDs
 - Writing functions
 - Adding Python packages
+- Creating ranked workflows for parallel processing
 
 ## Introduction
 
@@ -42,7 +43,19 @@ flowchart LR
   B --> C["Plot Data"]
 ```
 
-This tutorial highlights using timestamped invocation IDs and using the workflow's invocation ID to create a unique folder for each workflow run. For example:
+This tutorial also includes a section on creating a ranked workflow variant that processes data in parallel (see [Create a Ranked Workflow](#create-a-ranked-workflow)). Instead of processing all data sequentially, the ranked workflow splits data into multiple chunks and processes them concurrently, which can significantly reduce execution time for large datasets. The ranked workflow structure is shown below:
+
+```mermaid
+flowchart LR
+  A["Get Data"] --> B1["Process Data<br/>(Rank 1)"]
+  A --> B2["..."]
+  A --> B3["Process Data<br/>(Rank n)"]
+  B1 --> C["Plot Data"]
+  B2 --> C
+  B3 --> C
+```
+
+This tutorial also highlights using timestamped invocation IDs and using the workflow's invocation ID to create a unique folder for each workflow run. For example:
 
 ```plaintext
 bucket-name/
@@ -1210,3 +1223,49 @@ temp_gdf = pd.concat(temp_gdfs)
 ```
 
 The rest of the plotting logic remains the same as the non-ranked version. We now work with the aggregated temperature data from all parallel invocations, combining all the results into a single visualization.
+
+### Updating our Workflow
+
+Now that we've updated our function code to support ranked invocations, we need to modify our workflow configuration in the FaaSr Workflow Builder to enable parallel processing. We'll start with an existing workflow (either the one we built earlier or by uploading [WeatherGeographicPlot.json](./WeatherGeographicPlot.json)) and make the following changes.
+
+The final ranked workflow file can be found in [WeatherGeographicPlotRanked.json](./WeatherGeographicPlotRanked.json). You can visualize this workflow by clicking **Upload** from the Workflow Builder and either uploading the file or importing from its GitHub URL: [https://github.com/FaaSr/FaaSr-Functions/blob/main/WeatherGeographicPlot/WeatherGeographicPlotRanked.json](https://github.com/FaaSr/FaaSr-Functions/blob/main/WeatherGeographicPlot/WeatherGeographicPlotRanked.json).
+
+#### 1. Update Get Data Function
+
+Navigate to the **GetData** function in the Workflow Builder. We need to make two changes:
+
+First, update the **Function Name** from `get_geo_data_and_stations` to `get_geo_data_and_stations_ranked`.
+
+Next, we need to add the `num_ranks` argument. Under **Arguments**, click **Add New Arguments** and add:
+
+- `num_ranks`: 4
+
+> ℹ️ This parameter does not tell FaaSr to use ranked invocations. Instead, this parameter is a helper parameter for our function to chunk data properly.
+
+Next, we must tell FaaSr to invoke our **ProcessData** function with a rank of 4. In the left-hand menu, scroll down to **Next Actions to Invoke**. Here, we can change the rank of our **ProcessData** invocation by changing the rank from one to four, as in the screenshot below.
+
+![Set ranked invocation screenshot](../assets/weather-geographic-plot-ranked-4-600px.png)
+
+#### 2. Update Process Data Function
+
+Navigate to the **ProcessData** function. Update the **Function Name** from `process_ghcnd_data` to `process_ghcnd_data_ranked`.
+
+#### 3. Update Plot Data Function
+
+Navigate to the **PlotData** function. Update the **Function Name** from `plot_county_weekly_temperature` to `plot_county_weekly_temperature_ranked`.
+
+Like our **GetData** function, add the `num_ranks` argument by clicking **Add New Arguments** and entering:
+
+- `num_ranks`: 4
+
+#### 4. Update Workflow Settings
+
+Click **Workflow Settings** and update the **Workflow Name** from `WeatherGeographicPlot` to `WeatherGeographicPlotRanked`. This helps distinguish the ranked workflow from the original sequential workflow.
+
+All other settings (Entry Point, InvocationID format, etc.) remain the same.
+
+With these changes complete, your workflow is configured for parallel processing. When you invoke this workflow, FaaSr will:
+
+1. Run `GetData` once, which splits stations into 4 chunks
+2. Run `ProcessData` 4 times in parallel, with each instance processing one chunk of stations
+3. Run `PlotData` once, which aggregates all 4 temperature data files and creates the final visualization
