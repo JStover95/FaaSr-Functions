@@ -240,7 +240,9 @@ def process_ghcnd_data_ranked(folder_name: str) -> None:
     output data to the FaaSr bucket.
     """
     # 1. Get the rank of the current function
-    rank, max_rank = faasr_rank()
+    rank_data = faasr_rank()
+    rank = rank_data["rank"]
+    max_rank = rank_data["max_rank"]
     faasr_log(f"Rank: {rank} of {max_rank}")
 
     # 2. Load input data
