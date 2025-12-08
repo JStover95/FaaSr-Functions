@@ -278,6 +278,8 @@ def get_geo_data_and_stations_ranked(
     put_file("State.geojson", folder_name)
     put_file("County.geojson", folder_name)
     put_file("OuterBoundary.geojson", folder_name)
-    put_file("Stations.geojson", folder_name)
+
+    for i in range(num_ranks):
+        put_file(f"Stations_{i + 1}.geojson", folder_name)
 
     faasr_log("Completed get_geo_data_and_stations function.")
