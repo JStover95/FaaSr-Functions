@@ -8,6 +8,7 @@ from FaaSr_py.client.py_client_stubs import (
     faasr_invocation_id,
     faasr_log,
     faasr_put_file,
+    faasr_rank,
 )
 from shapely.geometry import Point
 
@@ -229,5 +230,48 @@ def process_ghcnd_data(folder_name: str) -> None:
     # 4. Upload the temperature data
     temp_gdf.to_file("TemperatureData.geojson", driver="GeoJSON")
     put_file("TemperatureData.geojson", folder_name)
+
+    faasr_log(f"Saved temperature data to FaaSr bucket {folder_name}")
+
+
+def process_ghcnd_data_ranked(folder_name: str) -> None:
+    """
+    Process the GHCND temperature data for the selected stations and upload the
+    output data to the FaaSr bucket.
+    """
+    # 1. Get the rank of the current function
+    rank_data = faasr_rank()
+    rank = rank_data["rank"]
+    max_rank = rank_data["max_rank"]
+    faasr_log(f"Rank: {rank} of {max_rank}")
+
+    # 2. Load input data
+    get_file(f"Stations_{rank}.geojson", folder_name)
+    stations = gpd.read_file(f"Stations_{rank}.geojson")
+    faasr_log(f"Loaded input data from folder {folder_name}")
+
+    # 3. Download station data
+    station_ids = stations["Station ID"].tolist()
+    files = download_all_stations(station_ids)
+    faasr_log(f"Downloaded station data for {len(station_ids)} stations")
+
+    # 4. Process all station data
+    now = datetime.strptime(faasr_invocation_id(), "%Y-%m-%d-%H-%M-%S")
+    prev_week = now - timedelta(days=28)
+    start_date = prev_week - timedelta(days=prev_week.weekday())
+    end_date = start_date + timedelta(days=6)
+    temp_gdf = get_all_temperature_data(
+        files,
+        start_date.strftime("%Y-%m-%d"),
+        end_date.strftime("%Y-%m-%d"),
+    )
+
+    faasr_log(
+        f"Loaded {len(temp_gdf)} rows of temperature data for week starting {prev_week}"
+    )
+
+    # 5. Upload the temperature data
+    temp_gdf.to_file(f"TemperatureData_{rank}.geojson", driver="GeoJSON")
+    put_file(f"TemperatureData_{rank}.geojson", folder_name)
 
     faasr_log(f"Saved temperature data to FaaSr bucket {folder_name}")
