@@ -1,5 +1,15 @@
+import random
+
 import requests
-from FaaSr_py.client.py_client_stubs import faasr_log, faasr_put_file
+from FaaSr_py.client.py_client_stubs import (
+    faasr_log,
+    faasr_put_file,
+    faasr_return,
+)
+
+
+def file_exists() -> bool:
+    return random.randint(0, 1) == 1
 
 
 def build_url(station_id: str) -> str:
@@ -70,3 +80,12 @@ def get_ghcnd_data(folder_name: str, output_name: str, station_id: str):
     )
 
     faasr_log(f"Uploaded data to {folder_name}/{output_name}")
+
+
+def get_ghcnd_data_conditional(folder_name: str, output_name: str, station_id: str):
+    if file_exists():
+        faasr_log(f"File exists, downloading data from {station_id}")
+        get_ghcnd_data(folder_name, output_name, station_id)
+    else:
+        faasr_log("File does not exist, returning False")
+        faasr_return(False)
