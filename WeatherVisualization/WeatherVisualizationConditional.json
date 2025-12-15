@@ -116,11 +116,6 @@
       "Endpoint": "https://play.min.io",
       "Bucket": "faasr",
       "Region": "us-east-1"
-    },
-    "PhilomathS3": {
-      "Endpoint": "https://play.min.io",
-      "Bucket": "philomath-data",
-      "Region": "us-east-1"
     }
   },
   "ActionContainers": {
@@ -136,7 +131,7 @@
   "DefaultDataStore": "S3",
   "FunctionGitRepo": {
     "get_ghcnd_data": "FaaSr/FaaSr-Functions/WeatherVisualization/python",
-    "get_ghcnd_data_conditional": "JStover95/FaaSr-Functions/WeatherVisualization/python",
+    "get_ghcnd_data_conditional": "FaaSr/FaaSr-Functions/WeatherVisualization/python",
     "compare_to_yearly_average": "FaaSr/FaaSr-Functions/WeatherVisualization/python",
     "plot_weather_comparison": "FaaSr/FaaSr-Functions/WeatherVisualization/python"
   },
@@ -146,5 +141,5 @@
   },
   "FaaSrLog": "FaaSrLog",
   "LoggingDataStore": "S3",
-  "WorkflowName": "WeatherVisualization"
+  "WorkflowName": "WeatherVisualizationConditional"
 }
