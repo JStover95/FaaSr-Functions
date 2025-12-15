@@ -86,6 +86,7 @@ def get_ghcnd_data_conditional(folder_name: str, output_name: str, station_id: s
     if file_exists():
         faasr_log(f"File exists, downloading data from {station_id}")
         get_ghcnd_data(folder_name, output_name, station_id)
+        faasr_return(True)
     else:
         faasr_log("File does not exist, returning False")
         faasr_return(False)
