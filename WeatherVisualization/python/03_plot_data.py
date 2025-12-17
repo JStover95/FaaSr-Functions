@@ -244,3 +244,119 @@ def plot_weather_comparison(
     )
 
     faasr_log(f"Uploaded plot to {folder_name}/{output_name}")
+
+
+def plot_weather_comparison_data_stores(
+    folder_name: str,
+    input_precip_name: str,
+    input_min_temp_name: str,
+    input_max_temp_name: str,
+    location: str,
+    output_name: str,
+):
+    """
+    Create a combined plot with three subplots: precipitation, min temp, and max temp.
+
+    Args:
+        folder_name: The name of the folder to get the input data from.
+        input_precip_name: The name of the input file to get the precipitation data from.
+        input_min_temp_name: The name of the input file to get the minimum temperature data from.
+        input_max_temp_name: The name of the input file to get the maximum temperature data from.
+        location: The location of the weather data.
+        output_name: The name of the output file to save the plot to.
+    """
+
+    # 1. Get the input data
+    current_year_precip, prev_years_precip = get_input_data(
+        folder_name,
+        input_precip_name,
+    )
+
+    faasr_log(f"Loaded precipitation data from {folder_name}/{input_precip_name}")
+
+    current_year_min_temp, prev_years_min_temp = get_input_data(
+        folder_name,
+        input_min_temp_name,
+    )
+
+    faasr_log(
+        f"Loaded minimum temperature data from {folder_name}/{input_min_temp_name}"
+    )
+
+    current_year_max_temp, prev_years_max_temp = get_input_data(
+        folder_name,
+        input_max_temp_name,
+    )
+
+    faasr_log(
+        f"Loaded maximum temperature data from {folder_name}/{input_max_temp_name}"
+    )
+
+    # 2. Prepare the data for plotting
+    current_year, prev_years = prepare_data(
+        current_year_precip,
+        current_year_min_temp,
+        current_year_max_temp,
+        prev_years_precip,
+        prev_years_min_temp,
+        prev_years_max_temp,
+    )
+
+    faasr_log("Prepared data for plotting")
+
+    # 3. Create the figure with 3 subplots
+    _, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 10))
+    plt.suptitle(f"Current Year Weather Data with 10 Year Average for {location}")
+
+    # Precipitation subplot
+    plot_subplot(
+        ax=ax1,
+        x_data=current_year["DAY"],
+        y_data=current_year["PRCP"],
+        prev_years_x_data=prev_years["DAY"],
+        prev_years_y_data=prev_years["PRCP"],
+        title="Precipitation",
+        ylabel="Precipitation (mm)",
+    )
+
+    faasr_log("Plotted precipitation subplot")
+
+    # Maximum temperature subplot
+    plot_subplot(
+        ax=ax2,
+        x_data=current_year["DAY"],
+        y_data=current_year["TMAX"],
+        prev_years_x_data=prev_years["DAY"],
+        prev_years_y_data=prev_years["TMAX"],
+        title="Maximum Temperature",
+        ylabel="Temperature (°C)",
+    )
+
+    faasr_log("Plotted maximum temperature subplot")
+
+    # Minimum temperature subplot
+    plot_subplot(
+        ax=ax3,
+        x_data=current_year["DAY"],
+        y_data=current_year["TMIN"],
+        prev_years_x_data=prev_years["DAY"],
+        prev_years_y_data=prev_years["TMIN"],
+        title="Minimum Temperature",
+        ylabel="Temperature (°C)",
+    )
+
+    faasr_log("Plotted minimum temperature subplot")
+
+    # 4. Save the plot to a file and upload it to the S3 bucket
+    plt.tight_layout()
+    plt.savefig(output_name)
+    plt.close()
+
+    faasr_put_file(
+        local_file=output_name,
+        remote_folder=folder_name,
+        remote_file=output_name,
+        server_name="Backblaze",
+    )
+
+    faasr_log(f"Uploaded plot to {folder_name}/{output_name}")
