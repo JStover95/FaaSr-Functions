@@ -1,5 +1,22 @@
+import random
+
 import requests
-from FaaSr_py.client.py_client_stubs import faasr_log, faasr_put_file
+from FaaSr_py.client.py_client_stubs import (
+    faasr_log,
+    faasr_put_file,
+    faasr_return,
+)
+
+
+def file_exists() -> bool:
+    """
+    Check if a file exists in the S3 bucket. This function is only a placeholder for a real file
+    existence check.
+
+    Returns:
+        True if the file exists, False otherwise.
+    """
+    return random.randint(0, 1) == 1
 
 
 def build_url(station_id: str) -> str:
@@ -70,3 +87,26 @@ def get_ghcnd_data(folder_name: str, output_name: str, station_id: str):
     )
 
     faasr_log(f"Uploaded data to {folder_name}/{output_name}")
+
+
+def get_ghcnd_data_conditional(folder_name: str, output_name: str, station_id: str):
+    """
+    Conditionally download data from the NOAA Global Historical Climatology Network Daily (GHCND)
+    dataset for a specific station and upload it to an S3 bucket.
+
+    This function mimics a conditional step in a workflow, where if the file exists, the function
+    returns True. Otherwise, if the file does not exist, the function returns False.
+
+    Args:
+        folder_name: The name of the folder to upload the data to.
+        output_name: The name of the file to upload the data to.
+        station_id: The ID of the station to download the data from.
+    """
+
+    if file_exists():
+        faasr_log(f"File exists, downloading data from {station_id}")
+        get_ghcnd_data(folder_name, output_name, station_id)
+        faasr_return(True)
+    else:
+        faasr_log("File does not exist, returning False")
+        faasr_return(False)
