@@ -26,6 +26,9 @@
 - [Create a Conditional Workflow](#create-a-conditional-workflow)
   - [Updating our Function Code](#updating-our-function-code)
   - [Updating our Workflow](#updating-our-workflow)
+- [Create a Data Stores Workflow](#create-a-data-stores-workflow)
+  - [Updating our Function Code for Data Stores](#updating-our-function-code-for-data-stores)
+  - [Updating our Workflow for Data Stores](#updating-our-workflow-for-data-stores)
 
 ## Key Topics
 
@@ -35,6 +38,7 @@
 - Adding Python packages
 - Workflow Builder GUI
 - Creating conditional workflows
+- Using custom data stores
 
 ## Introduction
 
@@ -56,7 +60,13 @@ flowchart LR
   02c --> 03
 ```
 
-This tutorial also includes a section on creating a conditional workflow variant (see [Create a Conditional Workflow](#create-a-conditional-workflow)). The conditional workflow demonstrates how to use conditional invocations to automatically fall back to alternative data sources when primary data is unavailable. In this example, the workflow attempts to use precipitation data from a weather station in Philomath, OR, but falls back to Corvallis data if Philomath data is not available. The conditional workflow structure is shown below:
+This tutorial also includes sections on creating workflow variants:
+
+- **Conditional Workflow** (see [Create a Conditional Workflow](#create-a-conditional-workflow)): Demonstrates how to use conditional invocations to automatically fall back to alternative data sources when primary data is unavailable. In this example, the workflow attempts to use precipitation data from a weather station in Philomath, OR, but falls back to Corvallis data if Philomath data is not available.
+
+- **Data Stores Workflow** (see [Create a Data Stores Workflow](#create-a-data-stores-workflow)): Demonstrates how to use multiple data stores within a single workflow, allowing you to store outputs in different locations. In this example, intermediate data is stored in the default S3 data store, while the final visualization is uploaded to a Backblaze B2 data store.
+
+The conditional workflow structure is shown below:
 
 ```mermaid
 flowchart LR
@@ -1090,3 +1100,115 @@ With these changes complete, your workflow is configured for conditional process
 5. `PlotData` creates the final visualization using either Philomath or Corvallis precipitation data, along with Corvallis temperature data
 
 This conditional workflow allows you to automatically fall back to Corvallis precipitation data when Philomath data is unavailable, ensuring your workflow completes successfully regardless of data availability.
+
+## Create a Data Stores Workflow
+
+This section demonstrates how to modify the workflow to use multiple data stores. In this scenario, we want to upload the final visualization to a different data store than the default one. This is useful when you need to store outputs in a separate location, such as a different S3-compatible service like Backblaze B2, while keeping intermediate data in your primary data store.
+
+The data stores variant of our workflow includes:
+
+- [`plot_weather_comparison_data_stores`](./python/03_plot_data.py): A function that uploads the final visualization to a specific data store using the `server_name` parameter
+
+The final data stores workflow file can be found in [WeatherVisualizationDataStores.json](./WeatherVisualizationDataStores.json). You can visualize this workflow by clicking **Upload** from the Workflow Builder and either uploading the file or importing from its GitHub URL: [https://github.com/FaaSr/FaaSr-Functions/blob/main/WeatherVisualization/WeatherVisualizationDataStores.json](https://github.com/FaaSr/FaaSr-Functions/blob/main/WeatherVisualization/WeatherVisualizationDataStores.json).
+
+### Creating a Bucket on Backblaze
+
+#### 1. Create an Account
+
+To get started with Backblaze, navigate to [https://www.backblaze.com/](https://www.backblaze.com/) to create an account. No credit card is required for the first 10 GB of S3 storage.
+
+#### 2. Create a Bucket
+
+After creating an account and logging in, click on **Create Bucket**. In the popup menu, enter a unique name for the bucket. For this tutorial, you can leave the remaining settings as their defaults. Then, click **Create a Bucket** to create the bucket.
+
+After creating your bucket, note the bucket's **Endpoint**. Depending on your account's region, it may appear as `s3.us-east-005.backblazeb2.com`.
+
+#### 3. Create your Bucket's Access Credentials
+
+Next, in the left-hand menu click **Application Keys**. Under **Your Application Keys**, click **Add a New Application Key**. In the popup, enter a descriptive name for your key. In the **Allow access to Buckets** dropdown, select the bucket you just created. This is optional, but recommended. For this tutorial, leave all other options as their default values. Finally, click **Create New Key**.
+
+Next, note the **keyId** and **applicationKey** values that Backblaze generated. You will need these for the next step.
+
+#### 4. Store your Bucket's Access Credentials
+
+Next, navigate to your FaaSr-workflow GitHub repo to store your credentials. CLick on **Settings**, then in the left-hand menu click **Secrets and variables** and then **Actions**.
+
+Click on **New repository secret** and enter the name as `BACKBLAZE_ACCESSKEY` and enter the **keyId** from the previous step as the value. Then, create a second secret named `BACKBLAZE_SECRETKEY` with the **applicationKey** value from the previous step.
+
+> ℹ️ The prefix to any access key/secret key pair that you add to your Github repository must match the name of your custom datastore (case-insensitive). For example, a custom data store named `PersonalS3` would require secrets `PERSONALS3_ACCESSKEY` and `PERSONALS3_SECRETKEY`.
+
+Your bucket and repository are now ready to use your custom Backblaze data store.
+
+### Updating our Function Code for Data Stores
+
+#### `03_plot_data.py`
+
+In `plot_weather_comparison_data_stores`, we will modify the function to specify which data store to use when uploading the final visualization.
+
+The key change is in the `faasr_put_file` call. Instead of using the default data store, we specify the `server_name` parameter to upload to a specific data store:
+
+```python
+faasr_put_file(
+    local_file=output_name,
+    remote_folder=folder_name,
+    remote_file=output_name,
+    server_name="Backblaze",
+)
+```
+
+The `server_name` parameter must match the name of a data store defined in your workflow's **DataStores** configuration. In this example, we use `"Backblaze"` to upload to the Backblaze data store, while all other functions continue to use the default S3 data store.
+
+> ℹ️ The `server_name` parameter is optional. If omitted, `faasr_put_file` will use the workflow's default data store. You can also use `server_name` with `faasr_get_file` to read from a specific data store.
+
+The rest of the function remains identical to `plot_weather_comparison`. The only difference is the addition of the `server_name` parameter in the final `faasr_put_file` call.
+
+### Updating our Workflow for Data Stores
+
+Now that we've updated our function code to support multiple data stores, we need to modify our workflow configuration in the FaaSr Workflow Builder. We'll start with an existing workflow (either the one we built earlier or by uploading [WeatherVisualization.json](./WeatherVisualization.json)) and make the following changes.
+
+#### 1. Add Additional Data Store
+
+Click **Edit Data Stores** in the Workflow Builder. You should see your existing data store (e.g., `S3`). To add a second data store, click **Add New Data Store** or a similar button in the data stores configuration panel.
+
+In the popup menu, enter `Backblaze` for the data store name and click **Create New Data Store**.
+
+> ℹ️ You can add multiple data stores to your workflow. Each data store must have a unique name that matches the `server_name` parameter used in your function code.
+
+Your data stores configuration should now show both `S3` and `Backblaze` data stores.
+
+![New datastore screenshot](../assets/weather-visualization-workflow-new-datastore-600px.png)
+
+Next, click on the **Backblaze** data store that you just created to edit its configuration, then enter your bucket's endpoint and name and the region of your account. Your config should look similar to the following:
+
+![Custom datastore config screenshot](../assets/weather-visualization-workflow-datastore-config-600px.png)
+
+#### 2. Update Plot Data Function
+
+Navigate to the `PlotData` function in the Workflow Builder. We need to update the function to use the data stores variant.
+
+Update the **Function Name** from `plot_weather_comparison` to `plot_weather_comparison_data_stores`. This tells FaaSr to use the function that includes the `server_name` parameter in its `faasr_put_file` call.
+
+All other configuration (arguments, Python packages, etc.) remains the same as the original `PlotData` function.
+
+#### 3. Update Workflow Settings
+
+Click **Workflow Settings** and set the **Workflow Name** to `WeatherVisualizationDataStores`. The **Entry Point** should remain `GetData`.
+
+The **Default Data Store** should remain set to `S3` (or your primary data store). This ensures that all functions without an explicit `server_name` parameter will continue to use the default data store.
+
+All other settings remain the same as the original workflow.
+
+### How the Data Stores Workflow Works
+
+With these changes complete, your workflow is configured to use multiple data stores. When you invoke this workflow, FaaSr will:
+
+1. All functions (`GetData`, `ProcessPrecipitation`, `ProcessTemperatureMin`, `ProcessTemperatureMax`) continue to read from and write to the default S3 data store
+2. `PlotData` reads input data from the default S3 data store (since `faasr_get_file` doesn't specify a `server_name`)
+3. `PlotData` creates the final visualization and uploads it to the Backblaze data store (because `faasr_put_file` specifies `server_name="Backblaze"`)
+
+This data stores workflow allows you to:
+- Keep intermediate processing data in your primary data store (S3)
+- Store final outputs in a separate data store (Backblaze) for distribution, backup, or compliance reasons
+- Use different data stores for different purposes within the same workflow
+
+> ℹ️ You can use `server_name` with both `faasr_get_file` and `faasr_put_file` to read from or write to any data store defined in your workflow, giving you fine-grained control over where data is stored and retrieved.
